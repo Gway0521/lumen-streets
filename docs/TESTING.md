@@ -31,6 +31,7 @@ Alternatively, set `PLAYWRIGHT_MODULE` to the absolute `index.mjs` path of an ex
 | `check-art-browser.mjs` | Captions, icon space, actual PNG/GIF/15-second video and layouts |
 | `check-landmarks-browser.mjs` | Eight-map labels, source-based lighting, small roads and mobile layouts |
 | `check-upgrade-browser.mjs` | Appearance migration, long 1440p exports and storage failures |
+| `check-screen-ratio-browser.mjs` | Full-display export ratios independent of viewport size, rotation, both languages and actual PNGs; supports production builds and `BROWSER_TYPE=webkit` |
 
 Most instrumented checks need the dev server. `check-art-browser.mjs` supports `QA_PRODUCTION=1`; its synthetic painter checks are skipped for compiled builds. Art and landmark scripts accept `QA_BROWSER=webkit`; the art script skips video cases there. The beta script uses `BROWSER_TYPE=chromium|firefox|webkit` instead. Consult each script before selecting a browser.
 

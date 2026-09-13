@@ -1,7 +1,7 @@
 import { ensureTitleFonts } from "./title-fonts.ts";
 import { exportPNG, encodeCapturePNG, paintCapture } from "./png.ts";
 import { encodeCaptureGIF } from "./gif.ts";
-import { wallpaperPlan, videoSeconds } from "./framing.ts";
+import { wallpaperPlan, videoSeconds, screenDimensions } from "./framing.ts";
 import { t } from "../i18n.js";
 
 /** The host owns captures, jobs and result URLs; the editor is never used for encoding. */
@@ -9,6 +9,7 @@ export function createExportUI(getSource, toast) {
   const $ = id => document.getElementById(id);
   let controller, preview, source, blobURL, posterURL, creditURL, resultRelease, isGIF = false, revision = 0, drag;
   const video = format => format === "mp4" || format === "webm";
+  const displaySize = () => screenDimensions(globalThis.screen, globalThis.devicePixelRatio);
   const title = s => `Lumen Streets · ${s.name} · ${t(s.palette)}`;
   let videoModule, titlePlace;
   const loadVideo = () => videoModule ??= import("./video.ts").catch(error => { videoModule = undefined; throw error; });
@@ -86,7 +87,7 @@ export function createExportUI(getSource, toast) {
     }
   }
   function planFor(s, size, format) {
-    const plan = wallpaperPlan(s.view, s.engine.data.geometry.bounds, s.camera, size, format, Number($('capture-resolution').value));
+    const plan = wallpaperPlan(s.view, s.engine.data.geometry.bounds, s.camera, size, format, Number($('capture-resolution').value), s.screen);
     plan.view.labels = $('capture-labels').checked;
     return plan;
   }
@@ -139,7 +140,7 @@ export function createExportUI(getSource, toast) {
     const next = getSource(); if (!next) return;
     releasePreview();
     try {
-      source = { ...next, view: structuredClone(next.view), camera: next.engine.camera };
+      source = { ...next, view: structuredClone(next.view), camera: next.engine.camera, screen: displaySize() };
       if (titlePlace !== next.engine.data.id) { $('capture-title-text').value = next.name.slice(0,120); titlePlace = next.engine.data.id; }
       $('adjust-panel').hidden = true; $('adjust').setAttribute('aria-expanded','false');
       preview = next.engine.fork(); $("capture-dialog").showModal(); updatePreview();
@@ -147,6 +148,15 @@ export function createExportUI(getSource, toast) {
   }
   function cancel() { controller?.abort(); if ($("capture-dialog").open) $("capture-dialog").close(); releasePreview(); }
   $("export-options").onclick = open;
+  const refreshScreen = () => {
+    if (!source || !preview) return;
+    const next = displaySize();
+    if (next?.width === source.screen?.width && next?.height === source.screen?.height) return;
+    source.screen = next;
+    if ($('capture-size').value === 'current') updatePreview();
+  };
+  globalThis.addEventListener('resize', refreshScreen);
+  globalThis.screen?.orientation?.addEventListener?.('change', refreshScreen);
   for (const id of ["capture-format", "capture-size", "capture-credit", 'capture-resolution', 'capture-duration', 'capture-labels', 'capture-place-title', 'capture-title-corner', 'capture-title-size', 'capture-quiet-edge']) $(id).onchange = updatePreview;
   $('capture-quiet-strength').oninput = updatePreview;
   $('capture-title-text').oninput = updatePreview;
@@ -196,7 +206,7 @@ export function createExportUI(getSource, toast) {
     open, cancel,
     savePNG(mode) {
       const next = getSource(); if (!next) return;
-      const s = { ...next, view: structuredClone(next.view), camera: next.engine.camera };
+      const s = { ...next, view: structuredClone(next.view), camera: next.engine.camera, screen: displaySize() };
       if ($("notes").open) $("notes").close();
       if (mode === "study") return run(s, "-study", "png", (signal, onProgress) => exportPNG(s.engine, { mode, width: 1600, height: 1600, view: s.view, title: title(s), signal, onProgress }));
       const owned = next.engine.fork(), plan = planFor(s, "current", "png"); owned.setCamera(plan.camera);

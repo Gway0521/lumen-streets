@@ -59,10 +59,10 @@ async function download(name, expectedWidth, expectedHeight) {
 }
 async function referenceFrame(page) {
   return page.evaluate(async () => {
-    const { wallpaperPlan } = await import("/src/export/framing.ts");
+    const { wallpaperPlan, screenDimensions } = await import("/src/export/framing.ts");
     const { paintCapture } = await import("/src/export/png.ts");
     const live = window.__sceneQA.engine(), capture = live.fork();
-    const plan = wallpaperPlan(window.__sceneQA.view(), live.data.geometry.bounds, live.camera, "current", "png");
+    const plan = wallpaperPlan(window.__sceneQA.view(), live.data.geometry.bounds, live.camera, "current", "png", 1080, screenDimensions(screen, devicePixelRatio));
     const canvas = document.createElement("canvas"); canvas.width = plan.width; canvas.height = plan.height;
     try { capture.setCamera(plan.camera); paintCapture(capture, canvas, { ...plan, title: "Reference" }); return canvas.toDataURL(); }
     finally { capture.dispose(); canvas.width = canvas.height = 0; }
@@ -254,7 +254,7 @@ try {
     const dimensions = await phone
       .locator("#export-image")
       .evaluate((img) => [img.naturalWidth, img.naturalHeight]);
-    assert.deepEqual(dimensions, [702, 1519]);
+    assert.deepEqual(dimensions, [780, 1688]);
     const phoneDifference = await phone.evaluate(async (before) => {
       const pixels = async (url) => {
         const img = new Image();
@@ -275,7 +275,7 @@ try {
     }, phoneFrame);
     assert.equal(phoneDifference, 0);
     result.viewComparisons.push({
-      size: "702x1519",
+      size: "780x1688",
       locale: lang,
       differingChannelsAboveFooter: phoneDifference,
     });
@@ -292,7 +292,7 @@ try {
     await file.saveAs(`${output}/mobile-current-${lang}.png`);
     assert.equal(await file.failure(), null);
     result.checks.push(
-      `${lang} phone 390x844, touch, no overflow, actual 702x1519 PNG download`,
+      `${lang} phone 390x844, touch, no overflow, actual 780x1688 PNG download`,
     );
   }
   await mobile.close();

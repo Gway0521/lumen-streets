@@ -14,6 +14,8 @@ Open **Export**, choose a format and frame the scene. Drag, zoom or use the arro
 
 Desktop video sizes are 1920×1080 or 2560×1440. The 16:10 option uses 1920×1200 or 2560×1600; portrait reverses the 16:9 dimensions. Screen ratio uses a 1920 or 2560 px long edge.
 
+**Screen ratio** uses the full display dimensions reported by the browser, including the area occupied by browser and system bars. Resizing the browser window does not change that ratio. Rotating the device while the export dialog is open updates its preview. For example, a portrait 20:9 display produces 864×1920 video, and a landscape 16:10 display produces 1920×1200. PNG uses the reported screen size and pixel density, up to a 3840 px long edge. Browser privacy restrictions and CSS-pixel rounding can limit the accuracy of reported dimensions; video dimensions are rounded to even pixels. If screen dimensions are unavailable, the current canvas dimensions are used.
+
 MP4 is a useful first choice for video-wallpaper players; WebM is an alternative where supported. Videos are silent and restart with a cut. GIF is a small sharing preview.
 
 ## Framing and text
