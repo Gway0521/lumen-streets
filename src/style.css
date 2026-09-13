@@ -100,6 +100,14 @@ header > * {
   align-items: center;
   gap: 24px;
 }
+.github-link { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 32px; min-height: 32px; color: #c6c9c1; font-size: 13px; text-decoration: none; border-radius: 5px; }
+.github-link:hover, .export-project a:hover { color: var(--gold); }
+.github-link svg { flex: none; }
+.export-project { display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 12px; color: #bac8c7; font-size: 12px; }
+.export-project a { padding: 5px 0; text-underline-offset: 3px; }
+@media (max-width: 760px) { .github-link span { display: none; } }
+.quiet-icon { display: none; }
+.brand, .header-right > * { white-space: nowrap; flex-shrink: 0; }
 .header-right > span {
   color: #86979d;
   font-size: 12px;
@@ -716,11 +724,20 @@ nav { margin-top: 20px; }
 #notes .study-export { display: block; margin-top: 15px; text-align: left; font-size: 14px; }
 @media (max-width: 760px) {
   .brand { font-size: 19px; gap: 7px; }
-  .header-right { gap: 10px; }
+  .header-right { gap: 6px; }
   .header-right button { font-size: 12px; }
+  #quiet { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; min-height: 32px; }
+  #quiet span { display: none; }
+  .quiet-icon { display: block; }
   nav { margin-top: 0; }
   .buttons button { font-size: 12px; }
   .map-meta { max-width: calc(100% - 100px); }
+}
+@media (max-width: 370px) {
+  header { left: 16px; right: 16px; }
+  .brand { font-size: 17px; gap: 5px; }
+  .brand-icon { width: 28px; height: 28px; }
+  .header-right { gap: 4px; }
 }
 /* Place search keeps the existing nightscape visible behind a compact dialog. */
 #find-place { margin-top: 0; width: 100%; text-align: left; color: #e0bd82; }

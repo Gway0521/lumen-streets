@@ -8,6 +8,17 @@ async function walk(dir) { const entries=await readdir(dir,{withFileTypes:true})
 const files=await walk(root), relative=files.map(f=>path.relative(root,f).replaceAll('\\','/'));
 for(const name of ['index.html','player.html','gallery.html','scenes.html','wallpapers.html','third-party-notices.txt','mediabunny-license.txt','source.html','license.txt','lumen-streets-source.tar.gz'])assert(relative.includes(name),`Missing ${name}`);
 assert((await readFile(path.join(root,'license.txt'))).equals(await readFile('LICENSE')), 'Published license differs from LICENSE');
+// Social crawlers read the delivered HTML, not the running application.
+for (const name of ['index.html', 'player.html']) {
+  const html = await readFile(path.join(root, name), 'utf8');
+  assert(html.includes('name="twitter:card" content="summary_large_image"'), `Missing social card in ${name}`);
+  const image = html.match(/property="og:image" content="([^"]+)"/)?.[1];
+  assert(image && /^https?:$/.test(new URL(image).protocol), `Social image must be absolute in ${name}`);
+  assert(new URL(image).pathname.endsWith('/social-preview.jpg'), `Unexpected social image in ${name}`);
+}
+const preview = await readFile(path.join(root, 'social-preview.jpg'));
+const provenance = JSON.parse(await readFile('public/gallery/credits.json', 'utf8'));
+assert.equal(createHash('sha256').update(preview).digest('hex'), provenance.websitePreview.sha256, 'Social preview differs from its provenance');
 const archive = spawnSync('tar', ['-tzf', path.join(root,'lumen-streets-source.tar.gz')], {encoding:'utf8'});
 if(archive.error)throw archive.error;
 assert.equal(archive.status,0,archive.stderr);

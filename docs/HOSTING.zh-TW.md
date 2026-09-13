@@ -6,6 +6,16 @@ Lumen Streets 用一個 Node.js 24 程序提供網站與搜尋 API。繪圖和�
 
 ## 建置與啟動
 
+### 社群預覽與正式網址
+
+每次建置會由 Vite 設定將 Open Graph 與 Twitter card 標籤直接寫進編輯器及播放器的 HTML，並複製 `public/social-preview.jpg`。爬蟲不需要執行 JavaScript。預設使用官方 DEMO 網址 `https://lumenstreets.feifeihome.com/`。
+
+自行部署時，在**執行建置的電腦**建立被 Git 忽略的 `.env.production.local`，加入 `LUMEN_SITE_URL=https://night.example.com/`，再執行 `npm run pack:site`。子目錄部署需包含路徑，例如 `https://example.com/night/`。更新原始碼時保留這個檔案，或將變數設在建置系統；不要放入憑證。原始碼下載包不包含本機環境檔案。
+
+`LUMEN_SITE_URL` 是建置設定，與執行時的 API 設定 `LUMEN_PUBLIC_ORIGIN` 不同。上傳預先建置的部署包後，修改伺服器環境變數不會改變 HTML；需重新建置再部署。不要手改 `dist/index.html`，下次建置會覆蓋。官方 DEMO 的預設部署包不需額外設定。
+
+目前兩種語言與各播放器場景共用英文預覽卡，不會依網址片段產生個別城市縮圖。換圖時同步更新 `public/gallery/credits.json` 的來源紀錄，重新建置並等待平台刷新快取。GitHub Repo 的 Social preview 需另外在 Settings 上傳。
+
 在原始碼目錄執行：
 
 ```sh

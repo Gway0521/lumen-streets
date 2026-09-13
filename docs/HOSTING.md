@@ -21,6 +21,16 @@ To prepare an uploadable build, run `npm run pack:site`. Transfer `artifacts/lum
 
 ## Connect your domain
 
+### Social previews and the public website URL
+
+The source-controlled Vite configuration adds Open Graph and Twitter card metadata to the editor and player HTML during every build. `public/social-preview.jpg` is copied into the build; crawlers can read the metadata without running JavaScript. The default URL is the official demo, `https://lumenstreets.feifeihome.com/`.
+
+For an independent deployment, set `LUMEN_SITE_URL=https://night.example.com/` in an ignored `.env.production.local` on the **build machine**, then run `npm run pack:site`. Include a trailing subpath if needed, such as `https://example.com/night/`. Keep that file across source updates, or keep the variable in the build system's environment. It contains a public URL, never a credential. The source archive excludes local environment files.
+
+This is distinct from the runtime API setting `LUMEN_PUBLIC_ORIGIN`. Changing the server's environment after uploading a prebuilt archive does not change its HTML: rebuild and redeploy for a different social URL. Do not edit `dist/index.html` by hand; the next build replaces it. The packaged official demo needs no extra setting.
+
+Both languages and shared player scenes currently use the same English preview card; URL fragments do not generate a scene-specific thumbnail. When changing the artwork, update the preview file and its provenance entry in `public/gallery/credits.json`, rebuild, and allow social platforms to refresh their cached preview. GitHub's repository Social preview is a separate Settings upload.
+
 Use an HTTPS reverse proxy or tunnel on the same machine, forwarding every path to `http://127.0.0.1:5180`. Keep the public Host header intact.
 
 | Setting in `.env` | Value |

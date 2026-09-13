@@ -72,5 +72,12 @@
     "width": 1280,
     "height": 640,
     "sha256": "42c95d8157e15ff57c8b5d4d54950bd3c472ce116b15c55889cb554b28c7cc40"
+  },
+  "websitePreview": {
+    "file": "public/social-preview.jpg",
+    "source": "Byte-identical copy of docs/images/social-left.jpg for website Open Graph and Twitter cards.",
+    "width": 1280,
+    "height": 640,
+    "sha256": "42c95d8157e15ff57c8b5d4d54950bd3c472ce116b15c55889cb554b28c7cc40"
   }
 }

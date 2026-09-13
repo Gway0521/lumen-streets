@@ -188,5 +188,6 @@
   "quietTop": "Top",
   "quietBottom": "Bottom",
   "quietStrength": "Dimming",
-  "sourceLicense": "Source and license"
+  "sourceLicense": "Source and license",
+  "sourceGitHub": "Source on GitHub"
 }

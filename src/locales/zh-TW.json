@@ -188,5 +188,6 @@
   "quietTop": "上方",
   "quietBottom": "下方",
   "quietStrength": "壓暗程度",
-  "sourceLicense": "原始碼與授權"
+  "sourceLicense": "原始碼與授權",
+  "sourceGitHub": "GitHub 原始碼"
 }
