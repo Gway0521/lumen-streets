@@ -1,0 +1,76 @@
+{
+  "source": "Actual application downloads; no generated or retouched geography.",
+  "credit": "© OpenStreetMap contributors · ODbL",
+  "license": "https://www.openstreetmap.org/copyright",
+  "images": [
+    {
+      "id": "sapporo",
+      "file": "sapporo.png",
+      "width": 1280,
+      "height": 800,
+      "palette": "aerial",
+      "density": 80,
+      "simulationTime": 8,
+      "sha256": "6e48c5123729ce95ea97bd567ffa1faad669be9aeae461ab28d881bf55b36a7a"
+    },
+    {
+      "id": "tokyo",
+      "file": "tokyo.png",
+      "width": 1280,
+      "height": 800,
+      "palette": "aerial",
+      "density": 80,
+      "simulationTime": 8,
+      "sha256": "f21512a5d4b8aba93069b5bb0efd5d2cd0046b5774bb3952a0b88069e4c3b517"
+    },
+    {
+      "id": "shanghai",
+      "file": "shanghai.png",
+      "width": 1280,
+      "height": 800,
+      "palette": "aerial",
+      "density": 80,
+      "simulationTime": 8,
+      "sha256": "2aad2e66783333155b52a3ea902a33e450f4f3da4b9ca0a600474bd873ae2a4f"
+    },
+    {
+      "id": "seattle",
+      "file": "seattle.png",
+      "width": 1280,
+      "height": 800,
+      "palette": "aerial",
+      "density": 80,
+      "simulationTime": 8,
+      "sha256": "b6fcdce6de25eddafc19adc94331da844cbd103f2560fdc3d8f8b7b17242ed10"
+    }
+  ],
+  "rendererVersion": "aerial-5",
+  "recording": {
+    "file": "sapporo.mp4",
+    "seconds": 12,
+    "frames": 360,
+    "width": 1280,
+    "height": 720,
+    "codec": "H.264",
+    "source": "First 12 seconds of a 30-second application MP4 download; resized and compressed with FFmpeg, CRF21. No geography or lighting edits.",
+    "sourceSha256": "a5697c7f25a4c2ccfa561bc7afd95d69a74ada2cfdeb2d9d43402597c4d65f50",
+    "sha256": "3b513da32393da6487e8e18c084d98fb97ffe00c630abc9d13f170199e45132c"
+  },
+  "readmePreview": {
+    "file": "docs/images/social-cover.gif",
+    "source": "Actual Sapporo application video with the shared logo, title and fixed gradient overlay. Six-second excerpt; repeats with a cut.",
+    "sourceSha256": "3b513da32393da6487e8e18c084d98fb97ffe00c630abc9d13f170199e45132c",
+    "frames": 60,
+    "seconds": 6,
+    "width": 960,
+    "height": 480,
+    "sha256": "0f8f8b3e5657716abc30f6cd8612242b2f6683d1746ea58b785c7885955e692c"
+  },
+  "socialPreview": {
+    "file": "docs/images/social-left.jpg",
+    "source": "First frame of the same social cover, before GIF downscaling and quantization.",
+    "width": 1280,
+    "height": 640,
+    "sha256": "42c95d8157e15ff57c8b5d4d54950bd3c472ce116b15c55889cb554b28c7cc40"
+  }
+}

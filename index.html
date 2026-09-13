@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#0b161e" />
+    <meta name="description" content="Turn real streets into living nightscapes." />
+    <link rel="icon" href="./favicon.svg" />
+    <title>Lumen Streets · Living nightscapes</title>
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="city" tabindex="0" aria-label="Interactive city nightscape"></canvas>
+      <div class="scrim"></div>
+      <header>
+        <a href="./" class="brand"><img class="brand-icon" src="./favicon.svg" width="34" height="34" alt="">lumen streets</a>
+        <div class="header-right">
+          <button id="language" data-i18n-aria="language">繁中</button>
+          <button id="quiet" data-i18n="quiet">Hide controls</button>
+          <button id="about" data-i18n-aria="about">i</button>
+        </div>
+      </header>
+      <aside id="panel">
+        <div class="eyebrow" id="eyebrow">SAPPORO / HOKKAIDO</div>
+        <nav>
+          <label for="place-select" class="control-title" data-i18n="place">Place</label>
+          <select id="place-select" data-i18n-aria="place"></select>
+          <p id="place-size"></p>
+          <button id="find-place" data-i18n="findPlace" hidden>Find a place</button>
+        </nav>
+        <div class="controls">
+          <div class="control-title" data-i18n="palette">Palette</div>
+          <div class="palettes" role="group" data-i18n-aria="palette">
+            <button data-mood="aerial" aria-pressed="true"><i class="swatch aerial"></i><span data-i18n="aerial">Aerial gold</span></button>
+            <button data-mood="amber" aria-pressed="false"><i class="swatch warm"></i><span data-i18n="amber">Amber</span></button>
+            <button data-mood="blue" aria-pressed="false"><i class="swatch blue"></i><span data-i18n="blue">Blue hour</span></button>
+          </div>
+          <div class="primary-controls"><button id="play" aria-pressed="true" data-i18n="pause">Ⅱ Pause</button><button id="adjust" aria-expanded="false" aria-controls="adjust-panel" data-i18n="adjust">Adjust</button></div>
+          <button id="export-options" class="save" data-i18n="export">Export</button>
+          <details id="scene-menu"><summary data-i18n="sceneMenu">Scene</summary><div class="scene-actions"><button id="share-scene" data-i18n="shareScene">Save &amp; share scene</button><button id="open-scene" data-i18n="openScene">Open scene file</button></div></details>
+          <input id="import-scene" type="file" accept=".lumen.json,application/json" hidden>
+        </div>
+      </aside>
+      <section id="adjust-panel" aria-labelledby="adjust-title" hidden>
+        <div class="adjust-heading"><h2 id="adjust-title" data-i18n="adjust">Adjust</h2><button id="close-adjust" data-i18n-aria="close">×</button></div>
+        <div class="adjust-body">
+          <h3 data-i18n="lightSettings">Light</h3>
+          <label class="adjust-range" for="brightness"><span data-i18n="brightness">Brightness</span><output id="brightness-value">100%</output><input id="brightness" type="range" min="50" max="150" value="100" step="5"></label>
+          <label class="adjust-range" for="glow"><span data-i18n="glow">Glow</span><output id="glow-value">100%</output><input id="glow" type="range" min="0" max="180" value="100" step="10"></label>
+          <label class="adjust-range" for="district"><span data-i18n="district">District contrast</span><output id="district-value">100%</output><input id="district" type="range" min="0" max="200" value="100" step="10"></label>
+          <p class="adjust-hint" id="gold-hint" data-i18n="goldAdjustments">Glow and district contrast apply to Aerial gold.</p>
+          <label class="check-control"><input id="landmark-labels" type="checkbox" checked><span data-i18n="landmarkLabels">Landmark names</span></label>
+          <h3 data-i18n="movement">Movement</h3>
+          <div class="rail-controls">
+            <button id="trains" aria-pressed="true" data-i18n="trains">Trains</button>
+            <button id="underground" aria-pressed="false" data-i18n="underground">Underground</button>
+          </div>
+          <div class="density-control">
+            <label class="density-label" for="density"><span data-i18n="traffic">Traffic</span><output id="density-label" data-i18n="high">Busy</output></label>
+            <input id="density" data-i18n-aria="traffic" type="range" min="0" max="100" value="80" />
+            <div class="range-labels"><span data-i18n="low">Quiet</span><span data-i18n="high">Busy</span></div>
+          </div>
+          <button id="reset-adjustments" data-i18n="resetAdjustments">Restore defaults</button>
+        </div>
+      </section>
+      <div class="map-meta"><span class="live-dot"></span><span id="status" data-i18n="preparing">Lighting the streets…</span></div>
+      <div class="map-tools"><button id="zoom-in" data-i18n-aria="zoomIn">＋</button><button id="zoom-out" data-i18n-aria="zoomOut">−</button><button id="fit" data-i18n="fit">Fit area</button><button id="reset" data-i18n="resetView">Reset view</button></div>
+      <footer><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors · ODbL</a><span id="scale" data-i18n="panHint">Drag to pan · Scroll to zoom</span></footer>
+      <button id="leave-quiet" hidden data-i18n="back">Show controls · Esc</button>
+      <div id="loading" role="status"><span></span><p data-i18n="preparing">Lighting the streets…</p></div>
+      <div id="toast" role="status" hidden></div>
+      <section id="export-progress" hidden data-i18n-aria="exportProgress">
+        <p id="export-progress-text" role="status"></p>
+        <progress id="export-meter" max="1" value="0" data-i18n-aria="exportProgress"></progress>
+        <button id="cancel-export" data-i18n="cancel">Cancel</button>
+      </section>
+      <dialog id="capture-dialog" aria-labelledby="capture-title">
+        <button id="close-capture" data-i18n-aria="close">×</button>
+        <h2 id="capture-title" data-i18n="exportOptions">Wallpaper &amp; animation</h2>
+        <p data-i18n="cropHint">Drag the preview or use arrow keys to frame your wallpaper. Zoom to adjust the crop.</p>
+        <div class="capture-controls">
+          <label><span data-i18n="exportFormat">Format</span><select id="capture-format"><option value="png">PNG</option><option value="mp4" data-i18n="mp4Format">MP4</option><option value="webm" data-i18n="webmFormat">WebM</option><option value="gif" data-i18n="gifFormat">GIF · Preview</option></select></label>
+          <label><span data-i18n="exportSize">Framing</span><select id="capture-size"><option value="current" data-i18n="currentView">Screen ratio</option><option value="desktop" data-i18n="desktopSize">Desktop · 16:9</option><option value="desktop1610" data-i18n="desktop1610Size">Desktop · 16:10</option><option value="portrait" data-i18n="portraitSize">Phone · 9:16</option></select></label>
+        </div>
+        <canvas id="capture-preview" tabindex="0" data-i18n-aria="cropPreview"></canvas>
+        <div class="crop-tools"><button id="crop-out" data-i18n-aria="zoomOut">−</button><button id="crop-in" data-i18n-aria="zoomIn">+</button></div>
+        <p id="capture-dimensions"></p>
+        <details class="export-details"><summary data-i18n="quietSpace">Room for icons</summary>
+        <p class="adjust-hint" data-i18n="quietSpaceHint">Gently dim one edge for icons or a clock. Drag the crop to keep your favourite streets in the clear.</p>
+        <div class="video-settings"><label><span data-i18n="quietEdge">Quiet edge</span><select id="capture-quiet-edge"><option value="none" data-i18n="quietNone">Full city</option><option value="left" data-i18n="quietLeft">Left</option><option value="right" data-i18n="quietRight">Right</option><option value="top" data-i18n="quietTop">Top</option><option value="bottom" data-i18n="quietBottom">Bottom</option></select></label>
+        <label id="quiet-strength-control" hidden><span><span data-i18n="quietStrength">Dimming</span> · <output id="quiet-strength-value" for="capture-quiet-strength">75%</output></span><input id="capture-quiet-strength" type="range" min="0" max="100" value="75"></label></div>
+        </details>
+        <div class="video-settings" id="video-settings" hidden><label><span data-i18n="resolution">Resolution</span><select id="capture-resolution"><option value="1080">1080p</option><option value="1440">1440p</option></select></label>
+        <label id="duration-control"><span data-i18n="duration">Duration</span><select id="capture-duration"><option value="30" data-i18n="seconds30">30 seconds</option><option value="60" data-i18n="minute1">1 minute</option><option value="120" data-i18n="minutes2">2 minutes</option><option value="180" data-i18n="minutes3">3 minutes</option><option value="300" data-i18n="minutes5">5 minutes</option><option value="custom" data-i18n="customDuration">Custom</option></select></label>
+        <label id="custom-duration-control" hidden><span data-i18n="customSeconds">Seconds · 15–300</span><input id="capture-seconds" type="number" min="15" max="300" step="1" value="90"></label></div>
+        <p id="video-estimate" class="adjust-hint" hidden></p>
+        <p id="video-details" hidden data-i18n="videoDetails"></p><p id="video-support" role="status"></p>
+        <details class="export-details"><summary data-i18n="textOptions">Text &amp; credit</summary>
+        <label class="check-control"><input id="capture-labels" type="checkbox"><span data-i18n="landmarkLabels">Landmark names</span></label>
+        <label class="check-control"><input id="capture-place-title" type="checkbox"><span data-i18n="placeTitle">Place title</span></label>
+        <div id="place-title-controls" hidden><label for="capture-title-text" data-i18n="titleText">Title</label><input id="capture-title-text" type="text" maxlength="120">
+        <div class="video-settings"><label><span data-i18n="titlePosition">Position</span><select id="capture-title-corner"><option value="bottom-left" data-i18n="bottomLeft">Bottom left</option><option value="bottom-right" data-i18n="bottomRight">Bottom right</option><option value="top-left" data-i18n="topLeft">Top left</option><option value="top-right" data-i18n="topRight">Top right</option></select></label><label><span data-i18n="titleSize">Size</span><select id="capture-title-size"><option value="small" data-i18n="small">Small</option><option value="medium" selected data-i18n="mediumTitle">Medium</option><option value="large" data-i18n="large">Large</option></select></label></div></div>
+        <label class="credit-option"><input id="capture-credit" type="checkbox" /><span data-i18n="creditOnImage">Include map credit in image</span></label>
+        </details>
+        <p id="gif-details" hidden data-i18n="gifDetails">Short sharing preview: 6 seconds · 720 px · 15 fps · up to 25 MB. Choose MP4 or WebM for a longer, high-resolution wallpaper.</p>
+        <button id="create-export" class="save" data-i18n="createPNG">Create PNG</button>
+      </dialog>
+      <dialog id="scene-dialog" aria-labelledby="scene-title">
+        <button id="close-scene" data-i18n-aria="close">×</button><h2 id="scene-title" data-i18n="shareScene">Save &amp; share scene</h2>
+        <p data-i18n="sceneFileHint"></p><div class="scene-download"><a id="download-scene" class="save" download data-i18n="downloadScene">Download scene</a><span id="scene-file-size"></span></div>
+        <div id="reference-fields"><p data-i18n="sceneLinkHint"></p><label for="scene-link" data-i18n="sceneLink">Player link</label><div class="copy-row"><input id="scene-link" readonly><button id="copy-link" data-i18n="copy">Copy</button></div><a id="open-player" target="_blank" rel="noreferrer" data-i18n="openPlayer">Open player</a><label for="scene-embed" data-i18n="embedCode">Embed code</label><textarea id="scene-embed" rows="3" readonly></textarea><button id="copy-embed" data-i18n="copyEmbed">Copy embed code</button></div>
+        <p id="custom-sharing" data-i18n="customSharing"></p><p id="local-sharing" data-i18n="localSharing"></p><a id="scene-guide" href="./scenes.html" target="_blank" rel="noreferrer" data-i18n="sceneGuide">Scene sharing guide</a>
+      </dialog>
+      <section id="map-load" hidden data-i18n-aria="loadingMap">
+        <p id="map-load-message" role="status"></p>
+        <div><button id="retry-map" data-i18n="retry" hidden>Retry</button><button id="adjust-area" data-i18n="adjustArea" hidden>Adjust area</button><button id="cancel-map" data-i18n="cancel">Cancel</button></div>
+      </section>
+      <dialog id="search-dialog" aria-labelledby="search-title">
+        <button id="close-search" data-i18n-aria="close">×</button>
+        <h2 id="search-title" data-i18n="findPlace">Find a place</h2>
+        <p class="search-intro" data-i18n="searchIntro">Choose a place. Frame your night.</p>
+        <div id="search-stage"><form id="search-form">
+          <label for="place-query" data-i18n="searchLabel">Place or address</label>
+          <div class="search-row"><input id="place-query" type="search" minlength="2" maxlength="120" required autocomplete="off" /><button type="submit" data-i18n="search">Search</button></div>
+        </form>
+        <p class="search-privacy" data-i18n="searchPrivacy">Search sends your text to Photon. Generating sends the selected area to Overpass.</p>
+        <p id="search-message" role="status"></p><button id="cancel-search" data-i18n="cancel" hidden>Cancel</button>
+        <ul id="search-results"></ul></div>
+        <section id="area-section" hidden>
+          <button id="change-place" data-i18n="changePlace">← Search results</button>
+          <h3 id="selected-place"></h3><p id="selected-context"></p>
+          <div class="area-sizes" role="group" data-i18n-aria="areaSize"><span data-i18n="areaSize">Area</span><button data-area-size="1" aria-pressed="false">1 km</button><button data-area-size="2" aria-pressed="true">2 km</button><button data-area-size="4" aria-pressed="false">4 km</button></div>
+          <p class="area-hint" data-i18n="areaHint">Drag the map or use arrow keys to move the square.</p>
+          <div id="area-map" tabindex="0" data-i18n-aria="areaMap"></div>
+          <p id="tile-message" hidden data-i18n="tileError">Map tiles are unavailable. Coordinates and area selection still work.</p>
+          <p id="area-coordinates"></p>
+          <button id="generate-area" class="save" data-i18n="generateArea">Light this area</button>
+        </section>
+      </dialog>
+      <dialog id="notes" aria-labelledby="notes-title">
+        <button id="close-notes" data-i18n-aria="close">×</button>
+        <h2 id="notes-title" data-i18n="aboutTitle">Real streets. Imagined nights.</h2>
+        <p data-i18n="aboutBody"></p><p data-i18n="aboutScope"></p>
+        <p id="data-info"></p><p id="rail-info"></p><p id="source-info"></p>
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" data-i18n="attribution">Map attribution and data license</a>
+        <p><a href="./source.html" target="_blank" rel="noreferrer" data-i18n="sourceLicense">Source and license</a></p>
+        <button id="save-study" class="study-export" data-i18n="saveArea">Save full area</button>
+      </dialog>
+      <dialog id="export-dialog" aria-labelledby="export-title">
+        <button id="close-export" data-i18n-aria="close">×</button>
+        <h2 id="export-title" data-i18n="exportTitle">Save this night</h2>
+        <img id="export-image" alt="Nightscape image" />
+        <video id="export-video" controls loop muted playsinline preload="metadata" hidden data-i18n-aria="videoPreview"></video>
+        <button id="gif-preview-toggle" hidden aria-pressed="false" data-i18n="playPreview">Play preview</button>
+        <div class="export-bottom"><span id="export-note" data-i18n="exportNote">PNG · Map attribution included</span><a id="export-download" class="save" download data-i18n="download">Download PNG ↓</a></div>
+        <p id="export-platform-help" hidden data-i18n="platformHelp"></p>
+        <a id="wallpaper-guide" href="./wallpapers.html" target="_blank" rel="noreferrer" data-i18n="wallpaperGuide">Wallpaper setup guide</a>
+        <div class="export-provenance"><a id="export-source" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer"></a><p data-i18n="creditSharing"></p><a id="export-credits" download data-i18n="downloadCredits">Download credits</a></div>
+      </dialog>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

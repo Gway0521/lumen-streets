@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b161e"><meta name="description" content="A living nightscape, ready to watch or embed."><link rel="icon" href="./favicon.svg"><title>Lumen Streets · Player</title></head>
+<body>
+  <main id="player">
+    <canvas id="scene" aria-label="City nightscape"></canvas>
+    <header class="player-bar"><a href="./" aria-label="Lumen Streets"><img src="./favicon.svg" width="34" height="34" alt=""></a><span id="scene-name">Lumen Streets</span><button id="play" data-i18n="resume" disabled>▷ Play</button><button id="language" data-i18n-aria="language">繁中</button></header>
+    <section id="player-message" aria-live="polite"><h1 data-i18n="playerTitle">A night to return to</h1><p id="player-status" data-i18n="playerEmpty">Open a scene file or follow a shared scene link.</p><div><button id="open-file" data-i18n="openScene">Open scene file</button><button id="cancel-load" data-i18n="cancel" hidden>Cancel</button><button id="retry-load" data-i18n="retry" hidden>Retry</button></div></section>
+    <input id="scene-file" type="file" accept=".lumen.json,application/json" hidden>
+    <footer><a id="source-credit" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors · ODbL</a><a href="./source.html" target="_blank" rel="noreferrer" data-i18n="sourceLicense">Source and license</a><button id="replace-file" data-i18n="openScene">Open scene file</button></footer>
+  </main>
+  <script type="module" src="/src/player/main.js"></script>
+</body></html>

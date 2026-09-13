@@ -1,0 +1,27 @@
+[Unit]
+Description=Lumen Streets website and map search
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lumen-streets
+Group=lumen-streets
+WorkingDirectory=/srv/lumen-streets/current
+EnvironmentFile=/etc/lumen-streets.env
+# Set this to the absolute path of your Node.js 24 executable.
+ExecStart=/usr/bin/node server/start.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+StateDirectory=lumen-streets
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

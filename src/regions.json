@@ -1,0 +1,10 @@
+{
+  "sapporo": {"name":"北海道・札幌","english":"SAPPORO / HOKKAIDO","subtitle":"整齊的街廓，留一條綠色長廊。","description":"棋盤街廓與大通公園","center":[141.3545,43.0595],"bbox":[43.0487,141.3397,43.0703,141.3693]},
+  "tokyo": {"name":"東京・新宿","english":"SHINJUKU / TOKYO","subtitle":"大路轉進小巷，夜色更密了。","description":"密集街巷與大型車站","center":[139.704,35.693],"bbox":[35.6822,139.6907,35.7038,139.7173]},
+  "xinyi": {"name":"信義商圈","english":"XINYI / TAIPEI","subtitle":"路口的燈，還在交替。","description":"大道、商場與晚歸的人","center":[121.5645,25.0355],"bbox":[25.026,121.554,25.045,121.575],"labels":["台北101","國父紀念館","臺北市政府","臺北大巨蛋","松山文創園區"]},
+  "ntu": {"name":"台大・公館","english":"GONGGUAN / TAIPEI","subtitle":"校園慢下來了，城市還沒有。","description":"安靜的校園，熱鬧的街口","center":[121.5387,25.0165],"bbox":[25.0075,121.528,25.0255,121.5495],"labels":["總圖書館","椰林大道","醉月湖","綜合體育館","臺大體育館"]},
+  "shanghai": {"name":"上海・外灘","english":"THE BUND / SHANGHAI","subtitle":"一條江，分開兩岸的燈。","description":"黃浦江、外灘與陸家嘴","center":[121.492,31.239],"bbox":[31.2282,121.4794,31.2498,121.5046]},
+  "beijing": {"name":"北京・故宮東側","english":"DONGCHENG / BEIJING","subtitle":"大院落和小胡同，各有夜的尺度。","description":"宮城、胡同與寬闊幹道","center":[116.4045,39.924],"bbox":[39.9132,116.3904,39.9348,116.4186]},
+  "seattle": {"name":"西雅圖・聯合湖南岸","english":"SOUTH LAKE UNION / SEATTLE","subtitle":"街道轉了個角度，向湖邊走去。","description":"斜交街網與聯合湖南岸","center":[-122.3327,47.6237],"bbox":[47.612,-122.35,47.6354,-122.3154]},
+  "washington": {"name":"華盛頓特區","english":"DOWNTOWN / WASHINGTON DC","subtitle":"斜向的大道，穿過規整的夜。","description":"放射大道、圓環與廣場","center":[-77.033,38.9005],"bbox":[38.8897,-77.0469,38.9113,-77.0191]}
+}
