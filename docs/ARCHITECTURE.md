@@ -30,6 +30,8 @@ The portable file format and supported renderer versions are documented in [Scen
 
 The aerial atlas uses world coordinates for continuous warm street colours and sparse cool landmark accents. Source features determine district activity. Named landmarks are cached with immutable geometry; screen-space text measurements avoid label collisions.
 
+Static map and lighting canvases request software rasterization with `willReadFrequently`. This keeps detailed atlas construction off the GPU command queue, avoiding a reproduced Android/Adreno failure that left the browser unable to draw even ordinary pages. Atlas dimensions and lighting rules stay the same; the display canvas keeps its normal rendering path. Initial construction can take longer, and rasterization differences can slightly change edge smoothing.
+
 Vehicle births are weighted by road length and road class. At junctions, drivers favour continuation and through roads, with less weight for crowded outgoing segments. Cars returning from a side street can accelerate again. Spawn positions respect existing vehicle gaps. Signals, following gaps and deadlock respawns provide visual traffic behaviour rather than a complete transport model.
 
 Simulation advances in fixed 50 ms steps with checkpointed randomness. Idle, paused and background views stop requesting frames. Gestures are coalesced into one paint per display frame; resizes preserve the world centre. Brightness uses Canvas filters when available and atlas compositing otherwise.

@@ -40,6 +40,8 @@ Long-video checks use fresh persistent profiles beneath the output directory. Al
 
 Inspect actual output and independently decode animations. Verify dimensions, duration, frame count and an end frame with FFprobe/FFmpeg; GIF frames can be read with Pillow.
 
+For Android startup regressions, test a production build on a physical device through USB debugging. Reload the editor several times, switch all eight maps and three palettes, and generate a PNG. Check the actual displayed image and browser GPU logs as well as JavaScript errors: a reproduced Adreno failure reported the page ready and its canvas context intact while the entire page was black. Inspect for Skia shader compilation failures and EGL allocation errors. If an old build has already broken rendering, fully restart the browser before comparing the fix. Desktop viewport emulation does not exercise the phone's GPU driver.
+
 ## Public artwork
 
 `create-showcase.mjs` downloads four actual PNGs and a 30-second MP4. The public gallery clip is a compressed 12-second excerpt.

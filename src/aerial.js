@@ -26,7 +26,9 @@ export function renderAerial(city, appearance = { glow: 1, district: 1 }) {
   const bounds=city.bounds,w=bounds[2]-bounds[0],h=bounds[3]-bounds[1],resolution=Math.min(1.6,3600/Math.max(w,h));
   const canvas=document.createElement('canvas');canvas.width=Math.ceil(w*resolution);canvas.height=Math.ceil(h*resolution);
   const light=document.createElement('canvas');light.width=canvas.width;light.height=canvas.height;
-  const c=canvas.getContext('2d'),l=light.getContext('2d');
+  // Paint these static surfaces in software, then copy the finished atlas.
+  // Queuing the detailed lights on the GPU can break rendering on Android/Adreno.
+  const c=canvas.getContext('2d',{willReadFrequently:true}),l=light.getContext('2d',{willReadFrequently:true});
   for(const ctx of [c,l]){ctx.scale(resolution,resolution);ctx.translate(-bounds[0],-bounds[1]);ctx.lineCap='round';ctx.lineJoin='round';}
   c.fillStyle='#070d13';c.fillRect(bounds[0],bounds[1],w,h);
   for(const f of city.land){outline(c,f.points,true,f.holes);c.fillStyle=f.tags.natural==='water'||f.tags.waterway?'#03080d':'#08140f';c.fill('evenodd');}
@@ -117,7 +119,7 @@ export function renderAerial(city, appearance = { glow: 1, district: 1 }) {
   l.globalAlpha=1;
   // Optical halation is separate from the sharp source; no per-frame blur cost.
   const bloom=document.createElement('canvas');bloom.width=Math.ceil(canvas.width/3);bloom.height=Math.ceil(canvas.height/3);
-  const bc=bloom.getContext('2d');bc.drawImage(light,0,0,bloom.width,bloom.height);
+  const bc=bloom.getContext('2d',{willReadFrequently:true});bc.drawImage(light,0,0,bloom.width,bloom.height);
   c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='screen';
   c.filter='blur(9px)';c.globalAlpha=.4*appearance.glow;c.drawImage(bloom,0,0,canvas.width,canvas.height);
   c.filter='blur(2px)';c.globalAlpha=.55*appearance.glow;c.drawImage(light,0,0);

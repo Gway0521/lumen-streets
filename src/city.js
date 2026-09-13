@@ -208,7 +208,8 @@ export function renderAtlas(city, mood = "amber", appearance) {
   const canvas = document.createElement("canvas");
   canvas.width = Math.ceil(w * resolution);
   canvas.height = Math.ceil(h * resolution);
-  const c = canvas.getContext("2d");
+  // Rasterize the static atlas without a large mobile GPU command buffer.
+  const c = canvas.getContext("2d", { willReadFrequently: true });
   c.scale(resolution, resolution);
   c.translate(-bounds[0], -bounds[1]);
   c.fillStyle = p.ground;
