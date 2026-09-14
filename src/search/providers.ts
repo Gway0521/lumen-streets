@@ -35,7 +35,7 @@ const delay = (ms: number, signal: AbortSignal) => new Promise<void>((resolve, r
 export async function importedScene(areaInput: AreaSelection, name: string, map: any, rail: any): Promise<SceneData> {
   const area = selection(areaInput);
   const verify = async (value: any, optional: boolean) => {
-    if (value?.sourceVersion !== "overpass-area-v1" || JSON.stringify(value.area) !== JSON.stringify(area) ||
+    if (!["overpass-area-v1", "overpass-area-v2"].includes(value?.sourceVersion) || JSON.stringify(value.area) !== JSON.stringify(area) ||
       typeof value.sourceURL !== "string" || !value.sourceURL.startsWith("https://") ||
       !Number.isFinite(Date.parse(value.retrievedAt))) throw new MapRequestError("badData", 502);
     validateMap(value.raw, optional);

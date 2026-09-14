@@ -29,7 +29,7 @@ test('courtyard walls face inward independently of ring winding and leave a roof
   assert.deepEqual(a.holes[0][0], hole[0].map((v, i) => v + a.offset[i]));
 });
 
-test('art height is bounded for malformed hints, tiny footprints and large low buildings', () => {
+test('malformed heights fall back but credible tower and hall measurements are retained', () => {
   for (const height of ['NaN', 'Infinity', '-20', '999999999', 'unknown', '0']) {
     const p = buildingProfile(feature({ tags: { building: 'yes', height } }));
     assert(Number.isFinite(p.height) && p.height > 0 && p.height <= 125);
@@ -37,9 +37,9 @@ test('art height is bounded for malformed hints, tiny footprints and large low b
   }
   const garage = buildingProfile(feature({ tags: { building: 'garage', height: '100' } }));
   const hall = buildingProfile(feature({ tags: { building: 'warehouse', height: '100' } }));
-  assert(garage.height < hall.height);
+  assert.equal(garage.height, 100); assert.equal(hall.height, 100);
   const tiny = buildingProfile(feature({ points: [[0, 0], [3, 0], [3, 3], [0, 3]], tags: { building: 'yes', height: '500' } }));
-  assert(tiny.height < 5);
+  assert.equal(tiny.height, 500);
 });
 
 test('building paint order is deterministic when source feature order changes', () => {

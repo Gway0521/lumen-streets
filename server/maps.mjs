@@ -6,15 +6,17 @@ import { validateMap } from "../src/search/validate.js";
 
 const hash = text => createHash("sha256").update(text).digest("hex");
 const DAY = 86400000;
-export const SOURCE_VERSION = "overpass-area-v1";
+export const SOURCE_VERSION = "overpass-area-v2";
 export function mapQuery(area, rail = false) {
   const b = selection(area).bbox.join(",");
   const filters = rail ? ['way[railway~"^(rail|subway|light_rail|tram)$"]', 'node[railway~"^(station|halt|stop)$"]'] : [
-    'way[building]', 'way[highway]', 'way[leisure~"^(park|garden|pitch|playground|sports_centre)$"]',
+    'way[building]', 'way["building:part"]', 'way[man_made~"^(tower|mast)$"]', 'node[man_made~"^(tower|mast)$"]',
+    'way[highway]', 'way[leisure~"^(park|garden|pitch|playground|sports_centre)$"]',
     'way[landuse~"^(grass|forest|recreation_ground)$"]', 'way[natural~"^(water|wood)$"]', 'way[waterway=riverbank]',
-    'relation[building][type=multipolygon]', 'relation[natural=water][type=multipolygon]', 'relation[leisure=park][type=multipolygon]',
+    'relation[building][type=multipolygon]', 'relation["building:part"][type=multipolygon]', 'relation[type=building]',
+    'relation[natural=water][type=multipolygon]', 'relation[leisure=park][type=multipolygon]',
   ];
-  return `[out:json][timeout:30][maxsize:33554432];(${filters.map(f => `${f}(${b});`).join("")});out body geom;`;
+  return `[out:json][timeout:30][maxsize:33554432];(${filters.map(f => `${f}(${b});`).join("")});${rail ? '' : '(._;way(r);relation(r)[type=multipolygon];);(._;way(r););'}out body geom;`;
 }
 function endpoint(value) {
   const u = new URL(value);

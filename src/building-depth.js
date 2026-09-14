@@ -1,33 +1,28 @@
 import { random } from './city.js';
 import { buildingArea, buildingCenter, commerce } from './lighting.js';
+import { resolveHeight, featureSeed } from './buildings/heights.js';
 
-// A fixed oblique projection in world metres. Heights are scenic, not surveyed.
+// Fixed art projection; no per-building compression of source measurements.
 export const ROOF_DIRECTION = Object.freeze([-.32, -.48]);
 const signedArea = ring => ring.reduce((sum, a, i) => {
   const b = ring[(i + 1) % ring.length];
   return sum + a[0] * b[1] - b[0] * a[1];
 }, 0) / 2;
 
-export function buildingProfile(feature, activity = .5) {
+export function buildingProfile(feature, activity = .5, elevation) {
   const area = Math.max(1, buildingArea(feature.points) - (feature.holes || []).reduce((sum, ring) => sum + buildingArea(ring), 0));
-  const r = random(feature.id + 701), center = buildingCenter(feature.points);
-  const low = ['garage', 'garages', 'shed', 'roof', 'greenhouse'].includes(feature.tags.building);
-  const broad = ['warehouse', 'industrial', 'train_station', 'stadium'].includes(feature.tags.building);
-  const levels = Number.parseFloat(feature.tags['building:levels']);
-  const mappedHeight = Number.parseFloat(feature.tags.height);
-  const hint = Number.isFinite(mappedHeight) && mappedHeight > 0 ? mappedHeight
-    : Number.isFinite(levels) && levels > 0 ? levels * 3.2 : null;
-  const scenic = low ? 4 : broad ? 9 + r() * 9
-    : 9 + Math.sqrt(area) * (.18 + r() * .65) * (.7 + activity * .5 + (commerce(feature.tags) ? .3 : 0));
-  const height = Math.max(3, Math.min(hint ?? scenic, low ? 7 : broad ? 25 : hint === null && area > 12000 ? 48 : 125, Math.sqrt(area) * 1.25));
+  const r = random(featureSeed(feature)), center = buildingCenter(feature.points);
+  const resolved = elevation || resolveHeight(feature, area, r());
+  const height = resolved.top - resolved.bottom;
   const offset = ROOF_DIRECTION.map(v => v * height);
+  const base = p => p.map((v, i) => v + ROOF_DIRECTION[i] * resolved.bottom);
   const project = p => [p[0] + offset[0], p[1] + offset[1]];
-  const roof = feature.points.map(project), holes = (feature.holes || []).map(ring => ring.map(project));
+  const roof = feature.points.map(p => project(base(p))), holes = (feature.holes || []).map(ring => ring.map(p => project(base(p))));
   const faces = [];
   for (const [index, ring] of [feature.points, ...(feature.holes || [])].entries()) {
     const orientation = Math.sign(signedArea(ring)) * (index ? -1 : 1);
     for (let i = 0; i < ring.length; i++) {
-      const a = ring[i], b = ring[(i + 1) % ring.length];
+      const a = base(ring[i]), b = base(ring[(i + 1) % ring.length]);
       const dx = b[0] - a[0], dy = b[1] - a[1], length = Math.hypot(dx, dy);
       if (length < .1) continue;
       const facing = orientation * (dy * offset[0] - dx * offset[1]) / length;
@@ -35,7 +30,7 @@ export function buildingProfile(feature, activity = .5) {
       faces.push({ a, b, length, points: [a, b, project(b), project(a)], exposure: -facing / Math.hypot(...offset) });
     }
   }
-  return { feature, area, center, height, offset, roof, holes, faces,
+  return { feature, area, center, height, elevation: resolved, offset, roof, holes, faces,
     depth: center[0] * -ROOF_DIRECTION[0] + center[1] * -ROOF_DIRECTION[1] };
 }
 
@@ -48,7 +43,7 @@ function outline(c, points, holes = []) {
 }
 
 export function prepareBuildings(city, activity) {
-  return city.buildings.filter(f => buildingArea(f.points) >= 8)
+  return city.buildings.filter(f => f.role !== 'outline' && buildingArea(f.points) >= 8)
     .map(f => buildingProfile(f, activity(...buildingCenter(f.points))))
     .sort((a, b) => a.depth - b.depth || a.feature.id - b.feature.id);
 }
