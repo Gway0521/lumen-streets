@@ -45,6 +45,21 @@ Inspect actual output and independently decode animations. Verify dimensions, du
 
 For Android startup regressions, test a production build on a physical device through USB debugging. Reload the editor several times, switch all eight maps and three palettes, and generate a PNG. Check the actual displayed image and browser GPU logs as well as JavaScript errors: a reproduced Adreno failure reported the page ready and its canvas context intact while the entire page was black. Inspect for Skia shader compilation failures and EGL allocation errors. If an old build has already broken rendering, fully restart the browser before comparing the fix. Desktop viewport emulation does not exercise the phone's GPU driver.
 
+## Landmark update verification
+
+The `aerial-7` update passed the eight-map Edge regression, desktop/mobile English and Traditional Chinese PNG comparisons, scene/player restoration, and Edge/WebKit landmark, transparency and capture checks. Production Edge exported PNG, GIF and 15-second MP4/WebM; independent decoding confirmed 450 video frames at 1920×1200. The gallery source exported 900 frames at 1920×1080 over 30 seconds. Physical-phone validation of this renderer is still pending.
+
+A local Windows Edge 153 comparison on 2026-09-14 used isolated pages, the same bundled snapshots, 1280×800 output, a fixed camera, density 80 and 60 render/advance steps. These are single-run diagnostic samples, not device guarantees:
+
+| Scene | Previous atlas construction | New atlas construction | Previous / new average frame work |
+| --- | --- | --- | --- |
+| Xinyi | 1.62 s | 1.75 s | 4.85 / 5.07 ms |
+| Sapporo | 2.51 s | 2.67 s | 8.60 / 9.03 ms |
+| Tokyo | 2.87 s | 3.32 s | 10.10 / 9.86 ms |
+| Shanghai | 1.75 s | 1.88 s | 5.00 / 4.91 ms |
+
+Face ordering increases one-time work while animation remains atlas compositing. The compared atlas pairs occupied approximately 91–98 MiB of raw RGBA storage in the new renderer, excluding browser overhead and capture copies. The bounded painter fallback is still used for some intersecting structures; inspect detailed fixtures when adding models.
+
 ## Public artwork
 
 `create-showcase.mjs` downloads five actual PNGs, including Xinyi's Taipei 101, and a 30-second MP4. The public gallery clip is a compressed 12-second excerpt.

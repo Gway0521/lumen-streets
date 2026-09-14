@@ -1,5 +1,5 @@
 {
-  "source": "Actual application downloads; mapped footprints and streets with procedural scenic heights and lighting.",
+  "source": "Actual application downloads; mapped streets and source heights with original parametric landmark artwork and lighting.",
   "credit": "© OpenStreetMap contributors · ODbL",
   "license": "https://www.openstreetmap.org/copyright",
   "images": [
@@ -11,7 +11,7 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "01a0672726e5606c450c0f28306ca9d61de300e171d6b5ff22fab87af9ccf57e"
+      "sha256": "9ee630fb16f781ce26c111b92165d1801530e38bf634a3aea247e4d6444e99a5"
     },
     {
       "id": "tokyo",
@@ -21,7 +21,7 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "fe6dccbddffc125e89fb0013aafcec902ea032ee4600540a5d2cde6787322763"
+      "sha256": "c0ef31af6447d8776e000186c8624d1e9aa35b125170c8b1258593cedf35c462"
     },
     {
       "id": "shanghai",
@@ -31,7 +31,7 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "b9d40d146bfc37e6491fe2190350096683377047246f682854954cad3170921e"
+      "sha256": "e0a008f44d510218c70958c81d94d35c4a516b3e2622ece699edace28487832c"
     },
     {
       "id": "seattle",
@@ -41,10 +41,20 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "1e4ad3dc6bb1a27f7febb0517a550fb5b7573d03deecdd890781eae0a3d44b19"
+      "sha256": "4326bb7733419682c9f828a066f170e679e0218d0ba3f584f60781a392982829"
+    },
+    {
+      "id": "xinyi",
+      "file": "xinyi.png",
+      "width": 1280,
+      "height": 800,
+      "palette": "aerial",
+      "density": 80,
+      "simulationTime": 8,
+      "sha256": "c572d5c5cacc3d159dbe004e3e1af69c58a65e89d7f39a7d6b2bd883d05fb24e"
     }
   ],
-  "rendererVersion": "aerial-6",
+  "rendererVersion": "aerial-7",
   "recording": {
     "file": "sapporo.mp4",
     "seconds": 12,
@@ -53,38 +63,39 @@
     "height": 720,
     "codec": "H.264",
     "source": "First 12 seconds of a 30-second application MP4 download; resized and compressed with FFmpeg, CRF21. No geography or lighting edits.",
-    "sourceSha256": "15457ff2cb1172d1f961025032cdf9773ec7a580281ed16783ab73b811131f14",
-    "sha256": "d0a34da689c91ecf0190cc4b6ced178543ad0cd9b65e713439bf37ed2bc22a99"
+    "sourceSha256": "478ec9f54e3aec7a9de8d51ef08e6ebb378bac7400f9fc7f83e7a28f8f5b7d3d",
+    "sha256": "90cff3772632854d93172d69babfb3b235fc3a07b09aa6e22a233c867b4045f4"
   },
   "readmePreview": {
     "file": "docs/images/social-cover.gif",
     "source": "Actual Sapporo application video with the shared logo, title and fixed gradient overlay. Six-second excerpt; repeats with a cut.",
-    "sourceSha256": "d0a34da689c91ecf0190cc4b6ced178543ad0cd9b65e713439bf37ed2bc22a99",
+    "sourceSha256": "90cff3772632854d93172d69babfb3b235fc3a07b09aa6e22a233c867b4045f4",
     "frames": 60,
     "seconds": 6,
     "width": 960,
     "height": 480,
-    "sha256": "7363cede72f7de145ff973692d78fdc002e0387bd3bbbf9bd83a1403daca66b8"
+    "sha256": "1c3192f4ec373dd0d8ed08cca14b8fc01322afc51f6c5030955f52bc1cf44c61"
   },
   "socialPreview": {
     "file": "docs/images/social-left.jpg",
     "source": "First frame of the same social cover, before GIF downscaling and quantization.",
     "width": 1280,
     "height": 640,
-    "sha256": "8b8e1304760e895cd315a11d43a6dff414f3b4346a2e3f337842ea2f36ab456a"
+    "sha256": "12ddff444bb163cfdb1d7b7d82d6bc41c3aa50f1c728e5844cf0e7bc00ca0edd"
   },
   "websitePreview": {
     "file": "public/social-preview.jpg",
     "source": "Byte-identical copy of docs/images/social-left.jpg for website Open Graph and Twitter cards.",
     "width": 1280,
     "height": 640,
-    "sha256": "8b8e1304760e895cd315a11d43a6dff414f3b4346a2e3f337842ea2f36ab456a"
+    "sha256": "12ddff444bb163cfdb1d7b7d82d6bc41c3aa50f1c728e5844cf0e7bc00ca0edd"
   },
   "poster": {
     "file": "video-poster.png",
     "source": "First decoded frame of sapporo.mp4.",
     "width": 1280,
     "height": 720,
-    "sha256": "f882e5f3f3f21886a82f34da4e1afbcf0ccde7deed0889a26e54e964508d3db6"
-  }
+    "sha256": "d63ec03f1078181896eac6fae102972666d54c7d99172b6e0397662e98da865d"
+  },
+  "landmarkPack": "landmarks-1"
 }
