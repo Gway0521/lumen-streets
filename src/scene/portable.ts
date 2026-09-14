@@ -95,7 +95,8 @@ export interface SceneReference { version: 1; rail: boolean; recipe: SceneRecipe
 export function sceneReference(data: SceneData, recipe: SceneRecipe, view: SceneView): SceneReference | null {
   if (!Object.hasOwn(regions, data.id)) return null;
   const r = validateRecipe(recipe, data); delete r.checkpoint; r.simulationTime = 8; r.remainder = 0;
-  return { version: 1, rail: !!data.source.rail, recipe: r, view: validateView(view) };
+  const ref: SceneReference = { version: 1, rail: !!data.source.rail, recipe: r, view: validateView(view) };
+  return new TextEncoder().encode(JSON.stringify(ref)).byteLength <= 4500 ? ref : null;
 }
 export function encodeReference(ref: SceneReference) {
   return btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(ref)))).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");

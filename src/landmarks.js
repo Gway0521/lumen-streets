@@ -54,7 +54,8 @@ export function layoutLandmarkLabels(city, camera, view, measure) {
   const bottom=height-(quietMode ? 24 : width<=760 ? Math.min(300,height*.4) : 80);
   const placed = [], limit = width < 600 ? 5 : 9;
   for(const place of selectLandmarks(city)) {
-    const x=(place.point[0]-camera.x)*camera.zoom+origin[0],y=(place.point[1]-camera.y)*camera.zoom+origin[1];
+    const point=view.landmarkAnchors?.[place.sourceId]||place.point;
+    const x=(point[0]-camera.x)*camera.zoom+origin[0],y=(point[1]-camera.y)*camera.zoom+origin[1];
     let text=landmarkName(place,locale);const maxWidth=Math.min(220,right-left);
     if(measure(text)>maxWidth){const chars=[...text];while(chars.length&&measure(chars.join('')+'…')>maxWidth)chars.pop();text=chars.join('')+'…';}
     const half=measure(text)/2+7, rect=[x-half,y-13,x+half,y+13];

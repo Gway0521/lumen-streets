@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const roots = ['.editorconfig', '.env.example', '.gitattributes', '.gitignore', '.nvmrc',
   'ATTRIBUTION.md', 'CONTRIBUTING.md', 'LICENSE', 'NOTICE', 'README.md', 'README.zh-TW.md',
   'index.html', 'player.html', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.js'];
-const directories = ['src', 'server', 'public', 'scripts', 'tests', 'docs', 'deploy', '.github'];
+const directories = ['src', 'server', 'public', 'data', 'scripts', 'tests', 'docs', 'deploy', '.github'];
 async function collect(dir) {
   if (!(await lstat(dir)).isDirectory()) throw Error(`Not a source directory: ${dir}`);
   const files = [];

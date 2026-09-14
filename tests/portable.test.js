@@ -48,6 +48,23 @@ test("reference links preserve composition and reproducible controls without a l
   assert.throws(()=>decodeReference('a'.repeat(6001))); assert.throws(()=>decodeReference('%bad'));
   assert.equal(sceneReference({...data,id:'custom'}, {...snapshot,dataId:'custom'}, view), null);
 });
+test("embedded landmark settings survive offline files and malformed generator parameters fail before rendering", async () => {
+  const modified=structuredClone(raw);
+  modified.recipe.structures.pack='archived-pack-1';
+  modified.recipe.structures.profiles[0].art.rotation=7;
+  const restored=await readSceneFile(new Blob([JSON.stringify(modified)]));
+  assert.deepEqual(restored.recipe.structures,modified.recipe.structures);
+  const native=globalThis.fetch;
+  try {
+    globalThis.fetch=()=>{throw Error('Offline scene attempted network access');};
+    await readSceneFile(new Blob([JSON.stringify(modified)]));
+  } finally {globalThis.fetch=native;}
+  for(const patch of [f=>f.recipe.structures.generator=2,f=>delete f.recipe.structures,
+    f=>f.recipe.structures.profiles[0].art.width=10000,f=>f.recipe.structures.profiles[0].modelURL='https://example.org/model']) {
+    const changed=structuredClone(raw);patch(changed);
+    await assert.rejects(readSceneFile(new Blob([JSON.stringify(changed)])));
+  }
+});
 test("hosted files are bounded same-origin static paths, redirects and transport failures do not silently replace data", async () => {
   const base = 'https://example.org/lumen/player.html';
   assert.equal(hostedSceneURL('scenes/tokyo.lumen.json',base).href,'https://example.org/lumen/scenes/tokyo.lumen.json');

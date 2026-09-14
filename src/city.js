@@ -203,8 +203,8 @@ function glow(c, x, y, r, color, strength) {
   c.fillStyle = g;
   c.fillRect(x - r, y - r, r * 2, r * 2);
 }
-export function renderAtlas(city, mood = "amber", appearance) {
-  if (mood === "aerial") return renderAerial(city, appearance);
+export function renderAtlas(city, mood = "amber", appearance, structures) {
+  if (mood === "aerial") return renderAerial(city, appearance, structures);
   const p = palettes[mood],
     bounds = city.bounds,
     w = bounds[2] - bounds[0],

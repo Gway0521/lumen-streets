@@ -108,7 +108,7 @@ export function createFramePainter() {
         c.textAlign = "center";
         c.textBaseline = "middle";
         c.font = '12px "Microsoft JhengHei",sans-serif';
-        for (const {text:label,x,y} of layoutLandmarkLabels(city,camera,{...view,origin:origin()},text=>c.measureText(text).width)) {
+        for (const {text:label,x,y} of layoutLandmarkLabels(city,camera,{...view,origin:origin(),landmarkAnchors:atlas.landmarkAnchors},text=>c.measureText(text).width)) {
           c.shadowColor = "#02090c";
           c.shadowBlur = 5;
           c.strokeStyle = "#0b1825cc";
@@ -167,7 +167,8 @@ export function createFramePainter() {
             }
             foreground = shadedForeground;
           }
-          ctx.drawImage(foreground, b[0], b[1], b[2] - b[0], b[3] - b[1]);
+          const f=atlas.foregroundBounds||b;
+          ctx.drawImage(foreground, f[0], f[1], f[2] - f[0], f[3] - f[1]);
           if (supportsFilter) ctx.filter = 'none';
         }
         if (shadedForeground && (!atlas.foreground || brightness === 1)) {

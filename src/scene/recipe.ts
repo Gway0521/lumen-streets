@@ -1,7 +1,8 @@
 import type { SceneData } from "./data.ts";
 import { DEFAULT_APPEARANCE, validateAppearance, type Appearance } from "./appearance.ts";
+import { createStructures, validateStructures, type StructureRecipe } from './structures.ts';
 
-export const RENDERER_VERSION = "aerial-6";
+export const RENDERER_VERSION = "aerial-7";
 export const STEP = 0.05;
 export type Palette = "aerial" | "amber" | "blue";
 export interface Camera {
@@ -35,6 +36,7 @@ export interface SceneRecipe {
   seed: number;
   palette: Palette;
   appearance?: Appearance;
+  structures?: StructureRecipe;
   density: number;
   /** Optional exact count for deterministic art studies. User density changes clear it. */
   trafficCount?: number;
@@ -58,6 +60,7 @@ export function createRecipe(data: SceneData): SceneRecipe {
     seed: data.id === "ntu" ? 41 : 29,
     palette: "aerial",
     appearance: { ...DEFAULT_APPEARANCE },
+    structures: createStructures(data),
     density: 80,
     trains: true,
     underground: false,
@@ -79,7 +82,7 @@ export function validateRecipe(input: unknown, data: SceneData): SceneRecipe {
     !r ||
     data.schemaVersion !== 1 ||
     r.schemaVersion !== 1 ||
-    ![RENDERER_VERSION, "aerial-5", "aerial-4", "aerial-3", "aerial-2", "aerial-1"].includes(r.rendererVersion) ||
+    ![RENDERER_VERSION, "aerial-6", "aerial-5", "aerial-4", "aerial-3", "aerial-2", "aerial-1"].includes(r.rendererVersion) ||
     r.dataId !== data.id ||
     r.dataFingerprint !== data.fingerprint ||
     !["aerial", "amber", "blue"].includes(r.palette) ||
@@ -138,5 +141,7 @@ export function validateRecipe(input: unknown, data: SceneData): SceneRecipe {
   } else if (r.simulationTime > 3600) {
     throw new Error("Long scenes require a simulation checkpoint");
   }
-  return { ...structuredClone(r), rendererVersion: RENDERER_VERSION, appearance: validateAppearance(r.appearance) };
+  if (r.rendererVersion === RENDERER_VERSION && !r.structures) fail();
+  return { ...structuredClone(r), rendererVersion: RENDERER_VERSION, appearance: validateAppearance(r.appearance),
+    structures: r.structures === undefined ? createStructures(data) : validateStructures(r.structures) };
 }

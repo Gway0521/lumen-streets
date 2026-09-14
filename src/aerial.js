@@ -3,6 +3,9 @@ import { districtField, streetVariation, roadEmission } from './lighting.js';
 import { streetColorField, tintStreet } from './street-colors.js';
 import { prepareBuildings, paintBuildings, paintBuildingShadows } from './building-depth.js';
 import { paintTerrain, paintReflections } from './terrain.js';
+import { visualBounds } from './buildings/order.js';
+import { matchLandmarks } from './buildings/catalog.js';
+import { ROOF_DIRECTION } from './building-depth.js';
 
 function outline(c, points, closed = false, holes = []) {
   c.beginPath();
@@ -24,7 +27,7 @@ function visitLine(points, spacing, visit, start=0) {
   }
 }
 // All light sources are cached. The animation loop only composites this atlas.
-export function renderAerial(city, appearance = { glow: 1, district: 1 }) {
+export function renderAerial(city, appearance = { glow: 1, district: 1 }, structures) {
   const bounds=city.bounds,w=bounds[2]-bounds[0],h=bounds[3]-bounds[1],resolution=Math.min(1.6,3600/Math.max(w,h));
   const canvas=document.createElement('canvas');canvas.width=Math.ceil(w*resolution);canvas.height=Math.ceil(h*resolution);
   const light=document.createElement('canvas');light.width=canvas.width;light.height=canvas.height;
@@ -36,7 +39,7 @@ export function renderAerial(city, appearance = { glow: 1, district: 1 }) {
   paintTerrain(c,city);
   const field=districtField(city), activity=appearance.district === 1 ? field : (x,y)=>Math.max(.03,Math.min(1.2,.45+(field(x,y)-.45)*appearance.district)),roads=city.roads.filter(f=>f.tags.tunnel!=='yes');
   for(const f of roads){const rw=roadWidth(f.tags);stroke(c,f.points,rw+2,'#303536',.55);stroke(c,f.points,rw,'#10171c');}
-  const buildings=prepareBuildings(city,activity);
+  const buildings=prepareBuildings(city,activity,structures?.profiles);
   paintBuildingShadows(c,buildings);
   c.globalAlpha=1;
   // Continuous ribbons, with gentle world-space modulation instead of pools.
@@ -115,9 +118,15 @@ export function renderAerial(city, appearance = { glow: 1, district: 1 }) {
   c.globalCompositeOperation='source-over';
   // Release the light surfaces before allocating the persistent structure layer.
   light.width=light.height=bloom.width=bloom.height=0;
-  const foreground=document.createElement('canvas');foreground.width=canvas.width;foreground.height=canvas.height;
+  const foregroundBounds=visualBounds(buildings,bounds),fw=foregroundBounds[2]-foregroundBounds[0],fh=foregroundBounds[3]-foregroundBounds[1];
+  const foregroundResolution=Math.min(resolution,3600/Math.max(fw,fh));
+  const foreground=document.createElement('canvas');foreground.width=Math.ceil(fw*foregroundResolution);foreground.height=Math.ceil(fh*foregroundResolution);
   const fc=foreground.getContext('2d',{willReadFrequently:true});
-  fc.scale(resolution,resolution);fc.translate(-bounds[0],-bounds[1]);
-  paintBuildings(fc,buildings,activity,appearance.glow);
-  return {canvas,foreground,bounds,resolution};
+  fc.scale(foregroundResolution,foregroundResolution);fc.translate(-foregroundBounds[0],-foregroundBounds[1]);
+  const structureStats=paintBuildings(fc,buildings,activity,appearance.glow);
+  const landmarkAnchors={};
+  for(const [f,{profile,anchor}] of matchLandmarks(city,structures?.profiles).matches)
+    landmarkAnchors[f.sourceId]=Object.freeze(anchor.map((v,i)=>v+ROOF_DIRECTION[i]*(profile.art.observation||profile.art.crown)));
+  Object.freeze(landmarkAnchors);
+  return {canvas,foreground,bounds,resolution,foregroundBounds,foregroundResolution,structureStats,landmarkAnchors};
 }

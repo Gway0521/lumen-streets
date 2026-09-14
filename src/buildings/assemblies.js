@@ -8,7 +8,11 @@ const contains = (f, p) => inside(p, f.points) && !(f.holes || []).some(h => ins
 
 /** Resolve ownership once, without mutating source features or merging unrelated names. */
 export function buildingAssemblies(features, relations = []) {
-  const buildings = features.filter(f => isStructure(f) && f.points.length > 3);
+  const all = features.filter(f => isStructure(f) && f.points.length > 3), mapped = new Map();
+  for(const f of all)if(!f.sourceId.startsWith('node/') && f.tags.wikidata) {
+    if(!mapped.has(f.tags.wikidata))mapped.set(f.tags.wikidata,[]);mapped.get(f.tags.wikidata).push(f);
+  }
+  const buildings=all.filter(f=>!f.sourceId.startsWith('node/') || !(mapped.get(f.tags.wikidata)||[]).some(p=>contains(p,f.points[0])));
   const byId = new Map();
   for (const f of buildings) {
     const id = f.sourceId.replace(/\/outer\/\d+$/, '');
@@ -35,11 +39,12 @@ export function buildingAssemblies(features, relations = []) {
   const grid = new Map(), boxes = new Map();
   for (const f of buildings.filter(f => !isPart(f) && !owner.has(f))) {
     const b = bounds(f); boxes.set(f, b);
+    if ((Math.ceil((b[2]-b[0])/100)+1)*(Math.ceil((b[3]-b[1])/100)+1)>4096) continue;
     for (let x = Math.floor(b[0] / 100); x <= Math.floor(b[2] / 100); x++)
       for (let y = Math.floor(b[1] / 100); y <= Math.floor(b[3] / 100); y++) {
         const key = `${x},${y}`;
         if (!grid.has(key)) grid.set(key, []);
-        grid.get(key).push(f);
+        if(grid.get(key).length<256)grid.get(key).push(f);
       }
   }
   for (const part of buildings.filter(f => isPart(f) && !assignments.has(f))) {

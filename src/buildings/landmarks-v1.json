@@ -1,0 +1,29 @@
+{
+  "version": "landmarks-1",
+  "profiles": [
+    {
+      "id": "taipei-101",
+      "revision": 1,
+      "wikidata": "Q83101",
+      "osm": ["way/1159328965"],
+      "anchor": [121.564807, 25.033666],
+      "radius": 180,
+      "height": 508,
+      "generator": "tiered",
+      "art": { "rotation": -1.2, "width": 60, "podium": 28, "base": 90, "tiers": 8, "tierTop": 390, "crown": 448, "spireBase": 460, "taper": 0.82 },
+      "heightSource": "taipei-101-official"
+    },
+    {
+      "id": "sapporo-tv-tower",
+      "revision": 1,
+      "wikidata": "Q1063319",
+      "osm": ["way/199758828"],
+      "anchor": [141.3564484, 43.0611129],
+      "radius": 70,
+      "height": 144,
+      "generator": "lattice",
+      "art": { "rotation": 9.8, "width": 29.3, "podium": 8, "platform": 27, "observation": 90.38, "observationWidth": 14, "mastBase": 108, "clock": 60 },
+      "heightSource": "sapporo-tv-official"
+    }
+  ]
+}

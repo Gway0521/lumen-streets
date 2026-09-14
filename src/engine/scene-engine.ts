@@ -3,6 +3,7 @@ import { buildGraph, Traffic } from "../traffic.js";
 import { createFramePainter } from "./frame.js";
 import type { SceneData } from "../scene/data.ts";
 import { validateAppearance, type Appearance } from "../scene/appearance.ts";
+import type { StructureRecipe } from '../scene/structures.ts';
 import {
   validateRecipe,
   STEP,
@@ -28,7 +29,7 @@ function releaseAtlas(atlas: Atlas) {
   if ('foreground' in atlas && atlas.foreground) atlas.foreground.width = atlas.foreground.height = 0;
 }
 interface Resources {
-  atlas?: (data: SceneData, palette: Palette, appearance?: Appearance) => Atlas;
+  atlas?: (data: SceneData, palette: Palette, appearance?: Appearance, structures?: StructureRecipe) => Atlas;
   painter?: typeof createFramePainter;
 }
 
@@ -63,8 +64,8 @@ export class SceneEngine {
     }
     delete this.#recipe.checkpoint;
     this.#atlas = resources.atlas
-      ? resources.atlas(data, recipe.palette, this.#recipe.appearance)
-      : renderAtlas(data.geometry, recipe.palette, this.#recipe.appearance);
+      ? resources.atlas(data, recipe.palette, this.#recipe.appearance, this.#recipe.structures)
+      : renderAtlas(data.geometry, recipe.palette, this.#recipe.appearance, this.#recipe.structures);
     try {
       this.#painter = (resources.painter ?? createFramePainter)();
     } catch (error) {
@@ -117,8 +118,8 @@ export class SceneEngine {
       throw new Error("Invalid palette");
     if (palette === this.#recipe.palette) return;
     const next = this.#resources.atlas
-      ? this.#resources.atlas(this.data, palette, this.#recipe.appearance)
-      : renderAtlas(this.data.geometry, palette, this.#recipe.appearance);
+      ? this.#resources.atlas(this.data, palette, this.#recipe.appearance, this.#recipe.structures)
+      : renderAtlas(this.data.geometry, palette, this.#recipe.appearance, this.#recipe.structures);
     releaseAtlas(this.#atlas);
     this.#atlas = next;
     this.#recipe.palette = palette;
@@ -139,7 +140,7 @@ export class SceneEngine {
     this.#assertAlive();
     const next = validateAppearance(value), old = this.#recipe.appearance!;
     if (this.#recipe.palette === "aerial" && (next.glow !== old.glow || next.district !== old.district)) {
-      const atlas = this.#resources.atlas ? this.#resources.atlas(this.data, this.#recipe.palette, next) : renderAtlas(this.data.geometry, this.#recipe.palette, next);
+      const atlas = this.#resources.atlas ? this.#resources.atlas(this.data, this.#recipe.palette, next, this.#recipe.structures) : renderAtlas(this.data.geometry, this.#recipe.palette, next, this.#recipe.structures);
       releaseAtlas(this.#atlas);
       this.#atlas = atlas;
     }
@@ -199,8 +200,8 @@ export class SceneEngine {
     let initial = true;
     return new SceneEngine(this.data, recipe, {
       ...this.#resources,
-      atlas: (data, palette, appearance) => {
-        if (initial && palette === currentPalette && JSON.stringify(validateAppearance(appearance)) === JSON.stringify(this.#recipe.appearance)) {
+      atlas: (data, palette, appearance, structures) => {
+        if (initial && palette === currentPalette && JSON.stringify(structures) === JSON.stringify(this.#recipe.structures) && JSON.stringify(validateAppearance(appearance)) === JSON.stringify(this.#recipe.appearance)) {
           initial = false;
           const copy = (source: HTMLCanvasElement) => {
             const canvas = document.createElement("canvas");
@@ -214,11 +215,12 @@ export class SceneEngine {
           const canvas = copy(this.#atlas.canvas);
           try {
             const foreground = 'foreground' in this.#atlas && this.#atlas.foreground ? copy(this.#atlas.foreground) : undefined;
-            return { ...this.#atlas, bounds: [...this.#atlas.bounds], canvas, foreground };
+            const foregroundBounds = 'foregroundBounds' in this.#atlas ? [...this.#atlas.foregroundBounds] : undefined;
+            return { ...this.#atlas, bounds: [...this.#atlas.bounds], foregroundBounds, canvas, foreground };
           } catch (error) { canvas.width = canvas.height = 0; throw error; }
         }
         initial = false;
-        return renderAtlas(data.geometry, palette, appearance);
+        return renderAtlas(data.geometry, palette, appearance, structures);
       },
     });
   }

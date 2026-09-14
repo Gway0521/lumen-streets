@@ -1,0 +1,17 @@
+{
+  "pack": "landmarks-1",
+  "checkedAt": "2026-09-14",
+  "sources": [
+    { "id": "taipei-101-official", "url": "https://www.taipei-101.com.tw/tw//corporate/about", "publisher": "TAIPEI 101", "field": "total architectural height", "value": 508, "unit": "m", "includesSpire": true },
+    { "id": "taipei-101-engineering", "url": "https://conf.ncree.org.tw/download/i0981026-structural%20design%20of%20taipei%20101%20tower.pdf", "publisher": "Evergreen Consulting Engineering / NCREE", "pages": [3,4,7,8], "field": "site plan, main tower and podium, floor framing", "note": "101 tower floors; six podium floors; eight-storey mechanical intervals. Outline dimensions in the runtime profile are authored simplifications, not surveyed values." },
+    { "id": "sapporo-tv-official", "url": "https://www.tv-tower.co.jp/faq.html", "publisher": "Sapporo TV Tower", "field": "total height", "value": 144, "unit": "m", "observationMetres": 90.38 },
+    { "id": "sapporo-tv-history", "url": "https://www.tv-tower.co.jp/enjoy_history.html", "publisher": "Sapporo TV Tower", "field": "appearance", "note": "Red structure, pale green observation deck and illuminated clock. Model dimensions other than verified heights are authored proportions." },
+    { "id": "taipei-101-wikidata", "url": "https://www.wikidata.org/wiki/Special:EntityData/Q83101.json", "publisher": "Wikidata", "revision": 2520856824, "field": "P2048 candidates", "metres": [508, 2], "note": "508 m agrees with the official total. The 2 m statement has P518=Q83180 and is not an unqualified total height; it must not replace the tower height." },
+    { "id": "sapporo-tv-wikidata", "url": "https://www.wikidata.org/wiki/Special:EntityData/Q1063319.json", "publisher": "Wikidata", "revision": 2485960992, "field": "P2048 candidate", "value": 147.2, "unit": "m", "note": "Agrees with the OSM snapshot but conflicts with the current official FAQ. Official 144 m total retained." }
+  ],
+  "decisions": [
+    { "profile": "taipei-101", "osm": "way/1159328965", "wikidata": "Q83101", "snapshot": "public/data/xinyi.json", "candidates": [{ "source": "osm:height", "raw": "508", "metres": 508 }, { "source": "osm:building:levels", "raw": "101" }], "selected": "taipei-101-official", "reason": "Official total includes the spire. One OSM outline covers tower and shopping podium; the authored tower anchor is inside its southeast portion." },
+    { "profile": "sapporo-tv-tower", "osm": "way/199758828", "wikidata": "Q1063319", "snapshot": "public/data/sapporo.json", "candidates": [{ "source": "osm:height", "raw": "147.2", "metres": 147.2 }], "selected": "sapporo-tv-official", "reason": "Official current FAQ states 144 m, conflicting with the bundled OSM value. Preserve the conflict instead of altering the map snapshot." }
+  ],
+  "artwork": { "license": "AGPL-3.0-only", "method": "Original parametric geometry; no copied meshes, textures, photographs or source-document images. Anchors and footprint alignment reviewed against attributed OSM snapshots. All tier dimensions, widths, material colours and intermediate elevations are artistic approximations unless identified as verified facts above." }
+}

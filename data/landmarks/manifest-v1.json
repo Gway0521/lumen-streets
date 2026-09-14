@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "pack": "landmarks-1",
+  "packSHA256": "d7508d2487222c45a464d4accb7552d254b56fa8bbba74c1a4255c358b4ed03e",
+  "sourcesSHA256": "879d0d059781e8acfc8d50450d5610d3713e41cc283d0bb26d510d1e9eae09bc",
+  "matches": [
+    {
+      "city": "sapporo",
+      "profile": "sapporo-tv-tower",
+      "sourceId": "way/199758828",
+      "mapSHA256": "d1e048e0b23fb5b652e25546978e3353e246b218fc38a271ea8a6e31c6d3e032",
+      "height": 144,
+      "mappedMetres": 147.2,
+      "conflict": true,
+      "solidParts": 5,
+      "rods": 65
+    },
+    {
+      "city": "xinyi",
+      "profile": "taipei-101",
+      "sourceId": "way/1159328965",
+      "mapSHA256": "acc4108406328c9536fd57d6250e60b50a65499975255637f4539109abe7e524",
+      "height": 508,
+      "mappedMetres": 508,
+      "conflict": false,
+      "solidParts": 21,
+      "rods": 1
+    }
+  ]
+}

@@ -11,6 +11,11 @@ export interface MapFeature {
   points: number[][];
   holes: number[][][];
 }
+export interface BuildingFeature extends MapFeature {
+  assemblyId: string;
+  role: 'body' | 'outline' | 'part';
+  relationTags: Record<string, string>;
+}
 export interface RailTrack extends Omit<MapFeature, "holes" | "nodes"> {
   nodes: number[];
 }
@@ -27,7 +32,7 @@ export type Geometry = Omit<
 > & {
   id: string;
   features: MapFeature[];
-  buildings: MapFeature[];
+  buildings: BuildingFeature[];
   roads: MapFeature[];
   land: MapFeature[];
   rail: Omit<ReturnType<typeof parseRail>, "tracks" | "stations"> & {
