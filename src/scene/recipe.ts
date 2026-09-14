@@ -1,7 +1,7 @@
 import type { SceneData } from "./data.ts";
 import { DEFAULT_APPEARANCE, validateAppearance, type Appearance } from "./appearance.ts";
 
-export const RENDERER_VERSION = "aerial-5";
+export const RENDERER_VERSION = "aerial-6";
 export const STEP = 0.05;
 export type Palette = "aerial" | "amber" | "blue";
 export interface Camera {
@@ -79,7 +79,7 @@ export function validateRecipe(input: unknown, data: SceneData): SceneRecipe {
     !r ||
     data.schemaVersion !== 1 ||
     r.schemaVersion !== 1 ||
-    ![RENDERER_VERSION, "aerial-4", "aerial-3", "aerial-2", "aerial-1"].includes(r.rendererVersion) ||
+    ![RENDERER_VERSION, "aerial-5", "aerial-4", "aerial-3", "aerial-2", "aerial-1"].includes(r.rendererVersion) ||
     r.dataId !== data.id ||
     r.dataFingerprint !== data.fingerprint ||
     !["aerial", "amber", "blue"].includes(r.palette) ||

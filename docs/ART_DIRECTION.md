@@ -4,11 +4,19 @@ Lumen Streets is an artistic aerial view of a city at night. Street structure sh
 
 ## Light and movement
 
-- **Connected streets.** Major roads form continuous warm ribbons, with gentle changes through amber, gold and pale yellow. Side streets and paths are fainter.
+- **Connected streets.** Major roads form continuous warm ribbons, with gentle changes through amber, gold and pale yellow. Thin luminous shoulders frame darker asphalt; staggered lamps have small halos. Side streets and paths are fainter.
 - **Distinct districts.** Stations and commercial areas can be bright; residential areas are quieter. Water and parks hold large dark areas.
 - **Restrained highlights.** Intersections retain road detail. A few mapped landmarks add ivory, pale blue or pale green accents.
 - **Readable motion.** White headlights, red tail lights and trains remain visible at wallpaper size. The underground overlay uses dashed tracks.
 - **Shared rules.** Map geometry and tags determine the scene across all cities. Lighting is an artistic interpretation of those features.
+
+## Aerial depth
+
+Aerial Gold uses a fixed oblique projection for buildings. Roofs rise towards the northwest, revealing shaded facades, irregularly occupied floors and warm shopfronts. Recessed roof decks, parapets and small equipment align with the footprint. Cool, subdued roofs keep the warm streets dominant; quiet districts also have darker roof surfaces.
+
+Heights are scenic. Footprint area, mapped building type, district activity and a stable feature seed provide variety when height is absent. Mapped height or floor-count hints are bounded, and broad halls and small outbuildings stay low. These are neither surveyed heights nor a navigable 3D model. Ground geography and traffic routes retain their original coordinates. Projected roofs and facades occlude moving lights; courtyards retain openings. Overlapping buildings use a stable painter order rather than a 3D depth buffer.
+
+Mapped vegetation receives subdued canopy texture. Water carries sparse ripples and short reflections from nearby street lamps, leaving the open river dark. Avoid uniform illumination, fully luminous building outlines and detail that competes with the street hierarchy. Amber and Blue retain their existing flat illustration styles.
 
 Landmark labels use names already present in the map, preferring the selected language and falling back to the source name. Labels avoid each other and the editor controls.
 

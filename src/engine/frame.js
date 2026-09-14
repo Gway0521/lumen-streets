@@ -4,6 +4,7 @@ import { layoutLandmarkLabels } from "../landmarks.js";
 
 export function createFramePainter() {
   let supportsFilter;
+  let shadedForeground, foregroundSource, foregroundBrightness;
   const warmGlow = makeGlow("#ffd5a0"),
     redGlow = makeGlow("#f06b45");
   return {
@@ -148,6 +149,31 @@ export function createFramePainter() {
         }
         paintRail(ctx);
         paintTraffic(ctx);
+        if (atlas.foreground) {
+          let foreground = atlas.foreground;
+          if (supportsFilter && brightness !== 1) ctx.filter = `brightness(${brightness})`;
+          else if (!supportsFilter && brightness !== 1) {
+            // Cache the fallback tint without changing the building silhouette's alpha.
+            if (foregroundSource !== foreground || foregroundBrightness !== brightness) {
+              shadedForeground ??= document.createElement('canvas');
+              shadedForeground.width = foreground.width; shadedForeground.height = foreground.height;
+              const shade = shadedForeground.getContext('2d', { willReadFrequently: true });
+              shade.drawImage(foreground, 0, 0);
+              const pixels = shade.getImageData(0, 0, foreground.width, foreground.height);
+              for (let i = 0; i < pixels.data.length; i += 4)
+                for (let channel = 0; channel < 3; channel++) pixels.data[i + channel] *= brightness;
+              shade.putImageData(pixels, 0, 0);
+              foregroundSource = foreground; foregroundBrightness = brightness;
+            }
+            foreground = shadedForeground;
+          }
+          ctx.drawImage(foreground, b[0], b[1], b[2] - b[0], b[3] - b[1]);
+          if (supportsFilter) ctx.filter = 'none';
+        }
+        if (shadedForeground && (!atlas.foreground || brightness === 1)) {
+          shadedForeground.width = shadedForeground.height = 0;
+          shadedForeground = foregroundSource = null;
+        }
         ctx.restore();
         if (labels) paintLabels(ctx);
         if (!vignette) return;
@@ -188,6 +214,8 @@ export function createFramePainter() {
     },
     dispose() {
       warmGlow.width = redGlow.width = 0;
+      if (shadedForeground) shadedForeground.width = shadedForeground.height = 0;
+      foregroundSource = shadedForeground = null;
     },
   };
 }

@@ -23,6 +23,10 @@ export interface FrameView {
   brightness?: number;
 }
 type Atlas = ReturnType<typeof renderAtlas>;
+function releaseAtlas(atlas: Atlas) {
+  atlas.canvas.width = atlas.canvas.height = 0;
+  if ('foreground' in atlas && atlas.foreground) atlas.foreground.width = atlas.foreground.height = 0;
+}
 interface Resources {
   atlas?: (data: SceneData, palette: Palette, appearance?: Appearance) => Atlas;
   painter?: typeof createFramePainter;
@@ -64,7 +68,7 @@ export class SceneEngine {
     try {
       this.#painter = (resources.painter ?? createFramePainter)();
     } catch (error) {
-      this.#atlas.canvas.width = 0;
+      releaseAtlas(this.#atlas);
       throw error;
     }
   }
@@ -115,7 +119,7 @@ export class SceneEngine {
     const next = this.#resources.atlas
       ? this.#resources.atlas(this.data, palette, this.#recipe.appearance)
       : renderAtlas(this.data.geometry, palette, this.#recipe.appearance);
-    this.#atlas.canvas.width = 0;
+    releaseAtlas(this.#atlas);
     this.#atlas = next;
     this.#recipe.palette = palette;
   }
@@ -136,7 +140,7 @@ export class SceneEngine {
     const next = validateAppearance(value), old = this.#recipe.appearance!;
     if (this.#recipe.palette === "aerial" && (next.glow !== old.glow || next.district !== old.district)) {
       const atlas = this.#resources.atlas ? this.#resources.atlas(this.data, this.#recipe.palette, next) : renderAtlas(this.data.geometry, this.#recipe.palette, next);
-      this.#atlas.canvas.width = this.#atlas.canvas.height = 0;
+      releaseAtlas(this.#atlas);
       this.#atlas = atlas;
     }
     this.#recipe.appearance = next;
@@ -198,13 +202,20 @@ export class SceneEngine {
       atlas: (data, palette, appearance) => {
         if (initial && palette === currentPalette && JSON.stringify(validateAppearance(appearance)) === JSON.stringify(this.#recipe.appearance)) {
           initial = false;
-          const canvas = document.createElement("canvas");
-          canvas.width = this.#atlas.canvas.width;
-          canvas.height = this.#atlas.canvas.height;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) throw new Error("Canvas 2D unavailable");
-          ctx.drawImage(this.#atlas.canvas, 0, 0);
-          return { ...this.#atlas, bounds: [...this.#atlas.bounds], canvas };
+          const copy = (source: HTMLCanvasElement) => {
+            const canvas = document.createElement("canvas");
+            canvas.width = source.width; canvas.height = source.height;
+            try {
+              const ctx = canvas.getContext("2d");
+              if (!ctx) throw new Error("Canvas 2D unavailable");
+              ctx.drawImage(source, 0, 0); return canvas;
+            } catch (error) { canvas.width = canvas.height = 0; throw error; }
+          };
+          const canvas = copy(this.#atlas.canvas);
+          try {
+            const foreground = 'foreground' in this.#atlas && this.#atlas.foreground ? copy(this.#atlas.foreground) : undefined;
+            return { ...this.#atlas, bounds: [...this.#atlas.bounds], canvas, foreground };
+          } catch (error) { canvas.width = canvas.height = 0; throw error; }
         }
         initial = false;
         return renderAtlas(data.geometry, palette, appearance);
@@ -213,7 +224,7 @@ export class SceneEngine {
   }
   dispose() {
     if (this.#disposed) return;
-    this.#atlas.canvas.width = this.#atlas.canvas.height = 0;
+    releaseAtlas(this.#atlas);
     this.#painter.dispose();
     this.#traffic.cars.length = 0;
     this.#disposed = true;

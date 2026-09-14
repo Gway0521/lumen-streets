@@ -250,3 +250,35 @@ test("appearance changes retain simulation and camera; atlas failure is atomic",
   engine.setAppearance(original); assert.equal(builds, blueBuilds);
   engine.dispose();
 });
+
+test('structure atlases are copied for captures and released on replacement, disposal and failed forks', () => {
+  const atlases = [], copies = [], previous = globalThis.document;
+  let failCopy = false;
+  globalThis.document = { createElement() {
+    const canvas = { width: 0, height: 0, getContext() {
+      return failCopy && copies.length % 2 === 0 ? null : { drawImage() {} };
+    } };
+    copies.push(canvas); return canvas;
+  } };
+  const resource = { painter: () => ({ render() {}, dispose() {} }), atlas: () => {
+    const atlas = { canvas: { width: 100, height: 80 }, foreground: { width: 100, height: 80 }, bounds: [...data.geometry.bounds] };
+    atlases.push(atlas); return atlas;
+  } };
+  let live;
+  try {
+    live = new SceneEngine(data, createRecipe(data), resource);
+    const before = live.snapshot(), capture = live.fork();
+    assert.equal(copies.length, 2);
+    capture.dispose(); assert(copies.every(c => c.width === 0 && c.height === 0));
+    assert.equal(atlases[0].foreground.width, 100);
+    assert.deepEqual(live.snapshot(), before);
+    failCopy = true; assert.throws(() => live.fork(), /Canvas/);
+    assert(copies.every(c => c.width === 0 && c.height === 0));
+    assert.equal(atlases[0].foreground.width, 100);
+    live.setPalette('blue');
+    assert.equal(atlases[0].foreground.width, 0); assert.equal(atlases[0].canvas.height, 0);
+    live.dispose(); assert.equal(atlases[1].foreground.height, 0);
+    assert.throws(() => new SceneEngine(data, createRecipe(data), { ...resource, painter() { throw Error('painter failed'); } }), /painter failed/);
+    assert.equal(atlases.at(-1).foreground.width, 0);
+  } finally { live?.dispose(); globalThis.document = previous; }
+});

@@ -44,9 +44,9 @@ test('quiet-space options reject non-finite strength and unknown edges without m
   for(const bad of [null,{}, {edge:'center',strength:.5},{edge:'left',strength:NaN},{edge:'top',strength:1.01},{edge:'right',strength:-1},{edge:'bottom',strength:'1'}]) assert.throws(()=>validateQuietSpace(bad));
 });
 test('previous renderer scenes migrate without losing appearance, camera or simulation',()=>{
-  for(const version of ['aerial-2','aerial-3','aerial-4']){
+  for(const version of ['aerial-2','aerial-3','aerial-4','aerial-5']){
     const input=createRecipe(data);input.rendererVersion=version;input.appearance.brightness=.75;input.camera.x=120;
-    const migrated=validateRecipe(input,data);assert.equal(migrated.rendererVersion,'aerial-5');
+    const migrated=validateRecipe(input,data);assert.equal(migrated.rendererVersion,'aerial-6');
     assert.deepEqual({...migrated,rendererVersion:version},input);assert.equal(input.rendererVersion,version);
   }
 });

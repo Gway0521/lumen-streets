@@ -45,7 +45,7 @@ The JSON envelope uses `format: "lumen-streets-scene"` and `version: 1`:
 
 Raw snapshot strings retain their byte-level fingerprints. Map data remains under ODbL; keep its source and licensing metadata.
 
-The current renderer is `aerial-5`. Readers accept `aerial-1` through `aerial-4`, preserve available settings and saved traffic state, and apply the current rendering and motion rules. Earlier appearance formats receive defaults where settings are absent.
+The current renderer is `aerial-6`. Readers accept `aerial-1` through `aerial-5`, preserve available settings and saved traffic state, and apply the current rendering and motion rules, including scenic building depth in Aerial Gold. Earlier appearance formats receive defaults where settings are absent. Migration preserves a composition and its traffic, not the exact pixels of an older renderer.
 
 Files are limited to 40 million bytes, with 16 million bytes per source snapshot and 32 JSON nesting levels. Viewport dimensions must be 128–8192 pixels; the player caps its drawing surface at 8 million pixels and 4096 per dimension. Map extents and geometry are validated before creating a replacement scene.
 

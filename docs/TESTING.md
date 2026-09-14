@@ -30,6 +30,7 @@ Alternatively, set `PLAYWRIGHT_MODULE` to the absolute `index.mjs` path of an ex
 | `check-interaction-browser.mjs` | Coalesced gestures and paused-state preservation |
 | `check-art-browser.mjs` | Captions, icon space, actual PNG/GIF/15-second video and layouts |
 | `check-landmarks-browser.mjs` | Eight-map labels, source-based lighting, small roads and mobile layouts |
+| `check-depth-browser.mjs` | Deterministic structures, roof occlusion, courtyard transparency, brightness fallback, capture copies and portrait renders; supports `QA_BROWSER=webkit` |
 | `check-upgrade-browser.mjs` | Appearance migration, long 1440p exports and storage failures |
 | `check-screen-ratio-browser.mjs` | Full-display export ratios independent of viewport size, rotation, both languages and actual PNGs; supports production builds and `BROWSER_TYPE=webkit` |
 

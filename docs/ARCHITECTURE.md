@@ -1,6 +1,6 @@
 # Architecture
 
-Lumen Streets is a Vite app with Canvas 2D rendering. Static streets and buildings are drawn once into an atlas; cars and trains are painted over it as the simulation advances. The editor, exported files and read-only player use the same engine.
+Lumen Streets is a Vite app with Canvas 2D rendering. Static streets and buildings are cached in atlases; cars and trains move between the ground and structure layers as the simulation advances. The editor, exported files and read-only player use the same engine.
 
 ## Source map
 
@@ -8,6 +8,7 @@ Lumen Streets is a Vite app with Canvas 2D rendering. Static streets and buildin
 | --- | --- |
 | `src/main.js` | Editor controls, URL, viewport and frame scheduling |
 | `src/city.js`, `aerial.js` | OSM projection, polygon rings and static artwork |
+| `src/building-depth.js`, `terrain.js` | Scenic extrusion, facade/roof artwork, vegetation and shoreline reflections |
 | `src/lighting.js`, `street-colors.js`, `landmarks.js` | District contrast, street colours and source-derived names |
 | `src/traffic.js`, `rail.js` | Road graph, seeded cars, signals and train routes |
 | `src/scene/` | Immutable source data, validated recipes, portable files and sharing UI |
@@ -29,6 +30,10 @@ The portable file format and supported renderer versions are documented in [Scen
 ## Drawing and motion
 
 The aerial atlas uses world coordinates for continuous warm street colours and sparse cool landmark accents. Source features determine district activity. Named landmarks are cached with immutable geometry; screen-space text measurements avoid label collisions.
+
+Aerial Gold owns a ground atlas and a transparent structure atlas at the same resolution. Seeded, bounded building profiles preserve polygon holes, select visible exterior/courtyard faces independently of ring winding, and sort buildings along the fixed projection direction. The frame painter draws ground, rail/traffic, structures and labels in that order. Captures copy both static surfaces; replacement, failure and disposal release both. Old palettes need only the ground atlas. On browsers without Canvas filters, foreground brightness is cached with its alpha preserved.
+
+The additional structure layer costs up to approximately 49.5 MiB at 3600×3600, before browser overhead. A capture owns another copy. Temporary road-light surfaces are released before structures are allocated. Geometry, trees, windows, roof equipment and water reflections are prepared once, not per frame; changing glow or district strength rebuilds the aerial artwork.
 
 Static map and lighting canvases request software rasterization with `willReadFrequently`. This keeps detailed atlas construction off the GPU command queue, avoiding a reproduced Android/Adreno failure that left the browser unable to draw even ordinary pages. Atlas dimensions and lighting rules stay the same; the display canvas keeps its normal rendering path. Initial construction can take longer, and rasterization differences can slightly change edge smoothing.
 
