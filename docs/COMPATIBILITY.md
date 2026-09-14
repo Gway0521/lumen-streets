@@ -6,13 +6,13 @@ Start with a current desktop Chrome or Edge for video export. The app enables MP
 | --- | --- | --- |
 | Windows Edge 153 | Eight maps, both languages, PNG/GIF/MP4/WebM, scene files and player | Dense imports can briefly pause the interface |
 | Windows WebKit 26.5 test build | Artwork, labels, PNG/GIF and narrow layouts | Physical iPhone/Safari support remains unverified |
-| Android 16 / Chrome 152, ROG 8 Pro | v0.1.0 startup, maps, palettes, locales and exports | v0.2.0 renderer and long 1440p exports await physical-device testing |
+| Android | v0.2.0 checked on a physical device | Long 1440p exports have not been separately verified |
 | Other browsers and phones | Runtime format detection | Device coverage is still limited |
 
 ## Known limits
 
 - Large maps can briefly block drawing while geometry and lighting are prepared.
-- Aerial Gold caches an additional structure layer for building occlusion. Dense scenes and exports use more memory than the flat palettes; physical-phone validation of v0.2.0 is pending.
+- Aerial Gold caches an additional structure layer for building occlusion. Dense scenes and exports use more memory than the flat palettes; physical iPhone validation of v0.2.0 is pending.
 - Static atlases use software rasterization to avoid an Android GPU failure during map construction. A browser already left with a black page by an older build may need to be fully restarted once before opening the updated build.
 - Video export needs a secure browser context: use HTTPS for hosted sites.
 - Longer video exports need browser temporary-file storage. A five-minute 1440p file can approach 1 GB; shorter 1080p clips need less space.
