@@ -1,6 +1,7 @@
 import { sample, green } from "../traffic.js";
 import { drawRail } from "../rail.js";
 import { layoutLandmarkLabels } from "../landmarks.js";
+import { worldToScreen } from './projection.js';
 
 export function createFramePainter() {
   let supportsFilter;
@@ -57,8 +58,7 @@ export function createFramePainter() {
         for (const car of traffic.cars) {
           const p = sample(car.edge, car.s),
             o = origin(),
-            sx = (p.x - camera.x) * camera.zoom + o[0],
-            sy = (p.y - camera.y) * camera.zoom + o[1];
+            [sx,sy] = worldToScreen([p.x,p.y],camera,o,atlas.projection);
           if (sx < -30 || sx > width + 30 || sy < -30 || sy > height + 30)
             continue;
           const fade = Math.max(
@@ -108,7 +108,7 @@ export function createFramePainter() {
         c.textAlign = "center";
         c.textBaseline = "middle";
         c.font = '12px "Microsoft JhengHei",sans-serif';
-        for (const {text:label,x,y} of layoutLandmarkLabels(city,camera,{...view,origin:origin(),landmarkAnchors:atlas.landmarkAnchors},text=>c.measureText(text).width)) {
+        for (const {text:label,x,y} of layoutLandmarkLabels(city,camera,{...view,origin:origin(),landmarkAnchors:atlas.landmarkAnchors,projection:atlas.projection},text=>c.measureText(text).width)) {
           c.shadowColor = "#02090c";
           c.shadowBlur = 5;
           c.strokeStyle = "#0b1825cc";
@@ -128,6 +128,7 @@ export function createFramePainter() {
         const o = origin();
         ctx.translate(...o);
         ctx.scale(camera.zoom, camera.zoom);
+        if(atlas.projection)ctx.transform(...atlas.projection,0,0);
         ctx.translate(-camera.x, -camera.y);
         const b = atlas.bounds;
         supportsFilter ??= 'filter' in ctx;

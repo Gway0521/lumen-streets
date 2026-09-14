@@ -59,7 +59,7 @@ test("embedded landmark settings survive offline files and malformed generator p
     globalThis.fetch=()=>{throw Error('Offline scene attempted network access');};
     await readSceneFile(new Blob([JSON.stringify(modified)]));
   } finally {globalThis.fetch=native;}
-  for(const patch of [f=>f.recipe.structures.generator=2,f=>delete f.recipe.structures,
+  for(const patch of [f=>f.recipe.structures.generator=99,f=>delete f.recipe.structures,
     f=>f.recipe.structures.profiles[0].art.width=10000,f=>f.recipe.structures.profiles[0].modelURL='https://example.org/model']) {
     const changed=structuredClone(raw);patch(changed);
     await assert.rejects(readSceneFile(new Blob([JSON.stringify(changed)])));

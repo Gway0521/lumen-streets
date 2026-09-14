@@ -7,7 +7,7 @@ export interface LandmarkProfile {
   generator: 'tiered' | 'lattice'; art: Record<string, number>; heightSource: string;
 }
 export interface StructureRecipe {
-  version: 1; pack: string; generator: 1; projection: 1; profiles: LandmarkProfile[];
+  version: 1 | 2; pack: string; generator: 1 | 2; projection: 1 | 2; elevation?: number; profiles: LandmarkProfile[];
 }
 const fail = (): never => { throw new Error('Invalid or incompatible building settings'); };
 const object = (v: any, keys: string[]) => {
@@ -20,8 +20,9 @@ const token = (v: unknown): v is string => typeof v === 'string' && /^[a-z0-9-]{
 /** Embedded data only: no paths, network lookups, textures or executable model code. */
 export function validateStructures(input: unknown): StructureRecipe {
   const r = input as StructureRecipe;
-  object(r,['version','pack','generator','projection','profiles']);
-  if (r.version !== 1 || r.generator !== 1 || r.projection !== 1 || !token(r.pack) ||
+  object(r,r.version===2?['version','pack','generator','projection','elevation','profiles']:['version','pack','generator','projection','profiles']);
+  if (![1,2].includes(r.version) || r.generator !== r.version || r.projection !== r.version ||
+    (r.version===2 && !number(r.elevation,55,85)) || !token(r.pack) ||
     !Array.isArray(r.profiles) || r.profiles.length > 16) fail();
   const ids = new Set(), entities = new Set();
   for (const p of r.profiles) {
@@ -48,9 +49,9 @@ export function validateStructures(input: unknown): StructureRecipe {
   return structuredClone(r);
 }
 
-export function createStructures(data: SceneData): StructureRecipe {
+export function createStructures(data: SceneData, legacy = false): StructureRecipe {
   // Link decoding can precede source loading. Geographic/identity matching still happens at render time.
   const recipe = data.geometry ? buildingRecipe(data.geometry) :
     {version:1,pack:LANDMARK_PACK.version,generator:1,projection:1,profiles:LANDMARK_PACK.profiles};
-  return validateStructures(recipe);
+  return validateStructures(legacy ? recipe : {...recipe,version:2,generator:2,projection:2,elevation:70});
 }

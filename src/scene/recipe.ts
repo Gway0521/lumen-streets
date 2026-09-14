@@ -2,7 +2,7 @@ import type { SceneData } from "./data.ts";
 import { DEFAULT_APPEARANCE, validateAppearance, type Appearance } from "./appearance.ts";
 import { createStructures, validateStructures, type StructureRecipe } from './structures.ts';
 
-export const RENDERER_VERSION = "aerial-7";
+export const RENDERER_VERSION = "aerial-8";
 export const STEP = 0.05;
 export type Palette = "aerial" | "amber" | "blue";
 export interface Camera {
@@ -32,7 +32,7 @@ export interface SceneRecipe {
   schemaVersion: 1;
   dataId: string;
   dataFingerprint: string;
-  rendererVersion: typeof RENDERER_VERSION;
+  rendererVersion: typeof RENDERER_VERSION | 'aerial-7';
   seed: number;
   palette: Palette;
   appearance?: Appearance;
@@ -82,7 +82,7 @@ export function validateRecipe(input: unknown, data: SceneData): SceneRecipe {
     !r ||
     data.schemaVersion !== 1 ||
     r.schemaVersion !== 1 ||
-    ![RENDERER_VERSION, "aerial-6", "aerial-5", "aerial-4", "aerial-3", "aerial-2", "aerial-1"].includes(r.rendererVersion) ||
+    ![RENDERER_VERSION, "aerial-7", "aerial-6", "aerial-5", "aerial-4", "aerial-3", "aerial-2", "aerial-1"].includes(r.rendererVersion) ||
     r.dataId !== data.id ||
     r.dataFingerprint !== data.fingerprint ||
     !["aerial", "amber", "blue"].includes(r.palette) ||
@@ -141,7 +141,9 @@ export function validateRecipe(input: unknown, data: SceneData): SceneRecipe {
   } else if (r.simulationTime > 3600) {
     throw new Error("Long scenes require a simulation checkpoint");
   }
-  if (r.rendererVersion === RENDERER_VERSION && !r.structures) fail();
-  return { ...structuredClone(r), rendererVersion: RENDERER_VERSION, appearance: validateAppearance(r.appearance),
-    structures: r.structures === undefined ? createStructures(data) : validateStructures(r.structures) };
+  if ([RENDERER_VERSION,'aerial-7'].includes(r.rendererVersion) && !r.structures) fail();
+  const legacy=r.rendererVersion!==RENDERER_VERSION;
+  const structures=r.structures===undefined ? createStructures(data,true) : validateStructures(r.structures);
+  if(structures.version!==(legacy?1:2)) fail();
+  return { ...structuredClone(r), rendererVersion: legacy?'aerial-7':RENDERER_VERSION, appearance: validateAppearance(r.appearance), structures };
 }

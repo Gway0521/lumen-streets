@@ -3,6 +3,7 @@ import { regions } from "./city.js";
 import { loadSceneData } from "./scene/data.ts";
 import { createRecipe } from "./scene/recipe.ts";
 import { SceneEngine } from "./engine/scene-engine.ts";
+import { screenToWorld, inversePoint } from './engine/projection.js';
 import { createExportUI } from "./export/ui.js";
 import { createSceneUI } from "./scene/ui.js";
 import { SceneFileError } from "./scene/portable.ts";
@@ -65,10 +66,7 @@ function reset() {
 function worldAt(x, y) {
   const camera = engine.camera;
   const o = origin();
-  return [
-    (x - o[0]) / camera.zoom + camera.x,
-    (y - o[1]) / camera.zoom + camera.y,
-  ];
+  return screenToWorld([x,y],camera,o,engine.projection);
 }
 function zoom(factor, x = width * 0.6, y = height * 0.5, deferred = false) {
   if (!city) return;
@@ -328,8 +326,9 @@ canvas.addEventListener("keydown", (e) => {
   if (directions[e.key]) {
     e.preventDefault();
     const camera = engine.camera;
-    camera.x += (directions[e.key][0] * 60) / camera.zoom;
-    camera.y += (directions[e.key][1] * 60) / camera.zoom;
+    const delta=inversePoint(directions[e.key],engine.projection);
+    camera.x += delta[0]*60/camera.zoom;
+    camera.y += delta[1]*60/camera.zoom;
     engine.setCamera(camera);
     clampCamera();
     draw();
@@ -385,8 +384,9 @@ canvas.addEventListener("pointermove", (e) => {
       zoom(after / before, (p[0] + e.clientX) / 2, (p[1] + e.clientY) / 2, true);
   } else {
     const camera = engine.camera;
-    camera.x -= (e.clientX - old[0]) / camera.zoom;
-    camera.y -= (e.clientY - old[1]) / camera.zoom;
+    const delta=inversePoint([e.clientX-old[0],e.clientY-old[1]],engine.projection);
+    camera.x -= delta[0] / camera.zoom;
+    camera.y -= delta[1] / camera.zoom;
     engine.setCamera(camera);
     clampCamera();
     requestInteractionDraw();

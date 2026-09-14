@@ -87,6 +87,9 @@ export class SceneEngine {
   get camera(): Camera {
     return { ...this.#recipe.camera };
   }
+  get projection(): number[] {
+    return 'projection' in this.#atlas ? [...this.#atlas.projection] : [1,0,0,1];
+  }
   get playing(): boolean {
     return this.#recipe.playing;
   }

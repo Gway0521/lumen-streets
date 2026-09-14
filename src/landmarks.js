@@ -1,4 +1,5 @@
 import { buildingArea, buildingCenter } from './lighting.js';
+import { worldToScreen } from './engine/projection.js';
 
 const cache = new WeakMap();
 const nameOf = tags => tags.name || tags['name:en'] || tags['name:zh-Hant'] || tags['name:zh'] || '';
@@ -55,7 +56,7 @@ export function layoutLandmarkLabels(city, camera, view, measure) {
   const placed = [], limit = width < 600 ? 5 : 9;
   for(const place of selectLandmarks(city)) {
     const point=view.landmarkAnchors?.[place.sourceId]||place.point;
-    const x=(point[0]-camera.x)*camera.zoom+origin[0],y=(point[1]-camera.y)*camera.zoom+origin[1];
+    const [x,y]=worldToScreen(point,camera,origin,view.projection);
     let text=landmarkName(place,locale);const maxWidth=Math.min(220,right-left);
     if(measure(text)>maxWidth){const chars=[...text];while(chars.length&&measure(chars.join('')+'…')>maxWidth)chars.pop();text=chars.join('')+'…';}
     const half=measure(text)/2+7, rect=[x-half,y-13,x+half,y+13];

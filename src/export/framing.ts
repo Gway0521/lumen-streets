@@ -1,5 +1,6 @@
 import type { FrameView } from "../engine/scene-engine.ts";
 import type { Camera } from "../scene/recipe.ts";
+import { inversePoint } from '../engine/projection.js';
 
 export type ExportSize = "current" | "desktop" | "desktop1610" | "portrait";
 export type ExportFormat = "png" | "gif" | "mp4" | "webm";
@@ -58,13 +59,15 @@ export function outputPlan(source: FrameView, size: ExportSize, format: ExportFo
 
 /** Fill the image from mapped bounds, keeping the requested camera center when possible.
  * Camera/viewport are copies; editor panel offsets never enter the wallpaper composition. */
-export function wallpaperPlan(source: FrameView, bounds: readonly number[], camera: Camera, size: ExportSize, format: ExportFormat, resolution: number = 1080, screen?: ScreenDimensions) {
+export function wallpaperPlan(source: FrameView, bounds: readonly number[], camera: Camera, size: ExportSize, format: ExportFormat, resolution: number = 1080, screen?: ScreenDimensions, projection?: number[]) {
   const plan = outputPlan(source, size, format, resolution, screen);
   const view = { ...plan.view, origin: [plan.view.width / 2, plan.view.height / 2] as [number, number], labels: false, vignette: false, quietMode: true };
   const w = bounds[2] - bounds[0], h = bounds[3] - bounds[1];
   if (bounds.length !== 4 || !bounds.every(Number.isFinite) || w <= 0 || h <= 0) throw new Error("Invalid scene bounds");
-  const zoom = Math.max(camera.zoom, Math.max(view.width / w, view.height / h) * 1.002);
-  const hx = view.width / (2 * zoom), hy = view.height / (2 * zoom);
+  const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,y])=>inversePoint([x*view.width/2,y*view.height/2],projection));
+  const dx=Math.max(...corners.map(p=>Math.abs(p[0]))),dy=Math.max(...corners.map(p=>Math.abs(p[1])));
+  const zoom = Math.max(camera.zoom, Math.max(2*dx/w,2*dy/h) * 1.002);
+  const hx = dx / zoom, hy = dy / zoom;
   const clamp = (n: number, low: number, high: number) => Math.max(low, Math.min(high, n));
   return { ...plan, view, camera: { zoom, x: clamp(camera.x, bounds[0] + hx, bounds[2] - hx), y: clamp(camera.y, bounds[1] + hy, bounds[3] - hy) } };
 }

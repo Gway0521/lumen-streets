@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DEFAULT_APPEARANCE, validateAppearance } from '../src/scene/appearance.ts';
 import { createRecipe, validateRecipe } from '../src/scene/recipe.ts';
+import { createStructures } from '../src/scene/structures.ts';
 import { outputPlan, videoSeconds } from '../src/export/framing.ts';
 import { paintPlaceTitle, validatePlaceTitle, validateQuietSpace } from '../src/export/png.ts';
 import { sceneReference, encodeReference, decodeReference } from '../src/scene/portable.ts';
@@ -9,7 +10,7 @@ import { videoStorage, videoStorageAvailable } from '../src/export/storage.ts';
 
 const data = { schemaVersion: 1, id: 'sapporo', fingerprint: 'a'.repeat(64), source: { rail: null } };
 test('legacy recipes migrate to original appearance; links retain new settings and reject malformed values', () => {
-  const legacy = createRecipe(data); legacy.rendererVersion = 'aerial-1'; delete legacy.appearance;
+  const legacy = createRecipe(data); legacy.rendererVersion = 'aerial-1'; delete legacy.appearance; delete legacy.structures;
   assert.deepEqual(validateRecipe(legacy,data).appearance, DEFAULT_APPEARANCE);
   assert.equal(legacy.rendererVersion,'aerial-1'); assert.equal(legacy.appearance,undefined);
   const recipe = createRecipe(data); recipe.appearance = { version:1, brightness:.8, glow:1.4, district:.6, labels:false };
@@ -45,7 +46,7 @@ test('quiet-space options reject non-finite strength and unknown edges without m
 });
 test('previous renderer scenes migrate without losing appearance, camera or simulation',()=>{
   for(const version of ['aerial-2','aerial-3','aerial-4','aerial-5']){
-    const input=createRecipe(data);input.rendererVersion=version;input.appearance.brightness=.75;input.camera.x=120;
+    const input=createRecipe(data);input.rendererVersion=version;input.structures=createStructures(data,true);input.appearance.brightness=.75;input.camera.x=120;
     const migrated=validateRecipe(input,data);assert.equal(migrated.rendererVersion,'aerial-7');
     assert.deepEqual({...migrated,rendererVersion:version},input);assert.equal(input.rendererVersion,version);
   }

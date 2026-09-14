@@ -3,17 +3,17 @@ import { buildingCenter, buildingArea } from '../lighting.js';
 import { featureSeed, resolveHeight } from './heights.js';
 import { random } from '../city.js';
 
-export const projectVertex = ([x,y,z]) => [x + ROOF_DIRECTION[0] * z, y + ROOF_DIRECTION[1] * z];
+export const projectVertex = ([x,y,z], direction = ROOF_DIRECTION) => [x + direction[0] * z, y + direction[1] * z];
 
 /** Small original parametric models, expressed in world metres before projection. */
-export function generateStructure(feature, anchor, profile) {
+export function generateStructure(feature, anchor, profile, direction = ROOF_DIRECTION) {
   const profiles = [], rods = [], art = profile.art, angle = art.rotation * Math.PI / 180, elevation=profile.baseElevation||0;
   const world = (x,y,z) => [anchor[0]+x*Math.cos(angle)-y*Math.sin(angle),anchor[1]+x*Math.sin(angle)+y*Math.cos(angle),z+elevation];
   const ring = width => [[-1,-1],[1,-1],[1,1],[-1,1],[-1,-1]].map(([x,y])=>world(x*width/2,y*width/2,0).slice(0,2));
   const add = (bottom, top, width, upper = width, material = 'glass') => {
     const f = {...feature,id:feature.id+profiles.length*.001,sourceId:`${feature.sourceId}/section/${profiles.length}`,
       points:ring(width),holes:[],tags:{...feature.tags,building:'office'}};
-    const b = buildingProfile(f,.5,{bottom:bottom+elevation,top:top+elevation,source:'profile',estimated:false},ring(upper));
+    const b = buildingProfile(f,.5,{bottom:bottom+elevation,top:top+elevation,source:'profile',estimated:false},ring(upper),direction);
     b.material=material;b.model=true;b.assemblyId=feature.assemblyId||feature.sourceId;
     profiles.push(b);
   };
@@ -23,7 +23,7 @@ export function generateStructure(feature, anchor, profile) {
   if (profile.generator === 'tiered') {
     // The mapped outline includes the shopping podium; only the anchored tower rises.
     if (!feature.sourceId.startsWith('node/')) {
-      const podium=buildingProfile(feature,.5,{bottom:0,top:art.podium,source:'profile',estimated:false});
+      const podium=buildingProfile(feature,.5,{bottom:0,top:art.podium,source:'profile',estimated:false},feature.points,direction);
       podium.model=true;podium.assemblyId=feature.assemblyId||feature.sourceId;profiles.push(podium);
     }
     add(art.podium,art.base,w,w*.82);

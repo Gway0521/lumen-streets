@@ -22,7 +22,7 @@ function draw() {
   const width = Math.max(128, Math.round(box.width * dpr)), height = Math.max(128, Math.round(box.height * dpr));
   if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
   const view = cropView({ ...held.view, origin: [held.view.width / 2, held.view.height / 2] }, width, height);
-  const plan = wallpaperPlan(view, held.data.geometry.bounds, held.recipe.camera, "current", "png");
+  const plan = wallpaperPlan(view, held.data.geometry.bounds, held.recipe.camera, "current", "png",1080,undefined,engine.projection);
   engine.setCamera(plan.camera); engine.render(ctx, { ...plan.view, labels: held.recipe.appearance?.labels ?? false, locale });
 }
 function frame(now) {

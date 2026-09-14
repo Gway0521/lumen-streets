@@ -5,7 +5,7 @@ import { prepareBuildings, paintBuildings, paintBuildingShadows } from './buildi
 import { paintTerrain, paintReflections } from './terrain.js';
 import { visualBounds } from './buildings/order.js';
 import { matchLandmarks } from './buildings/catalog.js';
-import { ROOF_DIRECTION } from './building-depth.js';
+import { sceneProjection } from './engine/projection.js';
 
 function outline(c, points, closed = false, holes = []) {
   c.beginPath();
@@ -39,7 +39,7 @@ export function renderAerial(city, appearance = { glow: 1, district: 1 }, struct
   paintTerrain(c,city);
   const field=districtField(city), activity=appearance.district === 1 ? field : (x,y)=>Math.max(.03,Math.min(1.2,.45+(field(x,y)-.45)*appearance.district)),roads=city.roads.filter(f=>f.tags.tunnel!=='yes');
   for(const f of roads){const rw=roadWidth(f.tags);stroke(c,f.points,rw+2,'#303536',.55);stroke(c,f.points,rw,'#10171c');}
-  const buildings=prepareBuildings(city,activity,structures?.profiles);
+  const buildings=prepareBuildings(city,activity,structures?.profiles,structures);
   paintBuildingShadows(c,buildings);
   c.globalAlpha=1;
   // Continuous ribbons, with gentle world-space modulation instead of pools.
@@ -126,7 +126,7 @@ export function renderAerial(city, appearance = { glow: 1, district: 1 }, struct
   const structureStats=paintBuildings(fc,buildings,activity,appearance.glow);
   const landmarkAnchors={};
   for(const [f,{profile,anchor}] of matchLandmarks(city,structures?.profiles).matches)
-    landmarkAnchors[f.sourceId]=Object.freeze(anchor.map((v,i)=>v+ROOF_DIRECTION[i]*(profile.art.observation||profile.art.crown)));
+    landmarkAnchors[f.sourceId]=Object.freeze(anchor.map((v,i)=>v+buildings.direction[i]*(profile.art.observation||profile.art.crown||profile.height)));
   Object.freeze(landmarkAnchors);
-  return {canvas,foreground,bounds,resolution,foregroundBounds,foregroundResolution,structureStats,landmarkAnchors};
+  return {canvas,foreground,bounds,resolution,foregroundBounds,foregroundResolution,structureStats,landmarkAnchors,projection:sceneProjection(structures).matrix};
 }

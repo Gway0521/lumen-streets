@@ -10,8 +10,8 @@ function heightPlane(points, bottom, top) {
   return Math.abs(det)<1e-7 ? ()=>top : p=>bottom+cross(u,sub(p,a))/det*(top-bottom);
 }
 
-function rodPrimitive(rod) {
-  const a=projectVertex(rod.a),b=projectVertex(rod.b),d=sub(b,a),length=Math.hypot(...d)||1;
+function rodPrimitive(rod, direction) {
+  const a=projectVertex(rod.a,direction),b=projectVertex(rod.b,direction),d=sub(b,a),length=Math.hypot(...d)||1;
   const n=[-d[1]/length*rod.width/2,d[0]/length*rod.width/2];
   const points=[[a[0]+n[0],a[1]+n[1]],[a[0]-n[0],a[1]-n[1]],[b[0]-n[0],b[1]-n[1]],[b[0]+n[0],b[1]+n[1]]];
   return {kind:'rod',rod,points,holes:[],height:p=>rod.a[2]+((p[0]-a[0])*d[0]+(p[1]-a[1])*d[1])/(length*length)*(rod.b[2]-rod.a[2])};
@@ -53,11 +53,12 @@ export function orderedPrimitives(buildings) {
     for(const face of b.faces)units.push({kind:'face',building:b,face,points:face.points,holes:[],height:heightPlane(face.points,b.elevation.bottom,b.elevation.top)});
     units.push({kind:'roof',building:b,points:b.roof,holes:b.holes,height:()=>b.elevation.top});
   }
-  for(const rod of buildings.rods||[])units.push(rodPrimitive(rod));
+  for(const rod of buildings.rods||[])units.push(rodPrimitive(rod,buildings.direction));
+  const direction=buildings.direction||[-.32,-.48],factor=1+direction[0]**2+direction[1]**2;
   for(const [i,u]of units.entries()) {
     u.bounds=bounds(u.points);u.index=i;
     const center=[(u.bounds[0]+u.bounds[2])/2,(u.bounds[1]+u.bounds[3])/2];
-    u.depth=.32*center[0]+.48*center[1]+1.3328*u.height(center);
+    u.depth=-direction[0]*center[0]-direction[1]*center[1]+factor*u.height(center);
   }
   units.sort((a,b)=>a.depth-b.depth||a.index-b.index);
   const grid=new Map(),edges=units.map(()=>[]),indegree=new Uint32Array(units.length);
@@ -98,6 +99,6 @@ export function visualBounds(buildings, groundBounds) {
   const b=[...groundBounds];
   const add=p=>{b[0]=Math.min(b[0],p[0]-3);b[1]=Math.min(b[1],p[1]-3);b[2]=Math.max(b[2],p[0]+3);b[3]=Math.max(b[3],p[1]+3);};
   for(const f of buildings){f.roof.forEach(add);for(const face of f.faces)face.points.forEach(add);}
-  for(const r of buildings.rods||[]){add(projectVertex(r.a));add(projectVertex(r.b));}
+  for(const r of buildings.rods||[]){add(projectVertex(r.a,buildings.direction));add(projectVertex(r.b,buildings.direction));}
   return b;
 }

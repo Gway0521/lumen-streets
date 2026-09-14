@@ -3,6 +3,7 @@ import { exportPNG, encodeCapturePNG, paintCapture } from "./png.ts";
 import { encodeCaptureGIF } from "./gif.ts";
 import { wallpaperPlan, videoSeconds, screenDimensions } from "./framing.ts";
 import { t } from "../i18n.js";
+import { inversePoint } from '../engine/projection.js';
 
 /** The host owns captures, jobs and result URLs; the editor is never used for encoding. */
 export function createExportUI(getSource, toast) {
@@ -87,7 +88,7 @@ export function createExportUI(getSource, toast) {
     }
   }
   function planFor(s, size, format) {
-    const plan = wallpaperPlan(s.view, s.engine.data.geometry.bounds, s.camera, size, format, Number($('capture-resolution').value), s.screen);
+    const plan = wallpaperPlan(s.view, s.engine.data.geometry.bounds, s.camera, size, format, Number($('capture-resolution').value), s.screen, s.engine.projection);
     plan.view.labels = $('capture-labels').checked;
     return plan;
   }
@@ -171,14 +172,16 @@ export function createExportUI(getSource, toast) {
     if (!drag || !source) return;
     const rect = event.currentTarget.getBoundingClientRect(), plan = planFor(source, $("capture-size").value, $("capture-format").value);
     const scale = rect.width / plan.view.width * drag.camera.zoom;
-    source.camera = { ...drag.camera, x: drag.camera.x - (event.clientX - drag.x) / scale, y: drag.camera.y - (event.clientY - drag.y) / scale };
+    const delta=inversePoint([(event.clientX-drag.x)/scale,(event.clientY-drag.y)/scale],preview.projection);
+    source.camera = { ...drag.camera, x: drag.camera.x-delta[0], y: drag.camera.y-delta[1] };
     updatePreview();
   };
   for (const event of ["pointerup", "pointercancel", "lostpointercapture"]) $("capture-preview").addEventListener(event, () => { drag = undefined; });
   $("capture-preview").onkeydown = event => {
     const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
     if (!d || !preview) return; event.preventDefault(); const camera = preview.camera;
-    source.camera = { ...camera, x: camera.x + d[0] * 60 / camera.zoom, y: camera.y + d[1] * 60 / camera.zoom }; updatePreview();
+    const delta=inversePoint(d,preview.projection);
+    source.camera = { ...camera, x: camera.x + delta[0] * 60 / camera.zoom, y: camera.y + delta[1] * 60 / camera.zoom }; updatePreview();
   };
   for (const [id, factor] of [["crop-in", 1.2], ["crop-out", 1 / 1.2]]) $(id).onclick = () => {
     if (!preview) return; source.camera = { ...preview.camera, zoom: Math.min(10, preview.camera.zoom * factor) }; updatePreview();

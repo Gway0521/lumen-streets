@@ -4,21 +4,22 @@ import { resolveHeight, featureSeed } from './buildings/heights.js';
 import { matchLandmarks } from './buildings/catalog.js';
 import { generateStructure, genericTower } from './buildings/generators.js';
 import { orderedPrimitives } from './buildings/order.js';
+import { LEGACY_DIRECTION, sceneProjection } from './engine/projection.js';
 
 // Fixed art projection; no per-building compression of source measurements.
-export const ROOF_DIRECTION = Object.freeze([-.32, -.48]);
+export const ROOF_DIRECTION = LEGACY_DIRECTION;
 const signedArea = ring => ring.reduce((sum, a, i) => {
   const b = ring[(i + 1) % ring.length];
   return sum + a[0] * b[1] - b[0] * a[1];
 }, 0) / 2;
 
-export function buildingProfile(feature, activity = .5, elevation, upperPoints = feature.points) {
+export function buildingProfile(feature, activity = .5, elevation, upperPoints = feature.points, direction = ROOF_DIRECTION) {
   const area = Math.max(1, buildingArea(feature.points) - (feature.holes || []).reduce((sum, ring) => sum + buildingArea(ring), 0));
   const r = random(featureSeed(feature)), center = buildingCenter(feature.points);
   const resolved = elevation || resolveHeight(feature, area, r());
   const height = resolved.top - resolved.bottom;
-  const offset = ROOF_DIRECTION.map(v => v * height);
-  const base = p => p.map((v, i) => v + ROOF_DIRECTION[i] * resolved.bottom);
+  const offset = direction.map(v => v * height);
+  const base = p => p.map((v, i) => v + direction[i] * resolved.bottom);
   const project = p => [p[0] + offset[0], p[1] + offset[1]];
   const roof = upperPoints.map(p => project(base(p))), holes = (feature.holes || []).map(ring => ring.map(p => project(base(p))));
   const faces = [];
@@ -34,8 +35,8 @@ export function buildingProfile(feature, activity = .5, elevation, upperPoints =
       faces.push({ a, b, length, points: [a, b, upperB, upperA], exposure: -facing / Math.hypot(...offset) });
     }
   }
-  return { feature, area, center, height, elevation: resolved, offset, roof, holes, faces,
-    depth: center[0] * -ROOF_DIRECTION[0] + center[1] * -ROOF_DIRECTION[1] };
+  return { feature, area, center, height, elevation: resolved, offset, roof, holes, faces, direction,
+    depth: center[0] * -direction[0] + center[1] * -direction[1] };
 }
 
 function outline(c, points, holes = []) {
@@ -46,7 +47,8 @@ function outline(c, points, holes = []) {
   }
 }
 
-export function prepareBuildings(city, activity, profiles) {
+export function prepareBuildings(city, activity, profiles, settings) {
+  const {direction}=sceneProjection(settings);
   const {matches,suppressed}=matchLandmarks(city,profiles), buildings=[], rods=[];
   for(const f of city.buildings) {
     if(suppressed.has(f))continue;
@@ -54,13 +56,14 @@ export function prepareBuildings(city, activity, profiles) {
     if(!match && f.role==='outline')continue;
     if(!match && (f.tags['tower:construction']==='lattice' || f.tags.man_made==='mast'))match=genericTower(f);
     if(match) {
-      const generated=generateStructure(f,match.anchor,match.profile);
+      const generated=generateStructure(f,match.anchor,match.profile,direction);
       buildings.push(...generated.profiles);rods.push(...generated.rods);
-    } else if(buildingArea(f.points)>=8)buildings.push(buildingProfile(f,activity(...buildingCenter(f.points))));
+    } else if(buildingArea(f.points)>=8)buildings.push(buildingProfile(f,activity(...buildingCenter(f.points)),undefined,f.points,direction));
   }
   buildings.sort((a,b)=>a.depth-b.depth||a.feature.id-b.feature.id);
   // Non-enumerable metadata keeps the existing array API for callers and studies.
   Object.defineProperty(buildings,'rods',{value:rods});
+  Object.defineProperty(buildings,'direction',{value:direction});
   return buildings;
 }
 
@@ -69,7 +72,7 @@ export function paintBuildingShadows(c, buildings) {
   const shadow=(p,z)=>[p[0]+.13*z,p[1]+.19*z];
   for (const b of buildings) {
     const top=b.elevation.top,bottom=b.elevation.bottom;
-    const physical=(p,z)=>p.map((v,i)=>v-ROOF_DIRECTION[i]*z);
+    const physical=(p,z)=>p.map((v,i)=>v-b.direction[i]*z);
     outline(c,b.roof.map(p=>shadow(physical(p,top),top)),b.holes.map(h=>h.map(p=>shadow(physical(p,top),top))));
     c.fillStyle = '#01050950'; c.fill('evenodd');
     for(const face of b.faces) {
