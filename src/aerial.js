@@ -5,7 +5,7 @@ import { prepareBuildings, paintBuildings, paintBuildingShadows } from './buildi
 import { paintTerrain, paintReflections } from './terrain.js';
 import { visualBounds } from './buildings/order.js';
 import { matchLandmarks } from './buildings/catalog.js';
-import { sceneProjection } from './engine/projection.js';
+import { sceneProjection, bakeProjection } from './engine/projection.js';
 
 function outline(c, points, closed = false, holes = []) {
   c.beginPath();
@@ -118,15 +118,18 @@ export function renderAerial(city, appearance = { glow: 1, district: 1 }, struct
   c.globalCompositeOperation='source-over';
   // Release the light surfaces before allocating the persistent structure layer.
   light.width=light.height=bloom.width=bloom.height=0;
+  const projection=sceneProjection(structures).matrix,projected=structures?.projection===2;
+  const ground=projected?bakeProjection(canvas,bounds,resolution,projection):{canvas,bounds,resolution};
   const foregroundBounds=visualBounds(buildings,bounds),fw=foregroundBounds[2]-foregroundBounds[0],fh=foregroundBounds[3]-foregroundBounds[1];
   const foregroundResolution=Math.min(resolution,3600/Math.max(fw,fh));
   const foreground=document.createElement('canvas');foreground.width=Math.ceil(fw*foregroundResolution);foreground.height=Math.ceil(fh*foregroundResolution);
   const fc=foreground.getContext('2d',{willReadFrequently:true});
   fc.scale(foregroundResolution,foregroundResolution);fc.translate(-foregroundBounds[0],-foregroundBounds[1]);
   const structureStats=paintBuildings(fc,buildings,activity,appearance.glow);
+  const layer=projected?bakeProjection(foreground,foregroundBounds,foregroundResolution,projection):{canvas:foreground,bounds:foregroundBounds,resolution:foregroundResolution};
   const landmarkAnchors={};
   for(const [f,{profile,anchor}] of matchLandmarks(city,structures?.profiles).matches)
     landmarkAnchors[f.sourceId]=Object.freeze(anchor.map((v,i)=>v+buildings.direction[i]*(profile.art.observation||profile.art.crown||profile.height)));
   Object.freeze(landmarkAnchors);
-  return {canvas,foreground,bounds,resolution,foregroundBounds,foregroundResolution,structureStats,landmarkAnchors,projection:sceneProjection(structures).matrix};
+  return {...ground,foreground:layer.canvas,foregroundBounds:layer.bounds,foregroundResolution:layer.resolution,structureStats,landmarkAnchors,projection,projected};
 }

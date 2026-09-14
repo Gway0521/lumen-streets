@@ -28,3 +28,20 @@ export function screenToWorld(point, camera, origin, matrix) {
   const p=inversePoint([(point[0]-origin[0])/camera.zoom,(point[1]-origin[1])/camera.zoom],matrix);
   return [p[0]+camera.x,p[1]+camera.y];
 }
+
+/** Bake the fixed camera once. Per-frame affine sampling of software atlases is
+ * expensive on WebKit; moving lights still use the same matrix at composition time. */
+export function bakeProjection(source, bounds, resolution, matrix) {
+  const corners=[[bounds[0],bounds[1]],[bounds[2],bounds[1]],[bounds[2],bounds[3]],[bounds[0],bounds[3]]].map(p=>transformPoint(p,matrix));
+  const next=[Math.min(...corners.map(p=>p[0])),Math.min(...corners.map(p=>p[1])),Math.max(...corners.map(p=>p[0])),Math.max(...corners.map(p=>p[1]))];
+  const w=next[2]-next[0],h=next[3]-next[1],scale=Math.min(resolution,3600/Math.max(w,h));
+  const canvas=document.createElement('canvas');canvas.width=Math.ceil(w*scale);canvas.height=Math.ceil(h*scale);
+  try {
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    if(!ctx)throw Error('Canvas 2D unavailable');
+    ctx.setTransform(scale,0,0,scale,-next[0]*scale,-next[1]*scale);ctx.transform(...matrix,0,0);
+    ctx.drawImage(source,bounds[0],bounds[1],bounds[2]-bounds[0],bounds[3]-bounds[1]);
+  } catch(error) {canvas.width=canvas.height=0;throw error;}
+  source.width=source.height=0;
+  return {canvas,bounds:next,resolution:scale};
+}

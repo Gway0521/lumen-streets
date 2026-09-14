@@ -1,7 +1,7 @@
 import { sample, green } from "../traffic.js";
 import { drawRail } from "../rail.js";
 import { layoutLandmarkLabels } from "../landmarks.js";
-import { worldToScreen } from './projection.js';
+import { worldToScreen, transformPoint } from './projection.js';
 
 export function createFramePainter() {
   let supportsFilter;
@@ -128,8 +128,12 @@ export function createFramePainter() {
         const o = origin();
         ctx.translate(...o);
         ctx.scale(camera.zoom, camera.zoom);
-        if(atlas.projection)ctx.transform(...atlas.projection,0,0);
-        ctx.translate(-camera.x, -camera.y);
+        if(atlas.projected) {
+          const center=transformPoint([camera.x,camera.y],atlas.projection);ctx.translate(-center[0],-center[1]);
+        } else {
+          if(atlas.projection)ctx.transform(...atlas.projection,0,0);
+          ctx.translate(-camera.x, -camera.y);
+        }
         const b = atlas.bounds;
         supportsFilter ??= 'filter' in ctx;
         const brightness = view.brightness ?? 1;
@@ -148,8 +152,10 @@ export function createFramePainter() {
           }
           ctx.restore();
         }
-        paintRail(ctx);
-        paintTraffic(ctx);
+        ctx.save();
+        if(atlas.projected)ctx.transform(...atlas.projection,0,0);
+        paintRail(ctx);paintTraffic(ctx);
+        ctx.restore();
         if (atlas.foreground) {
           let foreground = atlas.foreground;
           if (supportsFilter && brightness !== 1) ctx.filter = `brightness(${brightness})`;
