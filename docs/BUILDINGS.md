@@ -1,6 +1,6 @@
 # Buildings and landmarks
 
-Aerial Gold combines mapped footprints with source heights and original parametric artwork. Taipei 101 and Sapporo TV Tower have reviewed profiles; ordinary buildings use extrusion, and other mapped lattice towers receive a neutral open frame. Amber and Blue retain their flat illustration styles.
+Aerial Gold combines mapped footprints with source heights and original parametric artwork. Six reviewed profiles cover Taipei 101, Sapporo TV Tower, Oriental Pearl Tower, Shanghai Tower, Shanghai World Financial Center and Jin Mao Tower. Ordinary buildings use extrusion; mapped lattice towers receive a neutral open frame. Amber and Blue retain their flat illustration styles.
 
 ## Runtime pipeline
 
@@ -9,8 +9,8 @@ flowchart LR
   A[Cached OSM snapshot] --> B[Identity and part ownership]
   P[Published landmark pack] --> C[Exact identity and location match]
   B --> C
-  C --> D[Source height or conservative estimate]
-  D --> E[Extrusions, tiered solids and open rods]
+  C --> D[Component roles and explicit replacement plan]
+  D --> E[Source heights, bounded solids and open frames]
   E --> F[Shared projection and static face order]
   F --> G[Ground, traffic, structures and labels]
 ```
@@ -26,13 +26,17 @@ The runtime has no Wikidata, official-site or model-download requests. Geometry 
 
 `min_height` is the bottom elevation, with `building:min_level` as a fallback. It is not added to an explicit top height. Invalid bottom/top combinations fall back to another credible candidate or an estimate. Explicit heights already include roof height; roofs are not counted twice. Antenna/spire semantics require source review for landmarks.
 
-Projection version 1 maps `(x,y,z)` to `(x-.32z,y-.48z)`, in local world metres. A common fixed scale preserves relative heights; footprint area and building type do not truncate valid measurements. Changing district light does not change geometry. The camera remains an artistic oblique view rather than a navigable 3D scene.
+Projection version 1 retains `(x,y,z) → (x-.32z,y-.48z)` for aerial-7 scenes. Version 2 uses a fixed northwest-facing orthographic camera, initially 70 degrees above the horizontal. `engine/projection.js` supplies a shared ground transform and compatible height displacement; world metres and measured heights remain unchanged. Ground, solids, frames, shadows, traffic and labels use the same camera. Pointer and crop operations use its inverse. The elevation is embedded in the recipe (bounded 55–85 degrees); the editor does not rebuild the city continuously for free rotation.
 
 ## Identity and structures
 
 Source IDs retain their OSM namespaces. Multipolygon rings keep holes; building relations associate `outline` and `part` members. A spatial grid associates otherwise ungrouped parts only when one containing building can be identified without crossing a courtyard. Recognized outlines are not extruded over their parts. Incomplete parts may leave missing detail; the renderer does not invent a tall body to fill it. Ambiguous ownership remains separate.
 
-Tower nodes can supply a small estimated footprint. Nodes with the same Wikidata identity inside an existing mapped structure are suppressed. Landmark matching requires an exact OSM or Wikidata identity **and** proximity to the reviewed anchor. Name fragments such as “Taipei 101 / MRT Exit 5” never select a tower model. A matching assembly is replaced once, including its identified parts.
+Tower nodes can supply a small estimated footprint. Nodes with the same Wikidata identity inside an existing mapped structure are suppressed. Landmark matching requires an exact OSM or Wikidata identity **and** proximity to the reviewed anchor. Name fragments such as “Taipei 101 / MRT Exit 5” never select a tower model.
+
+Generator version 2 assembles identity before discarding outline geometry. Selected structural tags can inform untagged parts, but total height and facade material are not blindly inherited. A known lattice assembly gets one frame; elevated platforms and annexes retain their own height semantics. A communications-tower use tag alone does not imply lattice construction.
+
+Each reviewed profile lists exact `replace.sources`, explicit `replace.keep` exclusions and a `partsWithin` radius in metres. Additional parts are replaced only in the matched assembly and wholly inside that envelope; annexes are retained. Outlying or ambiguous parts remain available. The maintenance manifest records actual replaced/retained source IDs for every fixture. A matching outline's identity survives its geometry replacement. Legacy generator version 1 retains its original whole-assembly replacement behavior.
 
 The initial profiles are deliberately small:
 
@@ -40,8 +44,12 @@ The initial profiles are deliberately small:
 | --- | --- | --- |
 | Taipei 101 | 508 m architectural total, 101 tower floors; source outline includes shopping podium | Separate tower anchor; low podium, eight flared sections, crown and spire; widths and intermediate elevations |
 | Sapporo TV Tower | Official 144 m total and 90.38 m observatory; OSM/Wikidata 147.2 m conflict retained | Four splayed legs, X bracing, platforms, pale green observation enclosure and fixed illuminated clock marks |
+| Oriental Pearl Tower | Official 468 m total; bundled outline has no height | Inclined legs, three open columns, two principal spheres, upper capsule and antenna; secondary spheres omitted |
+| Shanghai Tower | 632 m; design describes 120-degree rotation | Rounded triangular sections taper and rotate; simplified envelope rather than double facade |
+| Shanghai World Financial Center | Official 492 m total | Tapered body, two piers and a lintel forming an actual open sky portal |
+| Jin Mao Tower | Owner's 420.5 m total; agrees with OSM | Repeated setbacks, restrained cornices and tapering crown |
 
-The profiles use 21 solid parts plus one rod for Taipei 101, and five solids plus 65 rods for Sapporo. No third-party meshes, photographs or textures are included. Source references, revision IDs and distinctions between measurements and artwork live in [`sources-v1.json`](../data/landmarks/sources-v1.json).
+The Shanghai profiles combine capped section lofts, ellipsoids and beams. Loft sections contain `[z, width, depth, rotation, x, y]` in local metres/degrees. Geometry becomes physical triangles with surface normals and ray heights; glass, silver, stone, rose, ivory and steel have distinct restrained shading. Triangles participate in the same order as generic buildings and open rods. No third-party meshes, photographs or textures are included. Source references and measurement/art distinctions live in [`sources-v1.json`](../data/landmarks/sources-v1.json) and [`sources-v2.json`](../data/landmarks/sources-v2.json).
 
 ## Maintaining a pack
 
@@ -53,9 +61,9 @@ npm run check:landmarks     # read-only check; also runs during build
 
 The fetch command retrieves the small curated list of Wikidata entities into ignored `.cache/landmarks/`. Its report retains revisions, units, qualifiers, references and disagreements with the published height. It cannot edit the runtime pack. Check official sources and OSM identity/parts before selecting a candidate; multiple heights may refer to different components.
 
-Edit the reviewed runtime definitions in `src/buildings/landmarks-v1.json` and document decisions separately in `data/landmarks/`. The preparation command checks anchors against bundled map fixtures, source conflicts, model top height and geometry budgets, then writes a SHA-256 manifest. Review that diff and the actual close/whole-city renders. A new pack should use a new version/file and retain compatibility with embedded older profiles; bump the generator or projection version when their interpretation changes. Unsupported geometry versions are rejected rather than silently replaced.
+Maintain definitions in `src/buildings/landmarks-v2.json` and document decisions separately in `data/landmarks/`; version 1 remains archived for compatibility. Preparation checks anchors, source conflicts, top heights, replacement bindings and geometry budgets, then writes SHA-256 manifests. Review the diff and actual close/whole-city renders. Once published, a pack version and its generator/projection/material interpretation are immutable: introduce a new version/file and keep the old path. Compact links verify the published pack hash. Full files embed the used definitions. Unsupported versions are rejected rather than silently substituted.
 
-This small pack is bundled with the app. Introduce geographic pack sharding or an indexed store only when catalogue size justifies it; no database is needed for two entries.
+This small pack is bundled with the app. Introduce geographic sharding or an indexed store only when catalogue size justifies it. Imports allow at most 16 profiles, 40 components per profile, 24 sections per loft, 6000 estimated triangles per component profile and 24000 per scene. Parameters and material names are allowlisted; no model URLs, scripts or unbounded tessellation are accepted.
 
 ## Composition and limits
 
@@ -63,6 +71,6 @@ Solid faces and rods participate in the same static order. Overlapping projected
 
 Intersecting structures can create cycles; those use a deterministic painter fallback. This is not an arbitrary-mesh depth buffer. The ordering report records cycles and exhausted comparison budgets so dense/problematic fixtures can be inspected rather than assuming all intersections are solved.
 
-The structure atlas has its own projected bounds, preserving tall silhouettes at geographic edges. Both atlas long edges remain capped at 3600 pixels; extension may slightly reduce structure resolution. No extra persistent full-size canvas was added to the previous two-atlas architecture. Each maximum-size RGBA atlas is approximately 49.5 MiB, before browser overhead; a capture owns another pair. Roof equipment and facade rows are bounded, and the same detail is used by preview, saved scenes and exports. Physical-phone validation remains distinct from desktop viewport tests.
+The structure atlas has its own projected bounds, preserving tall silhouettes at geographic edges. Both atlas long edges remain capped at 3600 pixels; extension may slightly reduce structure resolution. The fixed projection is baked once into each atlas, releasing its unprojected surface after conversion. No extra persistent full-size canvas was added to the previous two-atlas architecture. Each maximum-size RGBA atlas is approximately 49.5 MiB, before browser overhead; a capture owns another pair. Roof equipment and facade rows are bounded, and the same detail is used by preview, saved scenes and exports. Physical-phone validation remains distinct from desktop viewport tests.
 
-Run `scripts/check-landmark-browser.mjs` for close/wide output, open-structure alpha, file restoration, reference settings, capture equality and timings. See [Testing](TESTING.md) for the complete browser matrix and [Scenes](SCENES.md) for migration behavior.
+Run `scripts/check-projection-browser.mjs` for portal transparency, Shanghai/Taipei/Sapporo/Tokyo output, file/link restoration, capture equality and timings. `QA_BASELINE` optionally selects an independently archived aerial-7 source directory for exact legacy comparisons. `scripts/check-landmark-browser.mjs` retains the close/wide tower studies. See [Testing](TESTING.md) and [Scenes](SCENES.md).

@@ -32,6 +32,8 @@ Alternatively, set `PLAYWRIGHT_MODULE` to the absolute `index.mjs` path of an ex
 | `check-landmarks-browser.mjs` | Eight-map labels, source-based lighting, small roads and mobile layouts |
 | `check-depth-browser.mjs` | Deterministic structures, roof occlusion, courtyard transparency, brightness fallback, capture copies and portrait renders; supports `QA_BROWSER=webkit` |
 | `check-landmark-browser.mjs` | Taipei 101/Sapporo TV Tower close and wide renders, lattice alpha, exact saved-file/fork pixels, embedded reference profiles, primitive counts and timings; supports `QA_BROWSER=webkit` |
+| `check-projection-browser.mjs` | Orthographic sky-portal alpha, four-city saved-file/link/capture equality, optional independent aerial-7 baseline comparison and timings; Edge/WebKit |
+| `check-projection-ui.mjs` | Actual Shanghai file/link UI, legacy-file opening and explicit upgrade preserving traffic/camera; both languages and desktop/mobile; Edge/WebKit |
 | `check-upgrade-browser.mjs` | Appearance migration, long 1440p exports and storage failures |
 | `check-screen-ratio-browser.mjs` | Full-display export ratios independent of viewport size, rotation, both languages and actual PNGs; supports production builds and `BROWSER_TYPE=webkit` |
 
@@ -59,6 +61,25 @@ A local Windows Edge 153 comparison on 2026-09-14 used isolated pages, the same 
 | Shanghai | 1.75 s | 1.88 s | 5.00 / 4.91 ms |
 
 Face ordering increases one-time work while animation remains atlas compositing. The compared atlas pairs occupied approximately 91–98 MiB of raw RGBA storage in the new renderer, excluding browser overhead and capture copies. The bounded painter fallback is still used for some intersecting structures; inspect detailed fixtures when adding models.
+
+## Orthographic scene verification
+
+The aerial-8 implementation passed 93 Node tests, eight preset checks, TypeScript, both landmark manifests, build and release checks. Edge 153 and WebKit 26.5 verified identical pixels for saved/reopened scenes, compact links and capture copies in Shanghai, Xinyi, Sapporo and Tokyo. The same fixtures matched an independently archived aerial-7 renderer exactly when opened in compatibility mode. The SWFC portal measured alpha 0 and the body alpha 255. Desktop and mobile viewport UI checks in both languages verified file import, links and explicit artwork upgrade without changing the traffic checkpoint or camera. The eight-city Edge regression also checked real PNG downloads and preview equality.
+
+Single-run Windows diagnostics on 2026-09-15 used 1280×800 output, a fixed camera and 60 advance/render steps. These measure CPU-side work in desktop browsers, not physical-phone frame rates:
+
+| Scene | Edge 153 construction / frame work | WebKit 26.5 construction / frame work |
+| --- | --- | --- |
+| Shanghai | 2.07 s / 8.28 ms | 1.80 s / 23.60 ms |
+| Xinyi | 2.94 s / 8.66 ms | 1.53 s / 23.30 ms |
+| Sapporo | 4.63 s / 9.60 ms | 2.46 s / 27.37 ms |
+| Tokyo | 3.38 s / 6.93 ms | 2.75 s / 33.18 ms |
+
+Baking the fixed projection once reduced the sampled WebKit frame work from 30.5–43.8 ms to 23.3–33.2 ms. Build timings vary with browser and host load. Shanghai's 8102 primitives needed 45098 overlap comparisons with no cycles or budget fallbacks. The persistent atlas pairs used about 90–97 MiB of raw RGBA, before browser overhead, temporary projection conversion and capture copies. Sphere/loft tessellation and facade details are bounded and remain the same across preview, files and exports.
+
+Production Edge exported PNG, GIF and 15-second MP4/WebM with the final projection cache. Independent decoding confirmed 450 frames at 1920×1200 in both video formats and 90 GIF frames over six seconds at 720×450. WebKit passed PNG/GIF export and both-language narrow layouts; its video cases were skipped. The refreshed gallery source contains 900 frames at 1920×1080 over 30 seconds.
+
+This update was accepted for simulated mobile testing; physical Android and iPhone performance have not been verified. The existing Android/Adreno software-atlas workaround remains in place. Generic intersecting volumes can still need the documented painter fallback; six supported landmarks do not imply automatic recognition of every landmark.
 
 ## Public artwork
 

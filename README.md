@@ -13,7 +13,7 @@ Lumen Streets draws real streets, buildings and railways as an animated nightsca
 ## Make it your night
 
 - **Start with eight places, or find your own.** Explore Sapporo, Tokyo, Taipei, Shanghai, Beijing, Seattle and Washington, DC, or search for another neighbourhood. The eight included maps need no account or API key.
-- **Light with depth.** Golden avenues, shaded facades and quiet shore reflections. Aerial gold preserves mapped height differences and adds recognizable Taipei 101 and Sapporo TV Tower silhouettes. Amber and Blue hour offer flatter illustration styles.
+- **Light with depth.** Golden avenues, shaded facades and quiet shore reflections share a high-angle aerial view. Six reviewed landmark silhouettes include Taipei 101, Sapporo TV Tower and Shanghai's four signature towers. Amber and Blue hour offer flatter illustration styles.
 - **Made for your desktop.** 4K PNGs and 1080p/1440p videos, in desktop or portrait framing. Add a place title, show landmarks, or softly dim an edge for icons. Exports have no branding by default.
 - **A scene you can return to.** Save the exact view and traffic moment in a scene file, or share a player link and embed it in a website.
 
