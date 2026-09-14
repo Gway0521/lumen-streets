@@ -1,10 +1,13 @@
 /** World metres remain east/south/up. Aerial-7 keeps its original oblique view. */
 export const LEGACY_DIRECTION = Object.freeze([-.32, -.48]);
 const length = Math.hypot(...LEGACY_DIRECTION);
-const axis = LEGACY_DIRECTION.map(v => v / length);
+const legacyAxis = LEGACY_DIRECTION.map(v => v / length);
 
 export function sceneProjection(settings) {
   if (settings?.projection !== 2) return { direction: LEGACY_DIRECTION, matrix: [1, 0, 0, 1] };
+  // Missing azimuth preserves the original aerial-8 composition in saved scenes.
+  const bearing = settings.azimuth * Math.PI / 180;
+  const axis = settings.azimuth === undefined ? legacyAxis : [Math.sin(bearing), -Math.cos(bearing)];
   const angle = settings.elevation * Math.PI / 180, sine = Math.sin(angle);
   return {
     direction: axis.map(v => v / Math.tan(angle)),

@@ -9,7 +9,7 @@ export interface LandmarkProfile {
   components?: Component[]; replace?: Replacement;
 }
 export interface StructureRecipe {
-  version: 1 | 2; pack: string; generator: 1 | 2; projection: 1 | 2; elevation?: number; profiles: LandmarkProfile[];
+  version: 1 | 2; pack: string; generator: 1 | 2; projection: 1 | 2; elevation?: number; azimuth?: number; profiles: LandmarkProfile[];
 }
 const fail = (): never => { throw new Error('Invalid or incompatible building settings'); };
 const object = (v: any, keys: string[]) => {
@@ -22,9 +22,9 @@ const token = (v: unknown): v is string => typeof v === 'string' && /^[a-z0-9-]{
 /** Embedded data only: no paths, network lookups, textures or executable model code. */
 export function validateStructures(input: unknown): StructureRecipe {
   const r = input as StructureRecipe;
-  object(r,r.version===2?['version','pack','generator','projection','elevation','profiles']:['version','pack','generator','projection','profiles']);
+  object(r,r.version===2?['version','pack','generator','projection','elevation','profiles',...(r.azimuth===undefined?[]:['azimuth'])]:['version','pack','generator','projection','profiles']);
   if (![1,2].includes(r.version) || r.generator !== r.version || r.projection !== r.version ||
-    (r.version===2 && !number(r.elevation,55,85)) || !token(r.pack) ||
+    (r.version===2 && (!number(r.elevation,55,85) || (r.azimuth!==undefined && !number(r.azimuth,0,360)))) || !token(r.pack) ||
     !Array.isArray(r.profiles) || r.profiles.length > 16) fail();
   const ids = new Set(), entities = new Set();let geometryBudget=0;
   for (const p of r.profiles) {
@@ -61,5 +61,5 @@ export function createStructures(data: SceneData, legacy = false): StructureReci
   const pack=legacy?LEGACY_LANDMARK_PACK:LANDMARK_PACK;
   const recipe = data.geometry ? buildingRecipe(data.geometry,legacy) :
     {version:1,pack:pack.version,generator:1,projection:1,profiles:pack.profiles};
-  return validateStructures(legacy ? recipe : {...recipe,version:2,generator:2,projection:2,elevation:70});
+  return validateStructures(legacy ? recipe : {...recipe,version:2,generator:2,projection:2,elevation:70,azimuth:0});
 }
