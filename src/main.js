@@ -402,6 +402,7 @@ const sceneUI = createSceneUI(() => engine && !busy ? { engine, view: { width, h
 function savePNG(mode) { return exportUI.savePNG(mode); }
 $("save-study").onclick = () => savePNG("study");
 function syncAppearance() {
+  $('upgrade-artwork').hidden=!engine?.legacyArtwork;
   for (const key of ['brightness','glow','district']) {
     $(key).value = Math.round(appearance[key] * 100);
     $(`${key}-value`).textContent = `${Math.round(appearance[key] * 100)}%`;
@@ -409,6 +410,10 @@ function syncAppearance() {
   $('landmark-labels').checked = appearance.labels;
   $('glow').disabled = $('district').disabled = mood !== 'aerial';
 }
+$('upgrade-artwork').onclick=()=>{
+  try {exportUI.cancel();engine?.upgradeArtwork();syncAppearance();draw();toast(t('artworkUpdated'));}
+  catch {toast(t('paletteFailed'));}
+};
 function applyAppearance(next) {
   try { engine?.setAppearance(next); appearance = next; draw(); }
   catch { toast(t('paletteFailed')); }

@@ -62,7 +62,7 @@ async function referenceFrame(page) {
     const { wallpaperPlan, screenDimensions } = await import("/src/export/framing.ts");
     const { paintCapture } = await import("/src/export/png.ts");
     const live = window.__sceneQA.engine(), capture = live.fork();
-    const plan = wallpaperPlan(window.__sceneQA.view(), live.data.geometry.bounds, live.camera, "current", "png", 1080, screenDimensions(screen, devicePixelRatio));
+    const plan = wallpaperPlan(window.__sceneQA.view(), live.data.geometry.bounds, live.camera, "current", "png", 1080, screenDimensions(screen, devicePixelRatio), live.projection);
     const canvas = document.createElement("canvas"); canvas.width = plan.width; canvas.height = plan.height;
     try { capture.setCamera(plan.camera); paintCapture(capture, canvas, { ...plan, title: "Reference" }); return canvas.toDataURL(); }
     finally { capture.dispose(); canvas.width = canvas.height = 0; }

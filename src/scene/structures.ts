@@ -1,10 +1,12 @@
-import { buildingRecipe, LANDMARK_PACK } from '../buildings/catalog.js';
+import { buildingRecipe, LANDMARK_PACK, LEGACY_LANDMARK_PACK } from '../buildings/catalog.js';
 import type { SceneData } from './data.ts';
+import { validateComponents, validateReplacement, type Component, type Replacement } from './components.ts';
 
 export interface LandmarkProfile {
   id: string; revision: number; wikidata: string; osm: string[];
   anchor: [number, number]; radius: number; height: number;
-  generator: 'tiered' | 'lattice'; art: Record<string, number>; heightSource: string;
+  generator: 'tiered' | 'lattice' | 'components'; art: Record<string, number>; heightSource: string;
+  components?: Component[]; replace?: Replacement;
 }
 export interface StructureRecipe {
   version: 1 | 2; pack: string; generator: 1 | 2; projection: 1 | 2; elevation?: number; profiles: LandmarkProfile[];
@@ -24,9 +26,11 @@ export function validateStructures(input: unknown): StructureRecipe {
   if (![1,2].includes(r.version) || r.generator !== r.version || r.projection !== r.version ||
     (r.version===2 && !number(r.elevation,55,85)) || !token(r.pack) ||
     !Array.isArray(r.profiles) || r.profiles.length > 16) fail();
-  const ids = new Set(), entities = new Set();
+  const ids = new Set(), entities = new Set();let geometryBudget=0;
   for (const p of r.profiles) {
-    object(p,['id','revision','wikidata','osm','anchor','radius','height','generator','art','heightSource']);
+    const extra=p.generator==='components'?['components']:[];
+    if(p.replace!==undefined) {if(r.version!==2)fail();extra.push('replace');validateReplacement(p.replace);}
+    object(p,['id','revision','wikidata','osm','anchor','radius','height','generator','art','heightSource',...extra]);
     if (!token(p.id) || ids.has(p.id) || !Number.isInteger(p.revision) || !number(p.revision,1,10000) ||
       typeof p.wikidata !== 'string' || !/^Q[1-9]\d{0,11}$/.test(p.wikidata) || entities.has(p.wikidata) ||
       !Array.isArray(p.osm) || p.osm.length > 8 || p.osm.some(s => typeof s !== 'string' || !/^(way|node|relation)\/[1-9]\d{0,15}$/.test(s)) ||
@@ -42,16 +46,20 @@ export function validateStructures(input: unknown): StructureRecipe {
       object(a,['rotation','width','podium','platform','observation','observationWidth','mastBase','clock']);
       if (!number(a.observationWidth,0,100) || !(a.podium < a.platform-3 && a.platform < a.observation*.5 &&
         a.observation+6 < a.mastBase && a.mastBase < p.height && a.clock > a.platform+5 && a.clock < a.observation-8)) fail();
+    } else if(p.generator==='components'&&r.version===2&&p.replace) {
+      object(a,['rotation','width','podium']);geometryBudget+=validateComponents(p.components!,p.height);
     } else fail();
     if (!number(a.rotation,-180,180) || !number(a.width,3,150) || !number(a.podium,0,60) ||
       !Object.entries(a).every(([k,v]) => k === 'rotation' || number(v,0,1200))) fail();
   }
+  if(geometryBudget>24000)fail();
   return structuredClone(r);
 }
 
 export function createStructures(data: SceneData, legacy = false): StructureRecipe {
   // Link decoding can precede source loading. Geographic/identity matching still happens at render time.
-  const recipe = data.geometry ? buildingRecipe(data.geometry) :
-    {version:1,pack:LANDMARK_PACK.version,generator:1,projection:1,profiles:LANDMARK_PACK.profiles};
+  const pack=legacy?LEGACY_LANDMARK_PACK:LANDMARK_PACK;
+  const recipe = data.geometry ? buildingRecipe(data.geometry,legacy) :
+    {version:1,pack:pack.version,generator:1,projection:1,profiles:pack.profiles};
   return validateStructures(legacy ? recipe : {...recipe,version:2,generator:2,projection:2,elevation:70});
 }

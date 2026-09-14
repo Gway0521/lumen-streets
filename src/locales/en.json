@@ -189,5 +189,7 @@
   "quietBottom": "Bottom",
   "quietStrength": "Dimming",
   "sourceLicense": "Source and license",
-  "sourceGitHub": "Source on GitHub"
+  "sourceGitHub": "Source on GitHub",
+  "upgradeArtwork": "Update scene style",
+  "artworkUpdated": "Scene style updated. Your original file is unchanged."
 }

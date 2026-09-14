@@ -1,0 +1,113 @@
+{
+  "version": 2,
+  "pack": "landmarks-2",
+  "packSHA256": "cee4ef28f0279d6e4af000d85bc9c9ce121a73b3395463f68a3984a51eaf000f",
+  "sources": [
+    {
+      "path": "data/landmarks/sources-v1.json",
+      "sha256": "879d0d059781e8acfc8d50450d5610d3713e41cc283d0bb26d510d1e9eae09bc"
+    },
+    {
+      "path": "data/landmarks/sources-v2.json",
+      "sha256": "a475d954b6bfc06e7d40f366518a9cf01f5137ebb8c65e33bfc611796543b787"
+    }
+  ],
+  "matches": [
+    {
+      "city": "sapporo",
+      "profile": "sapporo-tv-tower",
+      "mapSHA256": "d1e048e0b23fb5b652e25546978e3353e246b218fc38a271ea8a6e31c6d3e032",
+      "height": 144,
+      "binding": {
+        "assemblyId": "way/199758828",
+        "profile": "sapporo-tv-tower",
+        "replaced": [
+          "way/199758828"
+        ],
+        "retained": []
+      },
+      "primitives": 80,
+      "triangles": 0
+    },
+    {
+      "city": "xinyi",
+      "profile": "taipei-101",
+      "mapSHA256": "acc4108406328c9536fd57d6250e60b50a65499975255637f4539109abe7e524",
+      "height": 508,
+      "binding": {
+        "assemblyId": "way/1159328965",
+        "profile": "taipei-101",
+        "replaced": [
+          "way/1159328965"
+        ],
+        "retained": []
+      },
+      "primitives": 98,
+      "triangles": 0
+    },
+    {
+      "city": "shanghai",
+      "profile": "shanghai-wfc",
+      "mapSHA256": "d9eb0aa485c88e6f50512a2342e37c87a73f8d30af5e8c89148a768276c8e0d3",
+      "height": 492,
+      "binding": {
+        "assemblyId": "way/10691100",
+        "profile": "shanghai-wfc",
+        "replaced": [
+          "way/10691100"
+        ],
+        "retained": []
+      },
+      "primitives": 48,
+      "triangles": 80
+    },
+    {
+      "city": "shanghai",
+      "profile": "oriental-pearl",
+      "mapSHA256": "d9eb0aa485c88e6f50512a2342e37c87a73f8d30af5e8c89148a768276c8e0d3",
+      "height": 468,
+      "binding": {
+        "assemblyId": "way/40778038",
+        "profile": "oriental-pearl",
+        "replaced": [
+          "way/40778038"
+        ],
+        "retained": []
+      },
+      "primitives": 1010,
+      "triangles": 2016
+    },
+    {
+      "city": "shanghai",
+      "profile": "shanghai-tower",
+      "mapSHA256": "d9eb0aa485c88e6f50512a2342e37c87a73f8d30af5e8c89148a768276c8e0d3",
+      "height": 632,
+      "binding": {
+        "assemblyId": "way/165792123",
+        "profile": "shanghai-tower",
+        "replaced": [
+          "way/165792123"
+        ],
+        "retained": []
+      },
+      "primitives": 476,
+      "triangles": 912
+    },
+    {
+      "city": "shanghai",
+      "profile": "jin-mao",
+      "mapSHA256": "d9eb0aa485c88e6f50512a2342e37c87a73f8d30af5e8c89148a768276c8e0d3",
+      "height": 420.5,
+      "binding": {
+        "assemblyId": "way/376075961",
+        "profile": "jin-mao",
+        "replaced": [
+          "way/376075961"
+        ],
+        "retained": []
+      },
+      "primitives": 182,
+      "triangles": 352
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { createFramePainter } from "./frame.js";
 import type { SceneData } from "../scene/data.ts";
 import { validateAppearance, type Appearance } from "../scene/appearance.ts";
 import type { StructureRecipe } from '../scene/structures.ts';
+import { createStructures } from '../scene/structures.ts';
 import {
   validateRecipe,
   STEP,
@@ -89,6 +90,17 @@ export class SceneEngine {
   }
   get projection(): number[] {
     return 'projection' in this.#atlas ? [...this.#atlas.projection] : [1,0,0,1];
+  }
+  get legacyArtwork(): boolean { return this.#recipe.rendererVersion==='aerial-7'; }
+  /** Explicit conversion; failure leaves the original artwork and simulation intact. */
+  upgradeArtwork() {
+    this.#assertAlive();
+    if(!this.legacyArtwork)return;
+    const structures=createStructures(this.data);
+    const next=this.#resources.atlas ? this.#resources.atlas(this.data,this.#recipe.palette,this.#recipe.appearance,structures) :
+      renderAtlas(this.data.geometry,this.#recipe.palette,this.#recipe.appearance,structures);
+    releaseAtlas(this.#atlas);this.#atlas=next;
+    this.#recipe.structures=structures;this.#recipe.rendererVersion='aerial-8';
   }
   get playing(): boolean {
     return this.#recipe.playing;
@@ -210,7 +222,7 @@ export class SceneEngine {
             const canvas = document.createElement("canvas");
             canvas.width = source.width; canvas.height = source.height;
             try {
-              const ctx = canvas.getContext("2d");
+              const ctx = canvas.getContext("2d", structures?.version===2 ? {willReadFrequently:true} : undefined);
               if (!ctx) throw new Error("Canvas 2D unavailable");
               ctx.drawImage(source, 0, 0); return canvas;
             } catch (error) { canvas.width = canvas.height = 0; throw error; }

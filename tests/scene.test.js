@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createSceneData, SceneDataError } from "../src/scene/data.ts";
 import { createRecipe, validateRecipe } from "../src/scene/recipe.ts";
+import { createStructures } from '../src/scene/structures.ts';
 import { SceneEngine } from "../src/engine/scene-engine.ts";
 import { exportPNG, encodePNG } from "../src/export/png.ts";
 import { random } from "../src/city.js";
@@ -248,6 +249,19 @@ test("appearance changes retain simulation and camera; atlas failure is atomic",
   assert.deepEqual(engine.snapshot(), changed);
   fail = false; engine.setPalette('blue'); const blueBuilds = builds;
   engine.setAppearance(original); assert.equal(builds, blueBuilds);
+  engine.dispose();
+});
+
+test('legacy artwork upgrades only explicitly and retains simulation even when a rebuild fails',()=>{
+  const recipe=createRecipe(data);recipe.rendererVersion='aerial-7';recipe.structures=createStructures(data,true);
+  let fail=false;const base=resources(),engine=new SceneEngine(data,recipe,{...base,atlas:(...args)=>{
+    if(fail)throw Error('construction failed');return base.atlas(...args);
+  }});
+  const before=engine.snapshot();assert(engine.legacyArtwork);
+  fail=true;assert.throws(()=>engine.upgradeArtwork(),/construction failed/);assert.deepEqual(engine.snapshot(),before);
+  fail=false;engine.upgradeArtwork();assert(!engine.legacyArtwork);
+  assert.equal(engine.snapshot().structures.version,2);
+  assert.deepEqual(engine.snapshot().checkpoint,before.checkpoint);assert.deepEqual(engine.camera,before.camera);
   engine.dispose();
 });
 

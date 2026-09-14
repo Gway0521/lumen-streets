@@ -2,6 +2,9 @@ import { createSceneData, sceneOriginals, loadSceneData, type SceneData, type Sc
 import { validateRecipe, type SceneRecipe } from "./recipe.ts";
 import { regions } from "../city.js";
 import { validateMap } from "../search/validate.js";
+import { LANDMARK_PACK } from '../buildings/catalog.js';
+import landmarkManifest from '../../data/landmarks/manifest-v2.json' with { type: 'json' };
+import type { LandmarkProfile } from './structures.ts';
 
 export const SCENE_FILE_LIMIT = 40_000_000;
 export const SCENE_LICENSE = "https://www.openstreetmap.org/copyright";
@@ -90,16 +93,25 @@ export async function readSceneFile(file: Blob, signal?: AbortSignal) {
   } catch (error) { signal?.throwIfAborted(); if (error instanceof SceneFileError) throw error; throw new SceneFileError(); }
 }
 
-export interface SceneReference { version: 1; rail: boolean; recipe: SceneRecipe; view: SceneView }
+export interface SceneReference { version: 1; rail: boolean; recipe: SceneRecipe; view: SceneView; landmarkProfiles?: {sha256:string; ids:string[]} }
 /** A small link preserves composition/settings and deterministically starts traffic at eight seconds. */
 export function sceneReference(data: SceneData, recipe: SceneRecipe, view: SceneView): SceneReference | null {
   if (!Object.hasOwn(regions, data.id)) return null;
   const r = validateRecipe(recipe, data); delete r.checkpoint; r.simulationTime = 8; r.remainder = 0;
   const ref: SceneReference = { version: 1, rail: !!data.source.rail, recipe: r, view: validateView(view) };
-  return new TextEncoder().encode(JSON.stringify(ref)).byteLength <= 4500 ? ref : null;
+  return new TextEncoder().encode(JSON.stringify(compactReference(ref))).byteLength <= 4500 ? ref : null;
 }
 export function encodeReference(ref: SceneReference) {
-  return btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(ref)))).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+  return btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(compactReference(ref))))).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+}
+function compactReference(ref: SceneReference): SceneReference {
+  const s=ref.recipe.structures;
+  if(s?.version!==2||s.pack!==LANDMARK_PACK.version||!s.profiles.every(p=>
+    LANDMARK_PACK.profiles.some((q:LandmarkProfile)=>q.id===p.id&&JSON.stringify(q)===JSON.stringify(p))))return ref;
+  const copy=structuredClone(ref);
+  copy.landmarkProfiles={sha256:landmarkManifest.packSHA256,ids:s.profiles.map(p=>p.id)};
+  copy.recipe.structures!.profiles=[];
+  return copy;
 }
 export function decodeReference(encoded: string): SceneReference {
   if (encoded.length > 6000 || !/^[\w-]+$/.test(encoded)) fail();
@@ -109,6 +121,16 @@ export function decodeReference(encoded: string): SceneReference {
         typeof r.recipe.dataFingerprint !== "string" || !/^[a-f0-9]{64}$/.test(r.recipe.dataFingerprint) ||
         r.recipe.checkpoint !== undefined || r.recipe.simulationTime !== 8 || r.recipe.remainder !== 0) fail();
     r.view = validateView(r.view);
+    if(r.landmarkProfiles!==undefined) {
+      const p=r.landmarkProfiles,s=r.recipe.structures;
+      if(!p||Object.keys(p).length!==2||p.sha256!==landmarkManifest.packSHA256||
+        !Array.isArray(p.ids)||p.ids.length>16||new Set(p.ids).size!==p.ids.length||
+        !s||s.version!==2||s.pack!==LANDMARK_PACK.version||!Array.isArray(s.profiles)||s.profiles.length)fail();
+      s.profiles=p.ids.map((id:unknown)=>{
+        const profile=LANDMARK_PACK.profiles.find((q:LandmarkProfile)=>q.id===id);if(!profile)fail();return structuredClone(profile);
+      });
+      delete r.landmarkProfiles;
+    }
     r.recipe = validateRecipe(r.recipe, { schemaVersion: 1, id: r.recipe.dataId, fingerprint: r.recipe.dataFingerprint } as SceneData);
     return r;
   } catch { return fail(); }

@@ -5,6 +5,8 @@ import { matchLandmarks } from './buildings/catalog.js';
 import { generateStructure, genericTower } from './buildings/generators.js';
 import { orderedPrimitives } from './buildings/order.js';
 import { LEGACY_DIRECTION, sceneProjection } from './engine/projection.js';
+import { resolveRenderPlan } from './buildings/plan.js';
+import { generateComponents, paintTriangle } from './buildings/components.js';
 
 // Fixed art projection; no per-building compression of source measurements.
 export const ROOF_DIRECTION = LEGACY_DIRECTION;
@@ -49,6 +51,7 @@ function outline(c, points, holes = []) {
 
 export function prepareBuildings(city, activity, profiles, settings) {
   const {direction}=sceneProjection(settings);
+  if(settings?.generator===2) return prepareAssemblies(city,activity,profiles,direction);
   const {matches,suppressed}=matchLandmarks(city,profiles), buildings=[], rods=[];
   for(const f of city.buildings) {
     if(suppressed.has(f))continue;
@@ -67,6 +70,22 @@ export function prepareBuildings(city, activity, profiles, settings) {
   return buildings;
 }
 
+function prepareAssemblies(city,activity,profiles,direction) {
+  const plan=resolveRenderPlan(city,profiles),buildings=[],rods=[],triangles=[];
+  const model=(feature,anchor,profile)=>{
+    if(profile.generator==='components')triangles.push(...generateComponents(feature,anchor,profile));
+    else {const shape=generateStructure(feature,anchor,profile,direction);buildings.push(...shape.profiles);rods.push(...shape.rods);}
+  };
+  for(const {feature,kind}of plan.normal) {
+    if(kind==='frame') {const m=genericTower(feature);model(feature,m.anchor,m.profile);}
+    else if(buildingArea(feature.points)>=8)buildings.push(buildingProfile(feature,activity(...buildingCenter(feature.points)),undefined,feature.points,direction));
+  }
+  for(const m of plan.models)model(m.feature,m.anchor,m.profile);
+  buildings.sort((a,b)=>a.depth-b.depth||a.feature.id-b.feature.id);
+  for(const [key,value]of Object.entries({rods,triangles,direction,bindings:plan.bindings}))Object.defineProperty(buildings,key,{value});
+  return buildings;
+}
+
 export function paintBuildingShadows(c, buildings) {
   c.save();
   const shadow=(p,z)=>[p[0]+.13*z,p[1]+.19*z];
@@ -81,6 +100,12 @@ export function paintBuildingShadows(c, buildings) {
   }
   c.strokeStyle='#01050950';
   for(const r of buildings.rods||[]) {c.beginPath();c.moveTo(...shadow(r.a,r.a[2]));c.lineTo(...shadow(r.b,r.b[2]));c.lineWidth=r.width;c.stroke();}
+  c.beginPath();
+  for(const t of buildings.triangles||[]) {
+    if(t.normal[2]-.13*t.normal[0]-.19*t.normal[1]<=0)continue;
+    t.vertices.map(v=>shadow(v,v[2])).forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.closePath();
+  }
+  c.fillStyle='#01050950';c.fill();
   c.restore();
 }
 
@@ -184,7 +209,8 @@ export function paintBuildings(c, buildings, activity, glow = 1) {
       c.save();outline(c,u.points);
       c.fillStyle=u.rod.material==='ivory'?'#b8b9a2':u.rod.material==='iron'?'#56666a':'#86513b';c.fill();
       c.strokeStyle=u.rod.material==='ivory'?'#ffe0a699':'#eead7b55';c.lineWidth=.28;c.stroke();c.restore();
-    } else paintProfile(c,[u.building],activity,glow,u);
+    } else if(u.kind==='triangle')paintTriangle(c,u,glow);
+    else paintProfile(c,[u.building],activity,glow,u);
   }
   return order.stats;
 }

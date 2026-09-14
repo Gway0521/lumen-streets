@@ -1,0 +1,182 @@
+{
+  "pack": "landmarks-2",
+  "checkedAt": "2026-09-15",
+  "inherited": "sources-v1.json",
+  "sources": [
+    {
+      "id": "oriental-pearl-height",
+      "url": "https://english.shanghai.gov.cn/en-ScenicSpots/20231205/19a5f5184eca45728fd57a4d4c8efc61.html",
+      "publisher": "Shanghai Municipal Government",
+      "value": 468,
+      "unit": "m",
+      "field": "total tower height"
+    },
+    {
+      "id": "shanghai-tower-height",
+      "url": "https://www.gensler.com/uploads/document/242/file/Shanghai_Tower_Facade_Design_Process_11_10_2011.pdf",
+      "publisher": "Gensler",
+      "value": 632,
+      "unit": "m",
+      "field": "total building height and twisting facade",
+      "note": "Original simplified rounded triangular sections; the facade study describes 120 degrees of rotation. Intermediate widths and elevations are authored approximations."
+    },
+    {
+      "id": "shanghai-wfc-height",
+      "url": "https://www.swfc-shanghai.com/up_pdf/1321340644_23490.pdf",
+      "publisher": "Shanghai World Financial Center",
+      "value": 492,
+      "unit": "m",
+      "field": "building height"
+    },
+    {
+      "id": "shanghai-wfc-form",
+      "url": "https://www.kpf.com/project/shanghai-world-financial-center",
+      "publisher": "KPF",
+      "field": "ascending tapered form and upper sky portal"
+    },
+    {
+      "id": "jin-mao-height",
+      "url": "https://www.chinajinmao.cn/Portals/69/his/pdf/en-gsgg/2011/LTN20110330883.pdf",
+      "publisher": "China Jinmao",
+      "value": 420.5,
+      "unit": "m",
+      "field": "total building height",
+      "note": "SOM's project page uses rounded 420 m and 421 m values. Retain the owner's 420.5 m, agreeing with this map snapshot."
+    },
+    {
+      "id": "jin-mao-form",
+      "url": "https://www.som.com/projects/jin-mao-tower/",
+      "publisher": "SOM",
+      "field": "stepped pagoda silhouette"
+    }
+  ],
+  "decisions": [
+    {
+      "profile": "oriental-pearl",
+      "osm": "way/40778038",
+      "wikidata": "Q223207",
+      "snapshot": "public/data/shanghai.json",
+      "mappedHeight": null,
+      "selected": "oriental-pearl-height",
+      "reason": "The bundled outline has no height. Replace its sealed low extrusion with three inclined legs, open support columns, two large spheres, upper capsule and antenna. Secondary small spheres and annexes are omitted from the authored model."
+    },
+    {
+      "profile": "shanghai-tower",
+      "osm": "way/165792123",
+      "wikidata": "Q18547",
+      "snapshot": "public/data/shanghai.json",
+      "mappedHeight": "632",
+      "selected": "shanghai-tower-height",
+      "reason": "Use a tapering rotating tower envelope instead of extruding the entire outline unchanged. Retain unrelated surrounding buildings."
+    },
+    {
+      "profile": "shanghai-wfc",
+      "osm": "way/10691100",
+      "wikidata": "Q80852",
+      "snapshot": "public/data/shanghai.json",
+      "mappedHeight": "492",
+      "selected": "shanghai-wfc-height",
+      "reason": "A tapered lower volume, two upper piers and a lintel leave a real opening. Portal proportions and facade thickness are authored for wallpaper recognition."
+    },
+    {
+      "profile": "jin-mao",
+      "osm": "way/376075961",
+      "wikidata": "Q80813",
+      "snapshot": "public/data/shanghai.json",
+      "mappedHeight": "420.5",
+      "selected": "jin-mao-height",
+      "reason": "Stacked setbacks and a narrowing crown preserve the main silhouette. Tier dimensions are simplified, not surveyed."
+    }
+  ],
+  "replacementPolicy": "Each profile lists exact source outlines to replace. Additional parts are replaced only within the same assembly and the specified radial envelope; explicit keep IDs and annex classifications take precedence. Unmatched parts are retained. Map IDs that change require maintenance review; identity and a geographic check are both required.",
+  "artwork": {
+    "license": "AGPL-3.0-only",
+    "method": "Original declarative geometry, no copied models, textures or photographs. Intermediate elevations, widths, materials and alignment are authored approximations unless sourced above. Anchors are reviewed against the bundled OSM footprint; no runtime external enrichment."
+  },
+  "wikidataReview": [
+    {
+      "profile": "oriental-pearl",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q223207.json",
+      "revision": 2542421257,
+      "retrievedAt": "2026-09-14T16:02:20.597Z",
+      "candidates": [
+        {
+          "metres": 468,
+          "rank": "normal",
+          "criterion": [],
+          "conflict": false
+        }
+      ]
+    },
+    {
+      "profile": "shanghai-tower",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q18547.json",
+      "revision": 2515829671,
+      "retrievedAt": "2026-09-14T16:02:21.139Z",
+      "candidates": [
+        {
+          "metres": 632,
+          "rank": "normal",
+          "criterion": [
+            "Q24192182"
+          ],
+          "conflict": false
+        }
+      ]
+    },
+    {
+      "profile": "shanghai-wfc",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q80852.json",
+      "revision": 2525200023,
+      "retrievedAt": "2026-09-14T16:02:21.686Z",
+      "candidates": [
+        {
+          "metres": 492,
+          "rank": "preferred",
+          "criterion": [
+            "Q24192182"
+          ],
+          "conflict": false
+        },
+        {
+          "metres": 494.3,
+          "rank": "normal",
+          "criterion": [
+            "Q26970842"
+          ],
+          "conflict": true
+        },
+        {
+          "metres": 474,
+          "rank": "normal",
+          "criterion": [
+            "Q31271474"
+          ],
+          "conflict": true
+        }
+      ]
+    },
+    {
+      "profile": "jin-mao",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q80813.json",
+      "revision": 2485957492,
+      "retrievedAt": "2026-09-14T16:02:22.032Z",
+      "candidates": [
+        {
+          "metres": 420.5,
+          "rank": "normal",
+          "criterion": [
+            "Q24192182"
+          ],
+          "conflict": false
+        },
+        {
+          "metres": 421,
+          "rank": "normal",
+          "criterion": [],
+          "conflict": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
-import { LANDMARK_PACK, matchLandmarks } from '../src/buildings/catalog.js';
+import { LEGACY_LANDMARK_PACK as LANDMARK_PACK, matchLandmarks } from '../src/buildings/catalog.js';
 import { validateStructures } from '../src/scene/structures.ts';
 import { parseCity, regions, inside } from '../src/city.js';
 import { metres } from '../src/buildings/heights.js';
@@ -15,7 +15,7 @@ const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const matches=[];
 for(const id of Object.keys(regions)) {
   const file=`public/data/${id}.json`,bytes=await readFile(file),raw=JSON.parse(bytes),city=parseCity(raw,id);
-  for(const [feature,{profile,anchor}]of matchLandmarks(city).matches) {
+  for(const [feature,{profile,anchor}]of matchLandmarks(city,LANDMARK_PACK.profiles).matches) {
     assert(inside(anchor,feature.points),`${profile.id}: anchor outside mapped outline`);
     const source=sources.sources.find(s=>s.id===profile.heightSource),decision=sources.decisions.find(d=>d.profile===profile.id);
     assert(source&&decision,`${profile.id}: missing provenance`);assert.equal(source.value,profile.height);

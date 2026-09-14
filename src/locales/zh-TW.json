@@ -189,5 +189,7 @@
   "quietBottom": "下方",
   "quietStrength": "壓暗程度",
   "sourceLicense": "原始碼與授權",
-  "sourceGitHub": "GitHub 原始碼"
+  "sourceGitHub": "GitHub 原始碼",
+  "upgradeArtwork": "更新場景風格",
+  "artworkUpdated": "已更新場景風格，原始檔案仍保留。"
 }

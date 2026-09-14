@@ -24,7 +24,7 @@ async function layout(label){
  await page.screenshot({path:`${out}/${label}.png`});
 }
 try{
- await page.goto(base+'#sapporo');await ready();await options();
+ await page.goto(base+'#'+(process.env.QA_CITY||'sapporo'));await ready();await options();
  assert.equal(await page.locator('#capture-quiet-edge').inputValue(),'none');
  assert.equal(await page.locator('#capture-place-title').isChecked(),false);
  if(!process.env.QA_PRODUCTION){

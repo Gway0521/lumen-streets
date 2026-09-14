@@ -1,5 +1,6 @@
 import { inside } from '../city.js';
 import { projectVertex } from './generators.js';
+import { trianglePrimitive } from './components.js';
 
 const bounds = points => points.reduce((b,p)=>[Math.min(b[0],p[0]),Math.min(b[1],p[1]),Math.max(b[2],p[0]),Math.max(b[3],p[1])],[Infinity,Infinity,-Infinity,-Infinity]);
 const cross = (a,b) => a[0]*b[1]-a[1]*b[0];
@@ -54,6 +55,7 @@ export function orderedPrimitives(buildings) {
     units.push({kind:'roof',building:b,points:b.roof,holes:b.holes,height:()=>b.elevation.top});
   }
   for(const rod of buildings.rods||[])units.push(rodPrimitive(rod,buildings.direction));
+  for(const t of buildings.triangles||[]) {const u=trianglePrimitive(t,buildings.direction);if(u)units.push(u);}
   const direction=buildings.direction||[-.32,-.48],factor=1+direction[0]**2+direction[1]**2;
   for(const [i,u]of units.entries()) {
     u.bounds=bounds(u.points);u.index=i;
@@ -61,12 +63,15 @@ export function orderedPrimitives(buildings) {
     u.depth=-direction[0]*center[0]-direction[1]*center[1]+factor*u.height(center);
   }
   units.sort((a,b)=>a.depth-b.depth||a.index-b.index);
+  // Curved landmarks concentrate many small triangles; smaller cells prevent their
+  // local density from exhausting the generic-footprint index's per-cell budget.
+  const cellSize=buildings.triangles?.length?32:96;
   const grid=new Map(),edges=units.map(()=>[]),indegree=new Uint32Array(units.length);
   let comparisons=0,ambiguous=0;
   for(let i=0;i<units.length;i++) {
     const a=units[i],box=a.bounds,seen=new Set();
-    if((Math.ceil((box[2]-box[0])/96)+1)*(Math.ceil((box[3]-box[1])/96)+1)>4096){ambiguous++;continue;}
-    for(let x=Math.floor(box[0]/96);x<=Math.floor(box[2]/96);x++)for(let y=Math.floor(box[1]/96);y<=Math.floor(box[3]/96);y++) {
+    if((Math.ceil((box[2]-box[0])/cellSize)+1)*(Math.ceil((box[3]-box[1])/cellSize)+1)>4096){ambiguous++;continue;}
+    for(let x=Math.floor(box[0]/cellSize);x<=Math.floor(box[2]/cellSize);x++)for(let y=Math.floor(box[1]/cellSize);y<=Math.floor(box[3]/cellSize);y++) {
       const key=`${x},${y}`;
       if(!grid.has(key))grid.set(key,[]);
       const cell=grid.get(key);
@@ -100,5 +105,6 @@ export function visualBounds(buildings, groundBounds) {
   const add=p=>{b[0]=Math.min(b[0],p[0]-3);b[1]=Math.min(b[1],p[1]-3);b[2]=Math.max(b[2],p[0]+3);b[3]=Math.max(b[3],p[1]+3);};
   for(const f of buildings){f.roof.forEach(add);for(const face of f.faces)face.points.forEach(add);}
   for(const r of buildings.rods||[]){add(projectVertex(r.a,buildings.direction));add(projectVertex(r.b,buildings.direction));}
+  for(const t of buildings.triangles||[])t.vertices.forEach(p=>add(projectVertex(p,buildings.direction)));
   return b;
 }

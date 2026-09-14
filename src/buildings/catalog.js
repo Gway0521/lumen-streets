@@ -1,9 +1,11 @@
 import pack from './landmarks-v1.json' with { type: 'json' };
+import modernPack from './landmarks-v2.json' with { type: 'json' };
 import { project } from '../city.js';
 import { buildingCenter, buildingArea } from '../lighting.js';
 
 const freeze = v => { if (v && typeof v === 'object') { Object.values(v).forEach(freeze); Object.freeze(v); } return v; };
-export const LANDMARK_PACK = freeze(pack);
+export const LEGACY_LANDMARK_PACK = freeze(pack);
+export const LANDMARK_PACK = freeze(modernPack);
 
 /** Exact identities plus a geographic check. Names and proximity alone never match. */
 export function matchLandmarks(city, profiles = LANDMARK_PACK.profiles) {
@@ -28,8 +30,9 @@ export function matchLandmarks(city, profiles = LANDMARK_PACK.profiles) {
   return { matches, suppressed };
 }
 
-export function buildingRecipe(city) {
-  const { matches } = matchLandmarks(city);
-  return { version: 1, pack: LANDMARK_PACK.version, generator: 1, projection: 1,
+export function buildingRecipe(city, legacy = false) {
+  const selected=legacy?LEGACY_LANDMARK_PACK:LANDMARK_PACK;
+  const { matches } = matchLandmarks(city,selected.profiles);
+  return { version: legacy?1:2, pack: selected.version, generator: legacy?1:2, projection: legacy?1:2,...(legacy?{}:{elevation:70}),
     profiles: [...matches.values()].map(m => structuredClone(m.profile)).sort((a,b) => a.id.localeCompare(b.id)) };
 }
