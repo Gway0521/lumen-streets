@@ -1,5 +1,7 @@
 # <img src="public/favicon.svg" width="36" height="36" alt=""> Lumen Streets
 
+> **3D 開發預覽：** 此分支加入 WebGL 2 版本，支援全球圖磚串流、旋轉鏡頭、GPU 窗光、原版車流與六個地標。執行 `npm ci`、`npm run dev:3d`，開啟 **http://127.0.0.1:5183/three.html**。詳見 [3D 架構與目前限制](docs/3D-ARCHITECTURE.zh-TW.md)、[地標匯入指南](docs/3D-LANDMARKS.zh-TW.md) 與 [3D 開發路線](docs/3D-ROADMAP.zh-TW.md)。下方文件描述保留的 **原版 2D 編輯器**，公開展示站仍為原版。
+
 **讓真實街道，亮成一幅會動的夜景。**
 
 Lumen Streets 在瀏覽器裡，將 OpenStreetMap 的街道、建築與鐵路畫成動態夜景。選擇地點、調整光線，再匯出圖片或影片桌布。

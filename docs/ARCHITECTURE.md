@@ -1,5 +1,7 @@
 # Architecture
 
+This document describes the classic 2D renderer. The experimental edition has a separate [3D architecture](3D-ARCHITECTURE.md) and [繁體中文版](3D-ARCHITECTURE.zh-TW.md).
+
 Lumen Streets is a Vite app with Canvas 2D rendering. Static streets and buildings are cached in atlases; cars and trains move between the ground and structure layers as the simulation advances. The editor, exported files and read-only player use the same engine.
 
 ## Source map

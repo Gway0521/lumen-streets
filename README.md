@@ -1,5 +1,7 @@
 # <img src="public/favicon.svg" width="36" height="36" alt=""> Lumen Streets
 
+> **3D development preview:** this branch adds a WebGL 2 edition with global streaming, an orbiting camera, GPU window lights, the original traffic simulation and six landmark models. Run `npm ci` followed by `npm run dev:3d`, then open **http://127.0.0.1:5183/three.html**. See the [3D guide and current limits](docs/3D-ARCHITECTURE.md), [landmark import guide](docs/3D-LANDMARKS.md) and [3D roadmap](docs/3D-ROADMAP.md). The documentation below describes the preserved **classic 2D editor**; the public demo remains the classic edition.
+
 **Turn real streets into living nightscapes.**
 
 Lumen Streets turns OpenStreetMap streets, buildings and railways into animated nightscapes in your browser. Choose a place, adjust the lighting and export a still or video wallpaper.
