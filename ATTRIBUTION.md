@@ -1,6 +1,6 @@
 # Attribution
 
-The experimental 3D view uses MapLibre GL JS (BSD-3-Clause), Three.js (MIT) and Earcut (ISC); notices are included in `public/third-party-notices.txt`. Its global vector tiles are served by OpenFreeMap using the OpenMapTiles schema and OpenStreetMap data (ODbL). The in-view credit and every 3D export retain map attribution. Local imported models retain their own creator and license, recorded in their placement manifest; they are not distributed with the application.
+The experimental 3D view uses MapLibre GL JS (BSD-3-Clause), Three.js (MIT) Earcut (ISC), @mapbox/vector-tile (BSD-3-Clause) and pbf (BSD-3-Clause); notices are included in `public/third-party-notices.txt`. Its global vector tiles are served by OpenFreeMap using the OpenMapTiles schema and OpenStreetMap data (ODbL). The in-view credit and every 3D export retain map attribution. Local imported models retain their own creator and license, recorded in their placement manifest; they are not distributed with the application.
 
 Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), licensed under [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
 

@@ -20,6 +20,8 @@ import { validateStyleMin } from "@maplibre/maplibre-gl-style-spec";
 import { nightStyle } from "../src/three/style.js";
 import { packGraph, unpackGraph } from "../src/three/graph-wire.js";
 import { buildGraph, Traffic } from "../src/traffic.js";
+import { coveringBuildings } from "../src/three/tiles.js";
+import { compactVolumes } from "../src/three/volumes.js";
 test("night style validates against the installed map renderer", () =>
   assert.deepEqual(validateStyleMin(nightStyle()), []));
 test("3D coordinates remain local and roundtrip across the antimeridian", () => {
@@ -41,10 +43,84 @@ test("3D coordinates remain local and roundtrip across the antimeridian", () => 
   });
   assert.equal(r.lng, 121.4938);
   assert.equal(r.lat, 80);
-  assert.equal(r.zoom, 16.8);
+  assert.equal(r.zoom, 14.5);
   assert.equal(r.pitch, 0);
   assert.equal(r.glow, 1);
   assert.equal(detailLevel(10), "map");
+  assert.notEqual(detailLevel(12.3), "map");
+  assert.ok(viewRecipe().zoom < 14);
+});
+test("distant coverage uses building-detail tiles, wraps longitude and bounds requests", () => {
+  const result = coveringBuildings([121.44, 31.2, 121.55, 31.29]);
+  assert.equal(result.limited, false);
+  assert.ok(result.tiles.length > 10);
+  assert.ok(result.tiles.every((t) => t.z === 14));
+  const crossing = coveringBuildings([179.99, 0, -179.99, 0.01]);
+  assert.equal(crossing.limited, false);
+  assert.ok(crossing.tiles.some((t) => t.x === 0));
+  assert.ok(crossing.tiles.some((t) => t.x === 16383));
+  const bounded = coveringBuildings([121, 30, 121.3, 30.3], 24);
+  assert.equal(bounded.tiles.length, 24);
+  assert.equal(bounded.limited, true);
+});
+test("exhausting facade detail preserves every building as finite oriented volume", () => {
+  const features = Array.from({ length: 150 }, (_, i) => ({
+    id: i,
+    properties: { render_height: 83, render_min_height: 5 },
+    geometry: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [121 + i * 0.001, 25],
+          [121 + i * 0.001 + 0.0004, 25],
+          [121 + i * 0.001 + 0.0004, 25.0004],
+          [121 + i * 0.001, 25.0004],
+          [121 + i * 0.001, 25],
+        ],
+      ],
+    },
+  }));
+  const g = vectorGeometry(features, [121, 25], 500, 13);
+  assert.ok(g.truncated);
+  assert.equal(g.buildings + g.boxes.length / 12, features.length);
+  assert.ok(g.boxes.every(Number.isFinite));
+  for (let i = 0; i < g.boxes.length; i += 12) {
+    assert.equal(g.boxes[i + 2], 5);
+    assert.equal(g.boxes[i + 5], 78);
+    assert.ok(g.boxes[i + 3] > 0 && g.boxes[i + 4] > 0);
+  }
+});
+test("dense low roofs merge spatially while a tall landmark retains its own volume", () => {
+  const boxes = [];
+  for (let i = 0; i < 1000; i++)
+    boxes.push(
+      (i % 50) * 4,
+      Math.floor(i / 50) * 4,
+      0,
+      3,
+      3,
+      8,
+      1,
+      0,
+      0.1,
+      0.15,
+      0.2,
+      i,
+    );
+  boxes.push(100, 100, 0, 20, 20, 300, 1, 0, 0.1, 0.15, 0.2, 5000);
+  const compact = compactVolumes(new Float32Array(boxes), 100);
+  assert.ok(compact.length / 12 <= 100);
+  assert.ok(compact.every(Number.isFinite));
+  assert.ok(Array.from(compact).some((v, i) => i % 12 === 5 && v === 300));
+  const occupied = new Set();
+  for (let i = 0; i < compact.length; i += 12)
+    occupied.add(
+      `${Math.floor(compact[i] / 80)}/${Math.floor(compact[i + 1] / 80)}`,
+    );
+  assert.ok(
+    occupied.size >= 3,
+    "aggregation must retain separate neighbourhoods",
+  );
 });
 test("3D roof triangulation preserves courtyard holes and minimum elevations", () => {
   const b = new MeshBuilder();

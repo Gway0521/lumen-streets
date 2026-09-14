@@ -10,6 +10,7 @@ import { viewRecipe, detailLevel, clamp, localPoint } from "./geo.js";
 import { messages, cities } from "./locales.js";
 import { geocoder } from "../search/providers.ts";
 import { exportNight, download } from "./export.js";
+import { VIEW } from "./view.js";
 import { importModel, MODEL_LIMITS } from "./model-import.js";
 
 const params = new URLSearchParams(location.search),
@@ -23,7 +24,7 @@ let locale = params.get("lang") === "zh-TW" ? "zh-TW" : "en",
 const mobile =
   matchMedia("(max-width: 700px)").matches ||
   navigator.hardwareConcurrency <= 4;
-if (mobile && !params.has("zoom")) initial.zoom = 14.9;
+if (mobile && !params.has("zoom")) initial.zoom = VIEW.mobile;
 if (mobile && !params.has("density")) initial.density = 400;
 if (
   mobile &&
@@ -56,7 +57,7 @@ $("app").innerHTML =
  <div data-panel="light" hidden><p class="eyebrow">AERIAL GOLD</p><h2 data-i18n="light"></h2>
  <label><span data-i18n="glow"></span><output id="glow-value"></output><input id="glow" type="range" min=".4" max="1.6" step=".05"></label>
  <label><span data-i18n="density"></span><output id="density-value"></output><input id="density" type="range" min="0" max="1600" step="50"></label>
- <label><span data-i18n="tilt"></span><output id="pitch-value"></output><input id="pitch" type="range" min="0" max="60" step="1"></label>
+ <label><span data-i18n="tilt"></span><output id="pitch-value"></output><input id="pitch" type="range" min="0" max="55" step="1"></label>
  <label><span data-i18n="quality"></span><select id="quality"><option value="auto" data-i18n="auto"></option><option value="high" data-i18n="high"></option><option value="low" data-i18n="low"></option></select></label>
  <div class="pair"><button id="play"></button><button id="orbit" data-i18n="rotate" aria-pressed="false"></button></div></div>
  <div data-panel="capture" hidden><p class="eyebrow">KEEP A LITTLE OF THE NIGHT</p><h2 data-i18n="exportTitle"></h2><p data-i18n="exportHint"></p>
@@ -176,8 +177,10 @@ try {
     bearing: initial.bearing,
     pitch: initial.pitch,
     minZoom: 2,
-    maxZoom: 16.8,
-    maxPitch: 60,
+    maxZoom: VIEW.nearest,
+    aroundCenter: false,
+    rotateSpeed: 0.25,
+    maxPitch: 55,
     renderWorldCopies: false,
     pixelRatio: Math.min(devicePixelRatio, mobile ? 1.25 : 1.75),
     maxTileCacheSize: mobile ? 64 : 160,
@@ -253,8 +256,8 @@ function chooseCity(id) {
           ? [121.5, 31.236]
           : [121.4938, 31.2359]
         : regions[id].center,
-    zoom: mobile ? 14.9 : 15.2,
-    pitch: 36,
+    zoom: mobile ? VIEW.mobile : VIEW.desktop,
+    pitch: VIEW.pitch,
     bearing: id === "shanghai" ? -8 : 0,
     duration: 1000,
   };
@@ -298,7 +301,7 @@ $("glow").oninput = (e) => {
         id,
         "line-opacity",
         clamp(
-          { "road-halo": 0.2, "road-glow": 0.36, "road-rim": 0.72 }[id] *
+          { "road-halo": 0.1, "road-glow": 0.24, "road-rim": 0.64 }[id] *
             layer.glow,
           0,
           1,
@@ -361,7 +364,11 @@ $("search-form").onsubmit = async (e) => {
         selected = place.name;
         $("city-title").textContent = place.name;
         stream?.setCity(null);
-        map.flyTo({ center: place.center, zoom: 15.2, pitch: 48 });
+        map.flyTo({
+          center: place.center,
+          zoom: VIEW.desktop,
+          pitch: VIEW.pitch,
+        });
         togglePanel(null);
       };
       results.append(button);
@@ -411,7 +418,7 @@ $("format").onchange = () => {
 };
 $("format").onchange();
 $("save").onclick = async () => {
-  if (capturing || !stream || (!layer.mesh && map.getZoom() >= 14.1)) {
+  if (capturing || !stream || (!layer.mesh && map.getZoom() >= VIEW.atlas)) {
     notify(t("notReady"));
     return;
   }
@@ -492,7 +499,7 @@ $("place-model").onclick = async () => {
       triangles: object.userData.triangles,
     };
     $("remove-model").disabled = $("model-manifest").disabled = false;
-    notify(t(map.getZoom() < 14.1 ? "modelOnly" : "modelPlaced"));
+    notify(t(map.getZoom() < VIEW.atlas ? "modelOnly" : "modelPlaced"));
   } catch (error) {
     notify(error.message);
   }
@@ -532,7 +539,7 @@ const timer = setInterval(
     if (
       layer.playing &&
       (layer.density > 0 || layer.routes.length > 0) &&
-      map.getZoom() >= 14.8
+      map.getZoom() >= VIEW.traffic
     )
       map.triggerRepaint();
     frames++;

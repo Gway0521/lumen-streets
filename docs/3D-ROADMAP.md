@@ -4,9 +4,11 @@
 
 The current preview establishes global movement, WebGL 2 depth rendering, bounded background geometry, the six original landmarks, traffic, short exports and local GLB placement. Work should advance through observable gates rather than replacing the entire renderer at once.
 
+The aerial revision adds position-independent rotation, a wider camera range, independent building-detail tiles, instanced overflow volumes and the classic preset terrain treatment. It remains a visual development preview; wider coverage alone does not satisfy the art or physical-device release gates.
+
 ## 1. Visual and device baseline
 
-Review Shanghai, Sapporo, Tokyo and Taipei in landscape and portrait. Tune continuous road light, roof separation, district contrast and skyline silhouettes against actual classic exports. Add subdued vegetation and shoreline reflection without full-screen effects. Test real Android and iPhone devices, sustained travel, heat, context loss and video encoding. Record device/browser, camera, warm-up, frame pacing and memory scope with every measurement.
+Review Shanghai, Sapporo, Tokyo and Taipei in landscape and portrait. Tune continuous road light, roof separation, district contrast and skyline silhouettes against actual classic exports. Extend preset vegetation and shoreline reflection to global terrain. Test real Android and iPhone devices, sustained travel, heat, context loss and video encoding. Record device/browser, camera, warm-up, frame pacing and memory scope with every measurement.
 
 ## 2. Streamed geometry quality
 

@@ -1,5 +1,5 @@
 import { regions } from "../city.js";
-import { detailLevel, geometryKey, localPoint } from "./geo.js";
+import { detailLevel, geometryKey } from "./geo.js";
 
 /** One geometry job in flight, one coalesced successor; no unbounded build queue. */
 export class CityStream {
@@ -24,7 +24,9 @@ export class CityStream {
         !this.locked &&
         detailLevel(map.getZoom()) !== "map"
       ) {
-        if (data.error) {
+        if (data.cancelled) {
+          data.surface?.bitmap.close();
+        } else if (data.error) {
           this.lastError = data.error;
           this.status("geometryError");
           this.lastKey = "";
@@ -32,10 +34,10 @@ export class CityStream {
         } else {
           layer.replace(data);
           map.setLayoutProperty("building-fallback", "visibility", "none");
-          this.status(data.geometry.truncated ? "budget" : "ready");
+          this.status(data.geometry.tileLimited ? "budget" : "ready");
           this.ready = true;
         }
-      }
+      } else data.surface?.bitmap.close();
       if (this.pending) {
         this.pending = false;
         this.schedule();
@@ -49,7 +51,14 @@ export class CityStream {
       if (import.meta.env.DEV) console.error(e.message);
     };
     this.changed = () => this.schedule();
-    this.moved = () => this.schedule();
+    this.moved = () => {
+      if (this.busy) {
+        this.generation++;
+        this.pending = true;
+        this.worker.postMessage({ type: "cancel" });
+      }
+      this.schedule();
+    };
     map.on("moveend", this.moved);
     map.on("sourcedata", this.changed);
     this.zoomed = () => {
@@ -57,6 +66,7 @@ export class CityStream {
         this.generation++;
         this.layer.clear();
         this.lastKey = "";
+        this.worker.postMessage({ type: "clear" });
         this.status("map");
       }
     };
@@ -116,18 +126,18 @@ export class CityStream {
       }
       return [...found.values()];
     };
-    const buildings = gather("building", this.mobile ? 4500 : 12000),
-      roads = gather("transportation", this.mobile ? 1500 : 3500);
+    const roads = gather("transportation", this.mobile ? 1500 : 3500);
     const city =
-      regions[this.city] &&
-      Math.hypot(...localPoint(...center, regions[this.city].center)) < 2700
+      regions[this.city] && within(regions[this.city].center)
         ? this.city
         : null;
-    if (!city && !this.map.isSourceLoaded("world")) {
-      this.status("loading");
-      return;
-    }
-    const key = `${city}:${center.map((n) => n.toFixed(3))}:${buildings.length}:${roads.length}:${buildings.at(-1)?.id}:${roads.at(-1)?.id}`;
+    const viewport = [
+      bounds.getWest(),
+      bounds.getSouth(),
+      bounds.getEast(),
+      bounds.getNorth(),
+    ];
+    const key = `${city}:${viewport.map((n) => n.toFixed(3))}:${Math.floor(this.map.getZoom() * 4)}:${roads.length}:${roads.at(-1)?.id}`;
     if (this.lastKey === key) return;
     this.lastKey = key;
     this.busy = true;
@@ -138,8 +148,16 @@ export class CityStream {
       generation: this.generation,
       city,
       center,
-      buildings,
       roads,
+      bounds: viewport,
+      tileURL: new URL(
+        import.meta.env.VITE_LUMEN_TILEJSON_URL ||
+          "https://tiles.openfreemap.org/planet",
+        location.href,
+      ).href,
+      mobile: this.mobile,
+      zoom: this.map.getZoom(),
+      surfaceKey: this.layer.surfaceKey,
       base: new URL(import.meta.env.BASE_URL, location.href).href,
       limit: this.mobile ? 280000 : 700000,
     });

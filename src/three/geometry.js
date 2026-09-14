@@ -188,7 +188,7 @@ function model(builder, feature, anchor, profile, convert) {
     }
   }
 }
-function ordinary(builder, f, convert) {
+function ordinary(builder, f, convert, detail = true) {
   if (f.points.length > 2048 || buildingArea(f.points) < 8) return;
   const seed = featureSeed(f),
     h = resolveHeight(f, buildingArea(f.points), (seed % 1000) / 1000),
@@ -225,6 +225,7 @@ function ordinary(builder, f, convert) {
   } else {
     builder.solid(rings, h.bottom, h.top, seed);
     if (
+      detail &&
       h.top > 8 &&
       buildingArea(ring) > 180 &&
       rings[0].length < 150 &&
@@ -255,28 +256,31 @@ function ordinary(builder, f, convert) {
     }
   }
 }
-export function snapshotGeometry(city, limit) {
+export function snapshotGeometry(city, limit, zoom = 15) {
   const builder = new MeshBuilder(limit),
     convert = (p) => snapshotPoint(p, city.center),
     plan = resolveRenderPlan(city, LANDMARK_PACK.profiles),
-    activity = districtField(city);
+    activity = districtField(city),
+    boxes = [];
   for (const m of plan.models)
     model(builder, m.feature, m.anchor, m.profile, convert);
   for (const { feature, kind } of plan.normal) {
-    if (builder.truncated) break;
-    if (kind === "frame") {
+    if (kind === "frame" && !builder.truncated) {
       const m = genericTower(feature);
       model(builder, feature, m.anchor, m.profile, convert);
     } else {
       const first = builder.color.length,
         brightness = 0.72 + activity(...buildingCenter(feature.points)) * 0.6;
-      ordinary(builder, feature, convert);
+      const count = builder.buildings;
+      ordinary(builder, feature, convert, zoom >= 14.2);
+      if (builder.buildings === count) boxFallback(boxes, feature, convert);
       for (let i = first; i < builder.color.length; i++)
         builder.color[i] *= brightness;
     }
   }
   return {
     ...builder.finish(),
+    boxes: new Float32Array(boxes),
     landmarks: plan.models.map((m) => ({
       id: m.profile.id,
       anchor: m.profile.anchor,
@@ -284,10 +288,59 @@ export function snapshotGeometry(city, limit) {
     })),
   };
 }
-export function vectorGeometry(features, center, limit) {
-  const builder = new MeshBuilder(limit);
+// Distant overflow remains volumetric in one instanced draw. The longest footprint
+// edge defines its orientation; height/min-height retain the OSM source semantics.
+function boxFallback(boxes, f, convert) {
+  const ring = clean(f.points).map(convert);
+  if (ring.length < 3 || buildingArea(ring) < 8) return;
+  let angle = 0,
+    longest = 0;
+  for (let i = 0; i < ring.length; i++) {
+    const a = ring[i],
+      b = ring[(i + 1) % ring.length],
+      length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (length > longest) {
+      longest = length;
+      angle = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    }
+  }
+  const c = Math.cos(angle),
+    s = Math.sin(angle);
+  let x0 = Infinity,
+    x1 = -Infinity,
+    y0 = Infinity,
+    y1 = -Infinity;
+  for (const [x, y] of ring) {
+    const u = x * c + y * s,
+      v = -x * s + y * c;
+    x0 = Math.min(x0, u);
+    x1 = Math.max(x1, u);
+    y0 = Math.min(y0, v);
+    y1 = Math.max(y1, v);
+  }
+  const x = (x0 + x1) / 2,
+    y = (y0 + y1) / 2,
+    seed = featureSeed(f);
+  const h = resolveHeight(f, buildingArea(ring), (seed % 1000) / 1000);
+  boxes.push(
+    x * c - y * s,
+    x * s + y * c,
+    h.bottom,
+    x1 - x0,
+    y1 - y0,
+    h.top - h.bottom,
+    c,
+    s,
+    0.1 + (seed % 7) * 0.005,
+    0.14 + (seed % 5) * 0.006,
+    0.17 + (seed % 3) * 0.008,
+    seed % 10000,
+  );
+}
+export function vectorGeometry(features, center, limit, zoom = 15) {
+  const builder = new MeshBuilder(limit),
+    boxes = [];
   for (const f of features) {
-    if (builder.truncated) break;
     const polygons =
       f.geometry.type === "Polygon"
         ? [f.geometry.coordinates]
@@ -301,21 +354,20 @@ export function vectorGeometry(features, center, limit) {
       const projected = rings.map((r) =>
         r.map((p) => localPoint(...p, center)),
       );
-      ordinary(
-        builder,
-        {
-          sourceId: `tile/${f.id ?? features.indexOf(f)}/${i}`,
-          tags: {
-            building: "yes",
-            ...(h > 0 ? { height: String(h) } : {}),
-            ...(min > 0 ? { min_height: String(min) } : {}),
-          },
-          points: projected[0],
-          holes: projected.slice(1),
+      const feature = {
+        sourceId: `tile/${f.id ?? features.indexOf(f)}/${i}`,
+        tags: {
+          building: "yes",
+          ...(h > 0 ? { height: String(h) } : {}),
+          ...(min > 0 ? { min_height: String(min) } : {}),
         },
-        (p) => p,
-      );
+        points: projected[0],
+        holes: projected.slice(1),
+      };
+      const count = builder.buildings;
+      ordinary(builder, feature, (p) => p, zoom >= 14.2);
+      if (builder.buildings === count) boxFallback(boxes, feature, (p) => p);
     }
   }
-  return builder.finish();
+  return { ...builder.finish(), boxes: new Float32Array(boxes) };
 }

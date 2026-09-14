@@ -1,3 +1,4 @@
+import { VIEW } from "./view.js";
 const pendingDownloads = new Set();
 if (typeof window !== "undefined")
   window.addEventListener("pagehide", () => {
@@ -40,7 +41,7 @@ export async function exportNight({
   signal,
   progress,
 }) {
-  if (!layer.mesh && map.getZoom() >= 14.1)
+  if (!layer.mesh && map.getZoom() >= VIEW.atlas)
     throw Error("Wait for the city to finish loading.");
   const ratio = map.getPixelRatio(),
     snapshot = layer.traffic?.snapshot(),

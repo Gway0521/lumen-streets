@@ -4,6 +4,7 @@ import { trainState, railPosition } from "../rail.js";
 import { nightMaterial, trafficMaterial } from "./materials.js";
 import { mercator, metreScale, clamp } from "./geo.js";
 import { unpackGraph } from "./graph-wire.js";
+import { VIEW } from "./view.js";
 
 export class NightLayer {
   id = "lumen-night";
@@ -24,6 +25,7 @@ export class NightLayer {
     this.camera = new THREE.Camera();
     this.scene = new THREE.Scene();
     this.material = nightMaterial();
+    this.distantMaterial = nightMaterial(true);
     this.pointMaterial = trafficMaterial();
     const positions = new Float32Array(6000 * 3),
       colors = new Float32Array(6000 * 3);
@@ -54,7 +56,7 @@ export class NightLayer {
     this.renderer.autoClear = false;
     this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   }
-  replace({ origin, geometry, graph, routes }) {
+  replace({ origin, geometry, graph, routes, surface, surfaceKey }) {
     graph = unpackGraph(graph);
     if (this.mesh) {
       this.scene.remove(this.mesh);
@@ -73,6 +75,57 @@ export class NightLayer {
     this.mesh = new THREE.Mesh(g, this.material);
     this.mesh.frustumCulled = false;
     this.scene.add(this.mesh);
+    if (this.distant) {
+      this.scene.remove(this.distant);
+      this.distant.geometry.dispose();
+    }
+    const box = new THREE.BoxGeometry(1, 1, 1);
+    box.translate(0, 0, 0.5);
+    const instances = new THREE.InstancedBufferGeometry();
+    instances.index = box.index;
+    instances.attributes = box.attributes;
+    const packed = new THREE.InstancedInterleavedBuffer(geometry.boxes, 12);
+    for (const [key, size, offset] of [
+      ["offset", 3, 0],
+      ["extent", 3, 3],
+      ["heading", 2, 6],
+      ["tone", 3, 8],
+      ["idSeed", 1, 11],
+    ])
+      instances.setAttribute(
+        key,
+        new THREE.InterleavedBufferAttribute(packed, size, offset),
+      );
+    instances.instanceCount = geometry.boxes.length / 12;
+    this.distant = new THREE.Mesh(instances, this.distantMaterial);
+    this.distant.frustumCulled = false;
+    this.scene.add(this.distant);
+    if (surface !== undefined) this.clearSurface();
+    this.surfaceKey = surfaceKey;
+    if (surface) {
+      const texture = new THREE.Texture(surface.bitmap);
+      texture.flipY = false;
+      texture.needsUpdate = true;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
+      const g = new THREE.PlaneGeometry(
+        surface.b[0] - surface.a[0],
+        surface.b[1] - surface.a[1],
+      );
+      const m = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      });
+      this.surface = new THREE.Mesh(g, m);
+      this.surface.position.set(
+        (surface.a[0] + surface.b[0]) / 2,
+        (surface.a[1] + surface.b[1]) / 2,
+        0.15,
+      );
+      this.surface.renderOrder = -2;
+      this.scene.add(this.surface);
+    }
     const previous = this.traffic,
       previousOrigin = this.origin;
     this.origin = origin;
@@ -102,6 +155,11 @@ export class NightLayer {
           .filter((v) => v?.byteLength)
           .reduce((n, v) => n + v.byteLength, 0) / 1048576,
       truncated: geometry.truncated,
+      simplified: geometry.boxes.length / 12,
+      aggregated: geometry.aggregated,
+      tiles: geometry.tileCount,
+      tileLimited: geometry.tileLimited,
+      tileCacheMiB: geometry.tileCacheMiB,
     };
     if (this.lamps) {
       this.scene.remove(this.lamps);
@@ -154,6 +212,13 @@ export class NightLayer {
       this.mesh.geometry.dispose();
       this.mesh = null;
     }
+    if (this.distant) {
+      this.scene.remove(this.distant);
+      this.distant.geometry.dispose();
+      this.distant = null;
+    }
+    this.clearSurface();
+    this.surfaceKey = null;
     this.traffic = null;
     this.routes = [];
     this.pointsGeometry.setDrawRange(0, 0);
@@ -163,6 +228,15 @@ export class NightLayer {
       this.lamps.geometry.dispose();
       this.lamps = null;
     }
+  }
+  clearSurface() {
+    if (!this.surface) return;
+    this.scene.remove(this.surface);
+    this.surface.material.map.image.close();
+    this.surface.material.map.dispose();
+    this.surface.material.dispose();
+    this.surface.geometry.dispose();
+    this.surface = null;
   }
   setDensity(value) {
     this.density = value;
@@ -221,18 +295,25 @@ export class NightLayer {
       dt = this.last ? (now - this.last) / 1000 : 0;
     this.last = now;
     const z = this.map.getZoom(),
-      visible = z >= 14.1;
+      visible = z >= VIEW.atlas;
     this.scene.visible = visible;
-    this.material.uniforms.rise.value = clamp((z - 14.1) / 0.7, 0, 1);
-    this.material.uniforms.detail.value = clamp((z - 14.7) / 0.6, 0, 1);
+    this.material.uniforms.rise.value = clamp(
+      (z - VIEW.atlas) / (VIEW.fullHeight - VIEW.atlas),
+      0,
+      1,
+    );
+    this.material.uniforms.detail.value = clamp((z - 12) / 0.9, 0, 1);
     this.material.uniforms.glow.value = this.glow;
+    for (const key of ["rise", "detail", "glow"])
+      this.distantMaterial.uniforms[key].value =
+        this.material.uniforms[key].value;
     this.pointMaterial.uniforms.glow.value = this.glow;
     this.pointMaterial.uniforms.pointSize.value =
-      clamp((z - 12) * 1.45, 2, 6) * this.map.getPixelRatio();
-    this.points.visible = z >= 14.8;
-    this.lampMaterial.uniforms.glow.value = this.glow * 0.8;
+      clamp((z - 11.5) * 0.85, 1.2, 3) * this.map.getPixelRatio();
+    this.points.visible = z >= VIEW.traffic;
+    this.lampMaterial.uniforms.glow.value = this.glow * 0.5;
     this.lampMaterial.uniforms.pointSize.value =
-      clamp((z - 13) * 3, 2, 8) * this.map.getPixelRatio();
+      clamp((z - 11.7) * 1.25, 1.3, 3.8) * this.map.getPixelRatio();
     if (
       this.playing &&
       !this.capturing &&
@@ -276,6 +357,7 @@ export class NightLayer {
     this.disposeObject(this.uploads);
     this.pointsGeometry.dispose();
     this.material.dispose();
+    this.distantMaterial.dispose();
     this.pointMaterial.dispose();
     this.lampMaterial.dispose();
     this.renderer.dispose();

@@ -4,8 +4,13 @@ import { buildGraph } from "../traffic.js";
 import { parseRail, buildRailRoutes } from "../rail.js";
 import { localPoint, snapshotPoint } from "./geo.js";
 import { packGraph } from "./graph-wire.js";
+import { BuildingTiles } from "./tiles.js";
+import { groundSurface } from "./surface.js";
+import { compactVolumes } from "./volumes.js";
 
 let cached = null;
+const tileSource = new BuildingTiles();
+let controller;
 const inside = (p, b) =>
   p[0] >= b[1] && p[0] <= b[3] && p[1] >= b[0] && p[1] <= b[2];
 async function snapshot(id, base) {
@@ -24,16 +29,32 @@ async function snapshot(id, base) {
   return cached;
 }
 self.onmessage = async ({ data }) => {
+  if (data.type === "cancel") {
+    controller?.abort();
+    return;
+  }
+  if (data.type === "clear") {
+    controller?.abort();
+    tileSource.cache.clear();
+    tileSource.bytes = 0;
+    cached = null;
+    return;
+  }
   if (data.type !== "build") return;
+  controller = new AbortController();
+  const signal = controller.signal;
   try {
     const {
       generation,
       city: cityId,
       base,
       center,
-      buildings,
       roads,
       limit,
+      bounds,
+      tileURL,
+      mobile,
+      zoom,
     } = data;
     const active = cityId ? await snapshot(cityId, base) : null;
     const origin = active ? regions[cityId].center : center;
@@ -47,23 +68,50 @@ self.onmessage = async ({ data }) => {
             : f.geometry.coordinates[0],
         regions[cityId].bbox,
       );
-    const local = active ? snapshotGeometry(active.city, limit) : null;
-    const world = vectorGeometry(
-      buildings.filter(outside),
-      origin,
-      Math.max(0, limit - (local?.position.length || 0) / 3),
+    const local = active
+      ? snapshotGeometry(active.city, Math.floor(limit * 0.55), zoom)
+      : null;
+    // Decode and build one tile at a time. Never retain a viewport's full GeoJSON.
+    const parts = local ? [local] : [];
+    let remaining = limit - (local?.position.length || 0) / 3;
+    const loaded = await tileSource.load(
+      bounds,
+      tileURL,
+      mobile,
+      signal,
+      (buildings) => {
+        const part = vectorGeometry(
+          buildings.filter(outside),
+          origin,
+          Math.max(0, remaining),
+          zoom,
+        );
+        remaining -= part.position.length / 3;
+        parts.push(part);
+      },
     );
+    signal.throwIfAborted();
     const geometry = {};
-    for (const key of ["position", "normal", "uv", "color", "seed"]) {
+    for (const key of ["position", "normal", "uv", "color", "seed", "boxes"]) {
       geometry[key] = new Float32Array(
-        (local?.[key].length || 0) + world[key].length,
+        parts.reduce((n, p) => n + p[key].length, 0),
       );
-      if (local) geometry[key].set(local[key]);
-      geometry[key].set(world[key], local?.[key].length || 0);
+      let offset = 0;
+      for (const p of parts) {
+        geometry[key].set(p[key], offset);
+        offset += p[key].length;
+      }
     }
-    geometry.buildings = (local?.buildings || 0) + world.buildings;
+    geometry.buildings = parts.reduce((n, p) => n + p.buildings, 0);
     geometry.landmarks = local?.landmarks || [];
-    geometry.truncated = !!(local?.truncated || world.truncated);
+    geometry.truncated = parts.some((p) => p.truncated);
+    geometry.buildings += geometry.boxes.length / 12;
+    const before = geometry.boxes.length / 12;
+    geometry.boxes = compactVolumes(geometry.boxes, mobile ? 45000 : 90000);
+    geometry.aggregated = before - geometry.boxes.length / 12;
+    geometry.tileCount = loaded.tileCount;
+    geometry.tileLimited = loaded.tileLimited;
+    geometry.tileCacheMiB = loaded.cacheMiB;
     const localRoads = active
       ? active.city.roads.map((r) => ({
           ...r,
@@ -111,15 +159,38 @@ self.onmessage = async ({ data }) => {
           })),
         }))
       : [];
+    const surfaceKey = active ? `${cityId}/${mobile}` : null;
+    const surface =
+      surfaceKey === data.surfaceKey
+        ? undefined
+        : active
+          ? await groundSurface(active.city, mobile)
+          : null;
+    if (signal.aborted) surface?.bitmap.close();
+    signal.throwIfAborted();
     self.postMessage(
-      { generation, origin, geometry, graph: packGraph(graph), routes },
-      Object.values(geometry)
-        .filter((v) => v instanceof Float32Array)
-        .map((v) => v.buffer),
+      {
+        generation,
+        origin,
+        geometry,
+        graph: packGraph(graph),
+        routes,
+        surface,
+        surfaceKey,
+      },
+      [
+        ...Object.values(geometry)
+          .filter((v) => v instanceof Float32Array)
+          .map((v) => v.buffer),
+        ...(surface ? [surface.bitmap] : []),
+      ],
     );
   } catch (error) {
+    const cancelled = signal.aborted;
+    controller.abort();
     self.postMessage({
       generation: data.generation,
+      cancelled,
       error: import.meta.env.DEV ? error.stack : error.message,
     });
   }

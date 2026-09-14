@@ -8,12 +8,12 @@ The 3D edition is a development preview alongside the original editor. It brings
 
 Use Node.js 24, run `npm ci` and `npm run dev:3d`, and open `http://127.0.0.1:5183/three.html`. The original editor remains at `/index.html`. For production, run `npm run build` then `npm start`; visit `/three.html` on port 5180.
 
-Drag to pan; right-drag to rotate and tilt; scroll to zoom. On phones, use two fingers to zoom and rotate. Explore chooses a preset or searches through the existing server gateway. Light & motion controls brightness, density, tilt, orbit and resolution. Hide controls creates an uncluttered wallpaper view.
+Drag to pan; right-drag to rotate and tilt; scroll to zoom. Horizontal rotation uses a linear 0.25°/pixel response everywhere on the canvas. On phones, use two fingers to zoom and rotate. Explore chooses a preset or searches through the existing server gateway. Light & motion controls brightness, density, tilt, orbit and resolution. Hide controls creates an uncluttered wallpaper view.
 
 ## Implemented
 
 - Global vector tiles load and unload as the camera moves. There is no fixed neighbourhood boundary.
-- A dark atlas at low zoom gives way to height extrusions, then facade windows, lamps and traffic. Zoom is bounded at 16.8 and pitch at 60 degrees from vertical to maintain aerial framing.
+- Default zoom is 13.65 on desktop and 13.35 on phones, with a nearest limit of 14.5 and pitch capped at 55°. Compared with the first preview, the default map spans roughly three times the linear ground distance. Buildings retain full height down to 12.3, fade into the atlas between 12.3 and 11.8, and traffic starts at 12.8.
 - Warm continuous roads, cool restrained roofs, irregular window occupancy and dark water/parks preserve the original visual direction. Hardware depth testing handles facade, landmark and moving-light occlusion.
 - The eight existing snapshots preserve OSM height/floor parsing, building assemblies, courtyard holes and six reviewed landmark models. Parametric curves and portals become physical triangles. Rectangular gabled roofs have a supported roof generator; unsupported roof types fall back to flat.
 - The original traffic simulation supplies seeded demand, one-way handling, following gaps, signals and turning. Snapshot railways retain simulated trains. Retained graph edges preserve traffic when the same snapshot scene is rebuilt.
@@ -33,7 +33,7 @@ We use layered road glow and shader windows instead of full-scene bloom, screen-
 
 Near a selected preset, the original attributed OSM snapshot supplies detailed geometry and topology; vector tiles extend its surroundings. Elsewhere, buildings use vector-tile heights and conservative estimates, and roads use quantized coordinate junctions. This loses tags and original OSM node identity. Global roof shapes, building relations, lanes and grade-separated junctions are not fully represented. Roads and cars at the boundary of a bundled snapshot are not yet a single persistent transport network. Global trains are not implemented.
 
-The 3D preview currently requires global tiles even for preset scenes. Network failure is surfaced with Retry; a completely offline preset ground layer remains future work. Water reflections and dense tree canopies from the classic renderer have not yet been reproduced in 3D.
+The 3D preview currently requires global tiles even for preset scenes. Network failure is surfaced with Retry; a completely offline preset ground layer remains future work. Preset areas reuse the classic tree-canopy, water-grain and shoreline-lamp reflection painting on a transparent, world-aligned ground surface. This is static terrain artwork, not reflective water simulation; global terrain outside those snapshots still uses the map style.
 
 ## Resource ownership
 
@@ -42,16 +42,22 @@ The 3D preview currently requires global tiles even for preset scenes. Network f
 | Display pixel ratio ceiling, adaptive | 1.75 | 1.25 |
 | Source tile cache entries | 160 | 64 |
 | Active facade vertices | 700,000 | 280,000 |
-| Selected vector building features | 12,000 | 4,500 |
+| Building-detail tiles per view, source zoom 14 | 180 | 96 |
+| Compressed building tile cache | 24 MiB | 8 MiB |
+| Concurrent building requests | 4 | 2 |
+| Distant volume aggregation target | 90,000 | 45,000 |
+| Preset ground texture longest edge | 2,560 px | 1,536 px |
 | Selected vector road features | 3,500 | 1,500 |
 | Default cars | 700 | 400, bounded by available roads |
 | Map source workers | 4 | 2 |
 
 These budgets exclude browser overhead and the map renderer's active tile buffers. Display resolution can be lowered manually; the adaptive mode reduces it when timer pacing degrades. This heuristic is not a GPU benchmark or a frame-rate guarantee.
 
-`CityStream` has one geometry job in flight and one coalesced follow-up, with generation checks on city changes. The worker retains only one parsed preset, creates transferable typed arrays, and releases temporary build data. It does not keep a growing cache of generated cities. Heights use camera-local metre coordinates to preserve precision. Identical vector fragments are deduplicated by source identity and geometry; different clipped fragments are retained.
+`CityStream` has one geometry job in flight and one coalesced follow-up, with cancellation and generation checks when the camera moves. Building tiles load independently of the basemap: low-zoom map tiles omit individual buildings, so changing the mesh visibility threshold alone cannot preserve a city. The worker fetches zoom-14 building tiles in stable, centre-first batches, decodes/builds one tile at a time, and caches only compressed buffers. Buffered fragments belong to the tile containing their bounding-box centre; clipped pieces remain separate. Only one parsed preset is retained. Heights use camera-local metre coordinates to preserve precision.
 
-Replacing a scene explicitly disposes old geometry and lamp buffers. Distant views remove facade geometry, traffic graphs and lamps. The map tile cache remains bounded across travel. Worker and renderer teardown occurs when the page leaves. Hidden tabs stop traffic paints; paused scenes repaint for interactions only. A geometry limit may leave some buildings as footprints and is disclosed in the status text.
+Detailed facade geometry has a fixed budget. Remaining buildings use oriented instanced volumes with source heights instead of disappearing. If instances exceed their aggregation target, small neighbouring low roofs combine into occupied volumes; tall and broad structures stay separate, so the target is not a hard cap. Simplified volumes approximate footprints and do not retain courtyards. The building count describes represented source pieces, not unique OSM identities or GPU instances. The outer tile limit is separate and explicitly shown when reached; very wide or steep views can still have incomplete outer coverage.
+
+Replacing a scene disposes old geometry and lamp buffers. The ground bitmap is reused while its preset is unchanged. Atlas views remove facade/instance geometry, traffic graphs, lamps and ground textures, and clear the worker's building cache. Worker and renderer teardown occurs when the page leaves. Hidden tabs stop traffic paints; paused scenes repaint for interactions only. GPU geometry figures exclude ground bitmaps/textures, decoded worker data, map buffers and browser overhead; they are not total-memory claims.
 
 ## Exports and sharing
 
@@ -67,10 +73,12 @@ View links preserve the camera, glow, density, preset and language. Embed mode h
 | --- | --- |
 | `src/three/main.js`, `style.css`, `locales.js` | Editor, camera controls and bilingual interface |
 | `style.js` | Global night map and road hierarchy |
-| `stream.js`, `city.worker.js` | Bounded source selection, background building and graph preparation |
+| `view.js`, `stream.js`, `city.worker.js`, `tiles.js` | Aerial framing, bounded tile requests, cancellation, background geometry and graph preparation |
 | `geometry.js`, `geo.js` | Physical meshes, holes, roofs and coordinate boundaries |
-| `materials.js`, `layer.js` | Shared GPU materials, depth, lamps, vehicles and disposal |
+| `materials.js`, `layer.js`, `surface.js`, `volumes.js` | Shared GPU materials, ground artwork, distant volumes, depth, lamps and disposal |
 | `export.js`, `gif.worker.js`, `video.js` | Captures, sequential encoding and rollback |
 | `model-import.js` | Bounded GLB validation and local placement |
 
 Run `npm test`, `npm run check:presets`, `npm run check:docs` and `npm run build`. With the development server running, `npm run check:3d:browser` uses installed Microsoft Edge to exercise real exports, rotation, global travel, far-view disposal and a mobile viewport. Generated evidence lives under ignored `artifacts/3d/`. Mobile emulation does not verify physical Android or iPhone performance.
+
+`node scripts/check-3d-aerial.mjs` verifies actual right-drag gestures above/at/below the centre, the closest-zoom clamp, Shanghai city-wide coverage, a global Sapporo view, atlas disposal and portrait framing. Evidence lives under ignored `artifacts/3d-revision/`.

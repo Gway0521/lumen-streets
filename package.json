@@ -33,11 +33,13 @@
     "node": ">=24 <25"
   },
   "dependencies": {
+    "@mapbox/vector-tile": "3.0.0",
     "earcut": "3.2.3",
     "gifenc": "1.0.3",
     "leaflet": "1.9.4",
     "maplibre-gl": "6.9.1",
     "mediabunny": "1.56.1",
+    "pbf": "5.1.2",
     "three": "0.186.0"
   }
 }

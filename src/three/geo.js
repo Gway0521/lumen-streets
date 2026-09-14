@@ -1,4 +1,5 @@
 import regions from "../regions.json" with { type: "json" };
+import { VIEW } from "./view.js";
 export const EARTH = 40075016.68557849;
 export const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 export function mercator(lon, lat) {
@@ -32,7 +33,7 @@ export function snapshotPoint(p, center) {
   );
 }
 export function detailLevel(zoom) {
-  return zoom < 14.1 ? "map" : zoom < 15.1 ? "district" : "aerial";
+  return zoom < VIEW.atlas ? "map" : zoom < 13.8 ? "district" : "aerial";
 }
 export function geometryKey(feature) {
   // Vector tiles repeat clipped features at tile boundaries. Geometry is part of the key:
@@ -50,9 +51,9 @@ export function viewRecipe(input = {}) {
   return {
     lng: number("lng", center[0], -180, 180),
     lat: number("lat", center[1], -80, 80),
-    zoom: number("zoom", 15.2, 2, 16.8),
+    zoom: number("zoom", VIEW.desktop, 2, VIEW.nearest),
     bearing: number("bearing", -8, -360, 360),
-    pitch: number("pitch", 36, 0, 60),
+    pitch: number("pitch", VIEW.pitch, 0, 55),
     glow: number("glow", 1, 0.4, 1.6),
     density: number("density", 700, 0, 1600),
     city: [
