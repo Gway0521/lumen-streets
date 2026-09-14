@@ -8,7 +8,7 @@ await mkdir('.cache/landmarks',{recursive:true});
 const reports=[];
 for(const p of LANDMARK_PACK.profiles) {
   const url=`https://www.wikidata.org/wiki/Special:EntityData/${p.wikidata}.json`;
-  const response=await fetch(url,{signal:AbortSignal.timeout(20000),headers:{'User-Agent':'LumenStreets/0.1 landmark-maintenance','Accept':'application/json'}});
+  const response=await fetch(url,{signal:AbortSignal.timeout(20000),headers:{'User-Agent':'LumenStreets/0.2 landmark-maintenance','Accept':'application/json'}});
   if(!response.ok)throw Error(`${p.wikidata}: HTTP ${response.status}`);
   let bytes=0;const chunks=[];
   for await(const chunk of response.body){bytes+=chunk.length;if(bytes>4000000)throw Error('Wikidata entity exceeds maintenance limit');chunks.push(chunk);}

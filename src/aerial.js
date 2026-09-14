@@ -42,7 +42,7 @@ export function renderAerial(city, appearance = { glow: 1, district: 1 }, struct
   const buildings=prepareBuildings(city,activity,structures?.profiles,structures);
   paintBuildingShadows(c,buildings);
   c.globalAlpha=1;
-  // Continuous ribbons, with gentle world-space modulation instead of pools.
+  // Continuous ribbons with gentle world-space variation.
   // Matching endpoint opacity keeps the gradient continuous across OSM ways.
   const roadGain=(x,y)=>(.84+.16*Math.min(1,activity(x,y)))*(.9+.2*streetVariation(x,y));
   const colors=streetColorField(city);

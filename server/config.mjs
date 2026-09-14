@@ -21,7 +21,7 @@ export function readConfig(env = process.env) {
       searchLimit: integer('LUMEN_SEARCH_DAILY_LIMIT', 1000, 100000),
       mapLimit: integer('LUMEN_MAP_DAILY_LIMIT', 300, 10000),
       budget: integer('LUMEN_CACHE_MB', 512, 4096) * 1000000,
-      userAgent: `LumenStreets/0.1 (${origin.origin})`,
+      userAgent: `LumenStreets/0.2 (${origin.origin})`,
     },
   };
 }

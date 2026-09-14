@@ -28,8 +28,21 @@ Use `npm start` for the production website and search server. Verify a real sear
 
 Release notes should describe visible changes and known limits. Browser viewport tests are not physical-device tests; advertise support only where it has been checked.
 
-## First release: v0.1.0
+## Version and assets
 
-Use `0.1.0` in the package manifests and `v0.1.0` for the Git tag. The candidate notes are in [releases/v0.1.0.md](releases/v0.1.0.md). Tag the exact reviewed commit after validation; do not publish a tag pointing at an older commit that lacks these changes. The versioned links and image in the notes resolve only after that tag is published.
+Set the version in `package.json` and the root entries of `package-lock.json`. Write concise notes in `docs/releases/vX.Y.Z.md`, covering visible changes, upgrade behaviour and known limits. Keep old release notes as a version history.
 
-Attach the reviewed site archive as `lumen-streets-v0.1.0-site.tar.gz`, the corresponding source archive as `lumen-streets-v0.1.0-source.tar.gz`, and a `.sha256` file for each. Create a draft first and verify its target and assets before publishing. A draft does not update the live demo; deploy the matching site package separately and verify its HTML metadata, preview image and GitHub links.
+For v0.2.0, use [releases/v0.2.0.md](releases/v0.2.0.md). After the checks above, run:
+
+```sh
+npm run pack:release
+```
+
+This rebuilds the site, checks the distribution and creates these files under `artifacts/releases/v0.2.0/`:
+
+- `lumen-streets-v0.2.0-site.tar.gz` and its `.sha256` file
+- `lumen-streets-v0.2.0-source.tar.gz` and its `.sha256` file
+
+Verify the checksums and extract both archives. The site package must start with Node.js 24; the source package must install and build independently. Packaging removes its temporary site directory on success and failure.
+
+Commit the reviewed source and tag that exact commit as `v0.2.0`. Create a GitHub draft with the notes and four files, check the tag target and downloads, then publish. Versioned links resolve after the tag is published. Deploy the same site archive separately and verify the public editor, player and source download.

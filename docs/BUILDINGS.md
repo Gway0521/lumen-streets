@@ -20,7 +20,7 @@ The runtime has no Wikidata, official-site or model-download requests. Geometry 
 ## Height resolution
 
 1. A reviewed profile may override a particular landmark's height. Its decision record preserves conflicting source values.
-2. A valid OSM `height` supplies the top elevation above ground. Metres and feet are parsed strictly; lists, partial numbers, negative values and values above the 1200 m sanity limit are rejected, not clamped.
+2. A valid OSM `height` supplies the top elevation above ground. Metres and feet are parsed strictly; lists, partial numbers, negative values and values above the 1200 m sanity limit are rejected.
 3. `building:levels` estimates height at 3.2 m per storey, or 3.6 m for commercial/office/retail use, plus `roof:height` or an estimated `roof:levels` contribution. This is an estimate from mapped floors, not a surveyed measurement.
 4. Missing or invalid data uses a conservative type/footprint estimate and a stable namespaced feature seed. Ordinary estimates remain at most 48 m. Generic towers use a restrained estimate rather than a landmark's silhouette.
 
@@ -38,7 +38,7 @@ Generator version 2 assembles identity before discarding outline geometry. Selec
 
 Each reviewed profile lists exact `replace.sources`, explicit `replace.keep` exclusions and a `partsWithin` radius in metres. Additional parts are replaced only in the matched assembly and wholly inside that envelope; annexes are retained. Outlying or ambiguous parts remain available. The maintenance manifest records actual replaced/retained source IDs for every fixture. A matching outline's identity survives its geometry replacement. Legacy generator version 1 retains its original whole-assembly replacement behavior.
 
-The initial profiles are deliberately small:
+The bundled profiles use these measurements and simplifications:
 
 | Landmark | Verified facts | Authored simplifications |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ The fetch command retrieves the small curated list of Wikidata entities into ign
 
 Maintain definitions in `src/buildings/landmarks-v2.json` and document decisions separately in `data/landmarks/`; version 1 remains archived for compatibility. Preparation checks anchors, source conflicts, top heights, replacement bindings and geometry budgets, then writes SHA-256 manifests. Review the diff and actual close/whole-city renders. Once published, a pack version and its generator/projection/material interpretation are immutable: introduce a new version/file and keep the old path. Compact links verify the published pack hash. Full files embed the used definitions. Unsupported versions are rejected rather than silently substituted.
 
-This small pack is bundled with the app. Introduce geographic sharding or an indexed store only when catalogue size justifies it. Imports allow at most 16 profiles, 40 components per profile, 24 sections per loft, 6000 estimated triangles per component profile and 24000 per scene. Parameters and material names are allowlisted; no model URLs, scripts or unbounded tessellation are accepted.
+Imports allow at most 16 profiles, 40 components per profile, 24 sections per loft, 6000 estimated triangles per component profile and 24000 per scene. Parameters and material names are allowlisted; no model URLs, scripts or unbounded tessellation are accepted.
 
 ## Composition and limits
 
@@ -71,6 +71,6 @@ Solid faces and rods participate in the same static order. Overlapping projected
 
 Intersecting structures can create cycles; those use a deterministic painter fallback. This is not an arbitrary-mesh depth buffer. The ordering report records cycles and exhausted comparison budgets so dense/problematic fixtures can be inspected rather than assuming all intersections are solved.
 
-The structure atlas has its own projected bounds, preserving tall silhouettes at geographic edges. Both atlas long edges remain capped at 3600 pixels; extension may slightly reduce structure resolution. The fixed projection is baked once into each atlas, releasing its unprojected surface after conversion. No extra persistent full-size canvas was added to the previous two-atlas architecture. Each maximum-size RGBA atlas is approximately 49.5 MiB, before browser overhead; a capture owns another pair. Roof equipment and facade rows are bounded, and the same detail is used by preview, saved scenes and exports. Physical-phone validation remains distinct from desktop viewport tests.
+The structure atlas has its own projected bounds, preserving tall silhouettes at geographic edges. Both atlas long edges remain capped at 3600 pixels; extension may slightly reduce structure resolution. The fixed projection is baked once into each atlas, releasing its unprojected surface after conversion. The renderer retains two atlases. Each maximum-size RGBA atlas is approximately 49.5 MiB, before browser overhead; a capture owns another pair. Roof equipment and facade rows are bounded, and the same detail is used by preview, saved scenes and exports. Physical-phone validation remains distinct from desktop viewport tests.
 
 Run `scripts/check-projection-browser.mjs` for portal transparency, Shanghai/Taipei/Sapporo/Tokyo output, file/link restoration, capture equality and timings. `QA_BASELINE` optionally selects an independently archived aerial-7 source directory for exact legacy comparisons. `scripts/check-landmark-browser.mjs` retains the close/wide tower studies. See [Testing](TESTING.md) and [Scenes](SCENES.md).

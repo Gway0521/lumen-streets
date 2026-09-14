@@ -12,7 +12,7 @@ Lumen Streets is an artistic aerial view of a city at night. Street structure sh
 
 ## Aerial depth
 
-Aerial Gold uses a high-angle orthographic camera for new scenes. Ground and buildings share foreshortening; roofs rise straight towards the top of the image, revealing shaded facades, irregularly occupied floors and warm shopfronts. Recessed roof decks, parapets and small equipment align with the footprint. Cool, subdued roofs keep the warm streets dominant; quiet districts also have darker roof surfaces. Saved aerial-7 scenes retain the earlier oblique view until explicitly upgraded.
+Aerial Gold uses a high-angle orthographic camera for new scenes. Ground and buildings share foreshortening; roofs rise straight towards the top of the image, revealing shaded facades, irregularly occupied floors and warm shopfronts. Recessed roof decks, parapets and small equipment align with the footprint. Cool, subdued roofs keep the warm streets dominant; quiet districts also have darker roof surfaces.
 
 Credible heights retain their proportions under one fixed projection scale. Reviewed landmark heights take priority, followed by mapped heights, floor estimates and conservative type/footprint defaults. District lighting does not change building height. Taipei 101 has a low podium and segmented tower; Sapporo has an open frame. Shanghai adds Oriental Pearl's spheres and open columns, Shanghai Tower's taper and twist, the World Financial Center's sky portal and Jin Mao's setbacks. Steel, glass and enclosed platforms receive different shading. These original silhouettes prioritize wallpaper-scale recognition over complete architectural detail. See [Buildings](BUILDINGS.md).
 

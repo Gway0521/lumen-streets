@@ -2,7 +2,7 @@
 
 **Turn real streets into living nightscapes.**
 
-Lumen Streets draws real streets, buildings and railways as an animated nightscape in your browser. Shape the light, leave room for your desktop icons, and export a wallpaper that feels like your city after dark.
+Lumen Streets turns OpenStreetMap streets, buildings and railways into animated nightscapes in your browser. Choose a place, adjust the lighting and export a still or video wallpaper.
 
 [**Try it online**](https://lumenstreets.feifeihome.com/) · [繁體中文](README.zh-TW.md) · [Get started](#get-started) · [Wallpapers](docs/EXPORTS.md) · [Contributing](CONTRIBUTING.md)
 
@@ -13,7 +13,7 @@ Lumen Streets draws real streets, buildings and railways as an animated nightsca
 ## Make it your night
 
 - **Start with eight places, or find your own.** Explore Sapporo, Tokyo, Taipei, Shanghai, Beijing, Seattle and Washington, DC, or search for another neighbourhood. The eight included maps need no account or API key.
-- **Light with depth.** Golden avenues, shaded facades and quiet shore reflections share a high-angle aerial view. Six reviewed landmark silhouettes include Taipei 101, Sapporo TV Tower and Shanghai's four signature towers. Amber and Blue hour offer flatter illustration styles.
+- **Buildings with depth.** Aerial Gold adds shaded facades, rooftops and shore reflections in a north-facing aerial view. Six landmark models include Taipei 101, Sapporo TV Tower and Shanghai's four signature towers. Amber and Blue hour offer flat illustration styles.
 - **Made for your desktop.** 4K PNGs and 1080p/1440p videos, in desktop or portrait framing. Add a place title, show landmarks, or softly dim an edge for icons. Exports have no branding by default.
 - **A scene you can return to.** Save the exact view and traffic moment in a scene file, or share a player link and embed it in a website.
 
@@ -22,6 +22,8 @@ Lumen Streets draws real streets, buildings and railways as an animated nightsca
 | ![Tokyo’s dense streets and railway](public/gallery/tokyo.png) | ![Shanghai’s river and illuminated avenues](public/gallery/shanghai.png) |
 
 *Actual exports. Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), ODbL.*
+
+[What's new in v0.2.0](docs/releases/v0.2.0.md): building depth, six landmark models, updated scene sharing and full-display wallpaper sizing.
 
 ## Get started
 
@@ -46,7 +48,7 @@ Choose PNG for a still wallpaper, or MP4 for a video wallpaper in an app such as
 
 For icons or a clock, open **Room for icons** in Export and dim one edge. Drag the crop to keep your favourite streets in view. Captions and landmark names are optional.
 
-See [export formats and setup](docs/EXPORTS.md) and [scene sharing](docs/SCENES.md). Videos restart with a cut; they are not seamless loops. iPhone Live Photo conversion is not included.
+See [export formats and setup](docs/EXPORTS.md) and [scene sharing](docs/SCENES.md). Videos repeat with a cut at the end.
 
 ## Self-hosting
 

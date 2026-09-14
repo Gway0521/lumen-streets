@@ -4,7 +4,7 @@ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(proc
 const base=process.env.QA_URL || 'http://127.0.0.1:5180/', output=process.env.QA_OUTPUT || 'artifacts/showcase';
 await mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true,...(process.env.BROWSER_CHANNEL?{channel:process.env.BROWSER_CHANNEL}:{})});
-const manifest={source:'Actual application downloads; no generated or retouched geography.',credit:'© OpenStreetMap contributors · ODbL',license:'https://www.openstreetmap.org/copyright',images:[]};
+const manifest={source:'Application exports using bundled OpenStreetMap snapshots.',credit:'© OpenStreetMap contributors · ODbL',license:'https://www.openstreetmap.org/copyright',images:[]};
 try {
   const page=await browser.newPage({viewport:{width:1280,height:800},deviceScaleFactor:1,reducedMotion:'reduce',acceptDownloads:true});
   for(const id of ['sapporo','tokyo','shanghai','seattle','xinyi']) {

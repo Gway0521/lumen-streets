@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { basename, dirname, resolve, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
@@ -20,12 +20,13 @@ function ffmpeg(args) {
 const fps = 10, seconds = 6, width = 960, height = 480;
 await mkdir(out, { recursive: true });
 const work = await mkdtemp(join(out, 'frames-'));
+let browser;
+try {
 const frames = join(work, 'rendered'), sourceFrames = join(work, 'source');
 await mkdir(frames);
 await mkdir(sourceFrames);
 ffmpeg(['-i', sourcePath, '-t', String(seconds), '-vf', `fps=${fps}`, '-start_number', '0', join(sourceFrames, '%03d.png')]);
-const browser = await chromium.launch({ headless: true, channel: process.env.BROWSER_CHANNEL || 'msedge' });
-try {
+browser = await chromium.launch({ headless: true, ...(process.env.BROWSER_CHANNEL ? { channel: process.env.BROWSER_CHANNEL } : {}) });
   const page = await browser.newPage({ viewport: { width: 1280, height: 640 }, deviceScaleFactor: 1 });
   const html = `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="${base}fonts/titles.css"><style>
@@ -83,5 +84,9 @@ p { font: 21px/1.5 system-ui; color: #c0c9c6; margin: 0; max-width: 370px; }
   }, null, 2) + '\n');
   console.log('Created social-cover.gif (README) and social-left.jpg (1280×640 social preview).');
 } finally {
-  await browser.close();
+  try { await browser?.close(); } finally {
+    if (dirname(resolve(work)) !== out || !basename(work).startsWith('frames-'))
+      throw Error('Unexpected social frame directory');
+    await rm(work, { recursive: true, force: true });
+  }
 }

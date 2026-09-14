@@ -29,7 +29,7 @@ export function createMapService({
   photon = process.env.LUMEN_PHOTON_URL || "https://photon.komoot.io/api/",
   overpass = process.env.LUMEN_OVERPASS_URL || "https://overpass-api.de/api/interpreter",
   interval = 1500, timeout = 40000, budget = 128000000,
-  searchLimit = 100, mapLimit = 60, userAgent = "LumenStreets/0.1",
+  searchLimit = 100, mapLimit = 60, userAgent = "LumenStreets/0.2",
 } = {}) {
   photon = endpoint(photon); overpass = endpoint(overpass);
   const lanes = { search: { active: false, next: 0 }, map: { active: false, next: 0 } };

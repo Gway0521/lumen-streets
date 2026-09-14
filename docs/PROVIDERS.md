@@ -4,6 +4,14 @@ The Node server includes place search and bounded map imports. Run `npm start` a
 
 Map query version `overpass-area-v2` includes standalone building parts, building relations and tower/mast nodes and ways, along with their member geometry. The cache key includes this version so old query results are not reused as new coverage. Readers still accept cached/imported v1 snapshots. Landmark supplementation is an offline maintenance step; scene generation makes no per-building external requests. See [Buildings](BUILDINGS.md).
 
+## Bundled maps and maintenance
+
+Eight bundled places each have a base snapshot and a rail snapshot in `public/data/`. They retain OpenStreetMap IDs, tags, geometry and retrieval metadata, including the legacy `pocketPlaces` metadata key. Included places work without upstream requests.
+
+`src/regions.json` centres use longitude/latitude; query bounds use south/west/north/east. Rendering uses local projected metres. Preserve coordinate order and source metadata when updating an adapter. Snapshot extents and licenses are listed in [Attribution](../ATTRIBUTION.md).
+
+The optional Python 3 scripts `scripts/fetch_maps.py`, `fetch_relations.py` and `fetch_rail.py` retrieve preset data. Inspect their options before running them: they write snapshots and may reuse existing base files. Review the provider's current policy, retain actual retrieval dates, and run `npm run check:presets` after a refresh. Installation and CI use the bundled snapshots.
+
 ## Data sources
 
 | Purpose | Default endpoint | Configuration |
@@ -14,7 +22,7 @@ Map query version `overpass-area-v2` includes standalone building parts, buildin
 
 Photon's [public demo](https://github.com/komoot/photon#demo-server) permits reasonable project use but may throttle extensive use and offers no availability guarantee. [Overpass](https://dev.overpass-api.de/overpass-doc/en/preface/commons.html) is shared infrastructure too. Defaults suit modest traffic. For sustained growth, arrange suitable capacity or compatible hosted endpoints before raising limits.
 
-Search is submitted explicitly, never on each keystroke, and returns up to six results. English requests prefer English names; Traditional Chinese retains the provider's native-name fallback. Only administrators set upstream HTTPS URLs. Visitors cannot supply URLs, headers or Overpass code; queries are generated from validated numeric bounds and redirects are rejected. Public Nominatim is not used.
+Search is submitted explicitly, never on each keystroke, and returns up to six results. English requests prefer English names; Traditional Chinese retains the provider's native-name fallback. Only administrators set upstream HTTPS URLs. Visitors cannot supply URLs, headers or Overpass code; queries are generated from validated numeric bounds and redirects are rejected.
 
 Preview tiles load after selecting a result, with browser caching and visible attribution. No tile proxy, bulk downloader or prefetch is included. Follow the [OSM tile policy](https://operations.osmfoundation.org/policies/tiles/); automated browser checks mock tiles. A replacement needs its own attribution and suitable terms. `VITE_` values are public browser code, never secrets.
 

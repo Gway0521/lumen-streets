@@ -29,7 +29,7 @@ Add tests for behaviour and regressions. Explain the need, license and bundle co
 
 Include the city, palette, browser/OS, viewport or device, steps to reproduce, and what you expected. For exports, include format, size and duration. A screenshot helps; a scene file can help too, but it contains the selected location and settings.
 
-Map corrections generally belong in OpenStreetMap. For contributed snapshots, retain source metadata and licensing; see [Data](docs/DATA.md). Do not contribute proprietary maps or unbounded datasets.
+Map corrections generally belong in OpenStreetMap. For contributed snapshots, retain source metadata and licensing; see [Map data and services](docs/PROVIDERS.md). Do not contribute proprietary maps or unbounded datasets.
 
 ## Pull requests
 

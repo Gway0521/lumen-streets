@@ -19,3 +19,4 @@ jobs:
       - run: npm run build
       - run: npm run check:release
       - run: node scripts/package-site.mjs
+      - run: node scripts/package-release.mjs

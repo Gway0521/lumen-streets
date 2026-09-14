@@ -11,7 +11,7 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "9bb96d17a1c620e6780118acf66fb4a8ad293f53983fa148673312bc2128b0cf"
+      "sha256": "88f8620de36b5fc1f305a220f028ac5ae4c515c8389bc5848c891fb169041cce"
     },
     {
       "id": "tokyo",
@@ -21,7 +21,7 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "51e3315add9aea29a20bf8b75511132d22108646e5109801db937163e9be5760"
+      "sha256": "be26b0c86c26c49696a96276e4e52e8dfd7e16b62c3399ca9691a71d77ddbe0f"
     },
     {
       "id": "shanghai",
@@ -31,7 +31,7 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "df6b783286870fcbace533d3416fcac1ced4c9d8b15754e918750bb92fe986d1"
+      "sha256": "ce64c585674634e5ecfb07afb69cd4580f45035900b23fa0e239e8ce7cfbf8f6"
     },
     {
       "id": "seattle",
@@ -41,7 +41,7 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "6bea0cf897b97c688fc26381f533a529c8ee3c41223879dc940e6ed30f5e0e45"
+      "sha256": "3d6c17fb34b2c595eb155c129cfc4c6d4a932e02401ea541ec187199214b0132"
     },
     {
       "id": "xinyi",
@@ -51,7 +51,7 @@
       "palette": "aerial",
       "density": 80,
       "simulationTime": 8,
-      "sha256": "3ba2e2f0aed6f3dc708dfefeb324409c7fc28b1512951d72705a224203f45b28"
+      "sha256": "7a97c13a96550674b6b27635c5987278a8bdac2a1f714b458bb486134a543042"
     }
   ],
   "rendererVersion": "aerial-8",
@@ -62,40 +62,46 @@
     "width": 1280,
     "height": 720,
     "codec": "H.264",
-    "source": "First 12 seconds of a 30-second application MP4 download; resized and compressed with FFmpeg, CRF21. No geography or lighting edits.",
-    "sourceSha256": "e41245bd1024e7aaae28fdd844617811ff67ddae27d2f0174304fb5b2474687c",
-    "sha256": "cce92ff576d36d2e3db16d9ac20adf9b9b7285deb8f7a1a0b56cd4ff6918ed8d"
+    "source": "First 12 seconds of a 30-second application MP4 export; resized to 1280×720 and compressed with FFmpeg at CRF 21.",
+    "sourceSha256": "f765ddb87b1fe1b51ddc402c612b361f7780321ba697fb9605d37ea77b507c04",
+    "sha256": "fd6ce5a073868df2c894fe2305cde3296f3fce81840a554d6e2e62c0a52c3542"
   },
   "readmePreview": {
     "file": "docs/images/social-cover.gif",
     "source": "Actual Sapporo application video with the shared logo, title and fixed gradient overlay. Six-second excerpt; repeats with a cut.",
-    "sourceSha256": "cce92ff576d36d2e3db16d9ac20adf9b9b7285deb8f7a1a0b56cd4ff6918ed8d",
+    "sourceSha256": "fd6ce5a073868df2c894fe2305cde3296f3fce81840a554d6e2e62c0a52c3542",
     "frames": 60,
     "seconds": 6,
     "width": 960,
     "height": 480,
-    "sha256": "e6b61a23c3ae519528a5542577dfdfe64ca289f659f405aeb1b92fd06a7f5e60"
+    "sha256": "26e2b1e2ad4b899f368f562d6bf622689ac66307c47b4e3b0624a07c9beb60c4"
   },
   "socialPreview": {
     "file": "docs/images/social-left.jpg",
     "source": "First frame of the same social cover, before GIF downscaling and quantization.",
     "width": 1280,
     "height": 640,
-    "sha256": "91f43c2fd4d00f072bc9b80d0310d7e604f0603a351b01a2682f4e10d074ad4f"
+    "sha256": "53332d24ef62a37352ba7d927f1e632da4d33867657b9e23b5e11298603932d9"
   },
   "websitePreview": {
     "file": "public/social-preview.jpg",
     "source": "Byte-identical copy of docs/images/social-left.jpg for website Open Graph and Twitter cards.",
     "width": 1280,
     "height": 640,
-    "sha256": "91f43c2fd4d00f072bc9b80d0310d7e604f0603a351b01a2682f4e10d074ad4f"
+    "sha256": "53332d24ef62a37352ba7d927f1e632da4d33867657b9e23b5e11298603932d9"
   },
   "poster": {
     "file": "video-poster.png",
     "source": "First decoded frame of sapporo.mp4.",
     "width": 1280,
     "height": 720,
-    "sha256": "7498c2b7ded454aef2e3367f7c544aaafa93c08d89c71e635848d8da0628ade0"
+    "sha256": "0ca65c8e38cd8e7a0ad5a6108806e890ab9c7ce1448876fc9897e4d719533696"
   },
-  "landmarkPack": "landmarks-2"
+  "landmarkPack": "landmarks-2",
+  "applicationVersion": "0.2.0",
+  "camera": {
+    "projection": "orthographic",
+    "elevation": 70,
+    "azimuth": 0
+  }
 }

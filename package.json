@@ -1,6 +1,6 @@
 {
   "name": "lumen-streets",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Turn real streets into living nightscapes.",
@@ -15,8 +15,10 @@
     "prepare:landmarks": "node scripts/check-landmarks.mjs --write && node scripts/check-landmarks-v2.mjs --write",
     "fetch:landmarks": "node scripts/fetch-landmark-candidates.mjs",
     "check:types": "tsc --noEmit",
+    "check:docs": "node scripts/check-docs.mjs",
     "check:release": "node scripts/check-release.mjs",
     "pack:site": "npm run build && node scripts/package-site.mjs",
+    "pack:release": "npm run pack:site && node scripts/package-release.mjs",
     "start": "node --env-file-if-exists=.env server/start.mjs"
   },
   "devDependencies": {
