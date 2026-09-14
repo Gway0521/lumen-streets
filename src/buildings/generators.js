@@ -7,13 +7,13 @@ export const projectVertex = ([x,y,z]) => [x + ROOF_DIRECTION[0] * z, y + ROOF_D
 
 /** Small original parametric models, expressed in world metres before projection. */
 export function generateStructure(feature, anchor, profile) {
-  const profiles = [], rods = [], art = profile.art, angle = art.rotation * Math.PI / 180;
-  const world = (x,y,z) => [anchor[0]+x*Math.cos(angle)-y*Math.sin(angle),anchor[1]+x*Math.sin(angle)+y*Math.cos(angle),z];
+  const profiles = [], rods = [], art = profile.art, angle = art.rotation * Math.PI / 180, elevation=profile.baseElevation||0;
+  const world = (x,y,z) => [anchor[0]+x*Math.cos(angle)-y*Math.sin(angle),anchor[1]+x*Math.sin(angle)+y*Math.cos(angle),z+elevation];
   const ring = width => [[-1,-1],[1,-1],[1,1],[-1,1],[-1,-1]].map(([x,y])=>world(x*width/2,y*width/2,0).slice(0,2));
   const add = (bottom, top, width, upper = width, material = 'glass') => {
     const f = {...feature,id:feature.id+profiles.length*.001,sourceId:`${feature.sourceId}/section/${profiles.length}`,
       points:ring(width),holes:[],tags:{...feature.tags,building:'office'}};
-    const b = buildingProfile(f,.5,{bottom,top,source:'profile',estimated:false},ring(upper));
+    const b = buildingProfile(f,.5,{bottom:bottom+elevation,top:top+elevation,source:'profile',estimated:false},ring(upper));
     b.material=material;b.model=true;b.assemblyId=feature.assemblyId||feature.sourceId;
     profiles.push(b);
   };
@@ -67,7 +67,8 @@ export function generateStructure(feature, anchor, profile) {
 export function genericTower(feature) {
   const area=buildingArea(feature.points),height=resolveHeight(feature,area,random(featureSeed(feature))());
   const width=Math.max(3,Math.min(30,Math.sqrt(area)));
+  const span=height.top-height.bottom;
   // A neutral tapering frame without another landmark's clock, decks or colour identity.
-  return {anchor:buildingCenter(feature.points),profile:{generator:'lattice',height:height.top,
-    art:{rotation:0,width,podium:0,platform:height.top*.22,observation:height.top*.72,observationWidth:0,mastBase:height.top*.9,clock:0}}};
+  return {anchor:buildingCenter(feature.points),profile:{generator:'lattice',height:span,baseElevation:height.bottom,
+    art:{rotation:0,width,podium:0,platform:span*.22,observation:span*.72,observationWidth:0,mastBase:span*.9,clock:0}}};
 }

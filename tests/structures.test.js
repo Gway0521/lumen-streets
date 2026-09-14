@@ -42,6 +42,8 @@ test('unknown lattice towers get an open neutral frame without borrowed landmark
   const b=prepareBuildings({buildings:[f]},()=>.5,[]);
   assert.equal(b.length,0);assert(b.rods.length>0);
   assert(b.rods.some(r=>r.material==='iron'));assert(!b.rods.some(r=>r.material==='steel'));
+  f.tags.min_height='20';const raised=prepareBuildings({buildings:[f]},()=>.5,[]);
+  const elevations=raised.rods.flatMap(r=>[r.a[2],r.b[2]]);assert.equal(Math.min(...elevations),20);assert.equal(Math.max(...elevations),100);
 });
 
 test('projected primitive order agrees with independent ray elevations across overlapping roofs and walls',()=>{

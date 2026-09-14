@@ -1,6 +1,6 @@
 # Testing
 
-`npm test` checks geometry, simulation, scene isolation, import errors, locale coverage, export behaviour and the production server boundary (Host/origin, proxy trust, limits, cancellation, file isolation and HTTP ranges). `npm run check:presets` checks the eight datasets. `npm run build` runs TypeScript checks and creates `dist/`; `npm run check:release` verifies build links, fonts, licenses and private-file exclusions.
+`npm test` checks geometry, simulation, scene isolation, import errors, locale coverage, export behaviour and the production server boundary (Host/origin, proxy trust, limits, cancellation, file isolation and HTTP ranges). `npm run check:presets` checks the eight datasets. `npm run build` runs TypeScript and landmark-pack checks and creates `dist/`; `npm run check:release` verifies build links, fonts, licenses and private-file exclusions. `npm run check:landmarks` checks reviewed source conflicts, anchors, model heights and pack hashes without network access.
 
 ## Browser checks
 
@@ -31,6 +31,7 @@ Alternatively, set `PLAYWRIGHT_MODULE` to the absolute `index.mjs` path of an ex
 | `check-art-browser.mjs` | Captions, icon space, actual PNG/GIF/15-second video and layouts |
 | `check-landmarks-browser.mjs` | Eight-map labels, source-based lighting, small roads and mobile layouts |
 | `check-depth-browser.mjs` | Deterministic structures, roof occlusion, courtyard transparency, brightness fallback, capture copies and portrait renders; supports `QA_BROWSER=webkit` |
+| `check-landmark-browser.mjs` | Taipei 101/Sapporo TV Tower close and wide renders, lattice alpha, exact saved-file/fork pixels, embedded reference profiles, primitive counts and timings; supports `QA_BROWSER=webkit` |
 | `check-upgrade-browser.mjs` | Appearance migration, long 1440p exports and storage failures |
 | `check-screen-ratio-browser.mjs` | Full-display export ratios independent of viewport size, rotation, both languages and actual PNGs; supports production builds and `BROWSER_TYPE=webkit` |
 
@@ -46,7 +47,7 @@ For Android startup regressions, test a production build on a physical device th
 
 ## Public artwork
 
-`create-showcase.mjs` downloads four actual PNGs and a 30-second MP4. The public gallery clip is a compressed 12-second excerpt.
+`create-showcase.mjs` downloads five actual PNGs, including Xinyi's Taipei 101, and a 30-second MP4. The public gallery clip is a compressed 12-second excerpt.
 
 To rebuild the covers, serve the production build and make Playwright and FFmpeg available, then run `node scripts/create-social-preview.mjs`. It uses `public/gallery/sapporo.mp4` and `public/favicon.svg` to create a six-second README GIF and a 1280×640 social-preview still. `SOCIAL_VIDEO` selects another Sapporo export; `QA_URL` and `QA_OUTPUT` select the app address and output folder.
 

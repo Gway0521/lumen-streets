@@ -78,7 +78,7 @@ export function orderedPrimitives(buildings) {
         if(order>0){edges[j].push(i);indegree[i]++;}
         else if(order<0){edges[i].push(j);indegree[j]++;}
       }
-      if(cell.length<256)cell.push(i);else ambiguous++;
+      if(cell.length<512)cell.push(i);else ambiguous++;
     }
   }
   // Priority heap preserves stable depth order among unrelated faces.

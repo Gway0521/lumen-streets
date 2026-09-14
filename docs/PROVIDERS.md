@@ -2,6 +2,8 @@
 
 The Node server includes place search and bounded map imports. Run `npm start` after building; see [Hosting](HOSTING.md) for server settings. The website and `/api/` share one origin. Static-only `dist/` hides search when no API is available.
 
+Map query version `overpass-area-v2` includes standalone building parts, building relations and tower/mast nodes and ways, along with their member geometry. The cache key includes this version so old query results are not reused as new coverage. Readers still accept cached/imported v1 snapshots. Landmark supplementation is an offline maintenance step; scene generation makes no per-building external requests. See [Buildings](BUILDINGS.md).
+
 ## Data sources
 
 | Purpose | Default endpoint | Configuration |

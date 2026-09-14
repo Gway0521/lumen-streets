@@ -13,7 +13,7 @@ Lumen Streets draws real streets, buildings and railways as an animated nightsca
 ## Make it your night
 
 - **Start with eight places, or find your own.** Explore Sapporo, Tokyo, Taipei, Shanghai, Beijing, Seattle and Washington, DC, or search for another neighbourhood. The eight included maps need no account or API key.
-- **Light with depth.** Golden avenues, shaded building facades, scattered windows and quiet shore reflections. Aerial gold adds scenic 2.5D buildings; Amber and Blue hour offer flatter illustration styles. Adjust brightness and traffic, and watch the passing trains.
+- **Light with depth.** Golden avenues, shaded facades and quiet shore reflections. Aerial gold preserves mapped height differences and adds recognizable Taipei 101 and Sapporo TV Tower silhouettes. Amber and Blue hour offer flatter illustration styles.
 - **Made for your desktop.** 4K PNGs and 1080p/1440p videos, in desktop or portrait framing. Add a place title, show landmarks, or softly dim an edge for icons. Exports have no branding by default.
 - **A scene you can return to.** Save the exact view and traffic moment in a scene file, or share a player link and embed it in a website.
 
@@ -67,4 +67,4 @@ Bug reports, translations and examples of difficult street layouts are welcome. 
 
 Code: [AGPL-3.0-only](LICENSE). Map data: [OpenStreetMap](https://www.openstreetmap.org/copyright), ODbL. When sharing an export publicly, include map credit and its license link; the export dialog can add it to the image. Full details are in [Attribution](ATTRIBUTION.md).
 
-Building heights, lighting, traffic and trains are artistic simulations, not live measurements.
+Buildings combine mapped heights, conservative estimates and original landmark artwork. Lighting, traffic and trains are artistic simulations, not live observations. See [Buildings](docs/BUILDINGS.md) for source and model details.

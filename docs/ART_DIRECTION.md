@@ -14,7 +14,9 @@ Lumen Streets is an artistic aerial view of a city at night. Street structure sh
 
 Aerial Gold uses a fixed oblique projection for buildings. Roofs rise towards the northwest, revealing shaded facades, irregularly occupied floors and warm shopfronts. Recessed roof decks, parapets and small equipment align with the footprint. Cool, subdued roofs keep the warm streets dominant; quiet districts also have darker roof surfaces.
 
-Heights are scenic. Footprint area, mapped building type, district activity and a stable feature seed provide variety when height is absent. Mapped height or floor-count hints are bounded, and broad halls and small outbuildings stay low. These are neither surveyed heights nor a navigable 3D model. Ground geography and traffic routes retain their original coordinates. Projected roofs and facades occlude moving lights; courtyards retain openings. Overlapping buildings use a stable painter order rather than a 3D depth buffer.
+Credible heights retain their proportions under one fixed projection scale. Reviewed landmark heights take priority, followed by mapped heights, floor estimates and conservative type/footprint defaults. District lighting does not change building height. Taipei 101 has a low shopping podium, segmented tower and spire; Sapporo TV Tower has an open frame and observation deck. These original silhouettes prioritize recognition over complete architectural detail. See [Buildings](BUILDINGS.md) for source and art boundaries.
+
+Ground geography and traffic routes retain their original coordinates. Projected roofs, facades and rods occlude moving lights; courtyards and frame openings retain transparency. Static face ordering compares elevations where silhouettes overlap, with a deterministic fallback for intersecting structures. It is not a general 3D depth buffer.
 
 Mapped vegetation receives subdued canopy texture. Water carries sparse ripples and short reflections from nearby street lamps, leaving the open river dark. Avoid uniform illumination, fully luminous building outlines and detail that competes with the street hierarchy. Amber and Blue retain their existing flat illustration styles.
 

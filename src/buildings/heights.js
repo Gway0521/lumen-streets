@@ -39,5 +39,5 @@ export function resolveHeight(feature, area, variation = .5) {
   // Bad minimum heights must not make a guessed structure taller than a skyscraper.
   const base = chosen ? bottom : 0;
   return { top: chosen?.metres ?? estimate, bottom: base, source: chosen?.source ?? 'estimate',
-    candidates, floorHeight, estimated: !chosen, minimumRejected: !chosen && bottom > 0 };
+    candidates, floorHeight, estimated: chosen?.source !== 'osm:height', minimumRejected: !chosen && bottom > 0 };
 }

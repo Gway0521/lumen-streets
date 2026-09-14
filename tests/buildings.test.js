@@ -16,6 +16,7 @@ test('height units, floors and roof elevations have distinct semantics', () => {
   assert.equal(measured.top,200); assert.equal(measured.bottom,40);
   const levels = resolveHeight(feature(1,{'building:levels':'20','building:min_level':'3','roof:height':'6'}),900);
   assert.equal(levels.top,70); assert.equal(levels.bottom,9.600000000000001);
+  assert.equal(levels.estimated,true);assert.equal(measured.estimated,false);
   assert.equal(resolveHeight(feature(1,{height:'10',min_height:'20','building:levels':'15'}),900).source,'osm:building:levels');
   assert.equal(resolveHeight(feature(1,{height:'0',min_height:'900'}),900).bottom,0);
   assert.notEqual(featureSeed(feature(1)),featureSeed({...feature(1),sourceId:'node/1'}));

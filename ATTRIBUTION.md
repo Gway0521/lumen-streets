@@ -17,13 +17,17 @@ The files in `public/data/` retain their original OSM IDs, tags, geometry, sourc
 | `seattle.json`, `seattle-rail.json` | `[47.612, -122.35, 47.6354, -122.3154]` |
 | `washington.json`, `washington-rail.json` | `[38.8897, -77.0469, 38.9113, -77.0191]` |
 
-Base snapshots include selected roads, buildings, parks, land and water, plus relations for complex polygons. Separate rail snapshots include mapped railway/subway/light-rail/tram geometry and stations/stops. Ways may extend beyond the bounds; display is clipped. Relation handling assembles closed rings, retains inner holes and skips incomplete rings. Coverage is neither complete nor a current survey.
+Base snapshots include selected roads, buildings, parks, land and water, plus relations for complex polygons. Separate rail snapshots include mapped railway/subway/light-rail/tram geometry and stations/stops. Ways may extend beyond the bounds; ground display is clipped, while projected building silhouettes can extend beyond the geographic edge. Relation handling assembles closed rings, retains inner holes and skips incomplete rings. Coverage is neither complete nor a current survey.
 
 ## Images and simulated content
 
 Gallery images and recordings are actual Canvas exports. No external photograph is bundled or used as a texture. Scene pixels are drawn from map geometry and artistic rules.
 
 Light intensity and colors approximate an artistic district character from building density, tags and station proximity. Vehicles, signals, train movement, dwell times and directions are simulated, with no live traffic or timetable data. Buildings are not asserted to be illuminated or open in reality.
+
+## Landmark supplementation
+
+The original parametric Taipei 101 and Sapporo TV Tower artwork is covered by the project license. No external model meshes, photographs, textures or document images are shipped. Mapped footprints/identities retain their OSM attribution. Height facts, conflicting candidates, review dates and Wikidata revisions are recorded in [landmark sources](data/landmarks/sources-v1.json); intermediate model dimensions are artistic approximations. Wikidata structured entity data is supplied under [CC0](https://www.wikidata.org/wiki/Wikidata:Licensing). Source references are for provenance, not an endorsement by the landmark operators.
 
 Publicly shared map images and animations must carry readable OSM attribution in or alongside their presentation as appropriate to the medium. Clean private wallpaper exports show source credit in the download dialog, provide a companion credits file and offer an on-image credit option. Metadata or a detached file alone is not a blanket substitute for visible attribution in public uses. See the [OSMF attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines). Embedded scenes also require attribution. Database redistribution and adaptation remain subject to ODbL; the AGPL program license does not replace the map license.
 

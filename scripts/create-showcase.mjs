@@ -7,7 +7,7 @@ const browser=await chromium.launch({headless:true,...(process.env.BROWSER_CHANN
 const manifest={source:'Actual application downloads; no generated or retouched geography.',credit:'© OpenStreetMap contributors · ODbL',license:'https://www.openstreetmap.org/copyright',images:[]};
 try {
   const page=await browser.newPage({viewport:{width:1280,height:800},deviceScaleFactor:1,reducedMotion:'reduce',acceptDownloads:true});
-  for(const id of ['sapporo','tokyo','shanghai','seattle']) {
+  for(const id of ['sapporo','tokyo','shanghai','seattle','xinyi']) {
     // A full navigation avoids capturing the previous engine while a hash-only change loads.
     await page.goto(`${base}?showcase=${id}#${id}`);await page.locator('#loading').waitFor({state:'hidden'});
     await page.click('#export-options'); await page.selectOption('#capture-size', 'current'); await page.selectOption('#capture-format', 'png'); await page.click('#create-export');await page.locator('#export-dialog').waitFor({state:'visible'});

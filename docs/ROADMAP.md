@@ -6,5 +6,6 @@ The editor, eight maps, wallpaper exports and scene sharing are implemented. Cur
 - **Device coverage:** test more physical phones, especially Safari and high-resolution video exports.
 - **Dense maps:** reduce interruptions during parsing and atlas creation, and improve traffic behaviour at crowded junctions.
 - **Map coverage:** improve missing landmark names and tricky road/rail geometry through shared rules.
+- **Recognizable structures:** expand the reviewed landmark pack beyond Taipei 101 and Sapporo TV Tower, improve incomplete building-part coverage and inspect intersecting structures that need more than the current painter fallback.
 
 Suggestions are welcome in issues. Priorities follow practical use cases, the [art direction](ART_DIRECTION.md) and a simple export flow.
