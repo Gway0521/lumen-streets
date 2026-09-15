@@ -8,7 +8,7 @@ The aerial revision adds position-independent rotation, a wider camera range, in
 
 ## 1. Visual and device baseline
 
-Review Shanghai, Sapporo, Tokyo and Taipei in landscape and portrait. Tune continuous road light, roof separation, district contrast and skyline silhouettes against actual classic exports. Extend preset vegetation and shoreline reflection to global terrain. Test real Android and iPhone devices, sustained travel, heat, context loss and video encoding. Record device/browser, camera, warm-up, frame pacing and memory scope with every measurement.
+The art pass adds brighter amber streets, quarter-resolution bloom, cool roof detail, grouped facade light, global procedural vegetation and camera-oriented water reflections. The close limit now allows two extra + steps without changing the default city view. Review Shanghai, Sapporo, Tokyo and Taipei in landscape and portrait. Continue tuning district contrast, facade variety and skyline silhouettes against actual classic exports; reference artwork is a direction, not proof of rendered quality. Test real Android and iPhone devices, sustained travel, heat, context loss and video encoding. Record device/browser, camera, warm-up, frame pacing and memory scope with every measurement.
 
 ## 2. Streamed geometry quality
 

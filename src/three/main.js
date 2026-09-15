@@ -301,7 +301,7 @@ $("glow").oninput = (e) => {
         id,
         "line-opacity",
         clamp(
-          { "road-halo": 0.1, "road-glow": 0.24, "road-rim": 0.64 }[id] *
+          { "road-halo": 0.18, "road-glow": 0.45, "road-rim": 0.88 }[id] *
             layer.glow,
           0,
           1,

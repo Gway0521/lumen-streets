@@ -13,7 +13,18 @@ page.on("console", (e) => {
 });
 const ready = async (p = page) => {
   await p.waitForFunction(
-    () => window.__lumen3d?.stream?.ready && !window.__lumen3d.stream.busy,
+    () => {
+      const app = window.__lumen3d;
+      if (!app?.stream?.ready || app.stream.busy) return false;
+      const b = app.map.getBounds(),
+        key = app.stream.lastKey.split(":");
+      return (
+        key[1] ===
+          [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
+            .map((n) => n.toFixed(3))
+            .join(",") && Number(key[2]) === Math.floor(app.map.getZoom() * 4)
+      );
+    },
     null,
     { timeout: 90000 },
   );
@@ -69,7 +80,7 @@ try {
     await page.waitForTimeout(700);
     await ready();
     const current = await state(page);
-    assert.ok(current.zoom <= 14.5);
+    assert.ok(current.zoom <= 16.5);
     assert.ok(current.stats.buildings > 1000);
     assert.equal(current.stats.tileLimited, false);
     report.views.push({ name, ...current });

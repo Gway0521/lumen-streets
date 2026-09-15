@@ -26,6 +26,8 @@ export class CityStream {
       ) {
         if (data.cancelled) {
           data.surface?.bitmap.close();
+          data.environment?.light.close();
+          this.lastKey = "";
         } else if (data.error) {
           this.lastError = data.error;
           this.status("geometryError");
@@ -37,7 +39,13 @@ export class CityStream {
           this.status(data.geometry.tileLimited ? "budget" : "ready");
           this.ready = true;
         }
-      } else data.surface?.bitmap.close();
+      } else {
+        data.surface?.bitmap.close();
+        data.environment?.light.close();
+        // A discarded job never fulfilled its key. Identical camera events
+        // (including another + at max zoom) must still be able to retry it.
+        this.lastKey = "";
+      }
       if (this.pending) {
         this.pending = false;
         this.schedule();

@@ -27,22 +27,27 @@ export function nightMaterial(instanced = false) {
       void main(){
         vec3 n=normalize(vNormal);float roof=smoothstep(.65,.9,abs(n.z));
         float light=.55+.45*max(0.,dot(n,normalize(vec3(-.4,-.6,.7))));
-        vec3 base=vColor*light;
+        vec3 base=vColor*light*mix(vec3(.7,.85,1.06),vec3(.92,1.21,1.55),roof);
         vec2 cell=vec2(vUv.x/5.2,vUv.y/4.0),grid=fract(cell),fw=max(fwidth(cell),vec2(.015));
         vec2 pane=smoothstep(vec2(.16)-fw,vec2(.16)+fw,grid)*(1.-smoothstep(vec2(.7)-fw,vec2(.7)+fw,grid));
-        float row=hash(vec2(floor(cell.y),15.)),occupied=step(.64,hash(floor(cell)))*step(.18,row);
+        float row=hash(vec2(floor(cell.y),15.)),occupied=step(.54,hash(floor(cell)))*step(.18,row);
         float fade=1.-smoothstep(.5,1.8,max(fw.x,fw.y));
-        vec3 window=mix(vec3(.91,.64,.30),vec3(.59,.77,.85),step(.92,hash(floor(cell)+13.)));
+        vec3 window=mix(vec3(1.,.69,.29),vec3(.43,.7,1.),step(.80,hash(vec2(vSeed,13.))));
         // At subpixel scale integrate window energy rather than making the facade black.
         float resolved=pane.x*pane.y*occupied;
         float energy=mix(.055+.035*row,resolved,fade);
         float emission=energy*(1.-roof)*detail;
-        base+=window*emission*glow*(.8+.7*row);
+        base+=window*emission*glow*(1.15+.9*row);
         float shop=(1.-smoothstep(3.,6.,vHeight))*(1.-roof)*step(.5,hash(vec2(floor(cell.x),2.)));
-        base+=vec3(.14,.08,.025)*shop*glow;
+        base+=vec3(.28,.15,.04)*shop*glow;
         base*=.78+.22*smoothstep(0.,15.,vHeight);
-        float grain=hash(floor(vPosition.xy/2.8));
-        base=mix(base,base*.95+vec3(.009,.015,.019)+grain*.008,roof);
+        vec2 roofCell=vPosition.xy/9.,roofFw=fwidth(roofCell),panel=fract(roofCell);
+        float roofDetail=1.-smoothstep(.3,1.2,max(roofFw.x,roofFw.y));
+        float grain=mix(.5,hash(floor(vPosition.xy/2.8)),roofDetail);
+        vec2 seams=smoothstep(vec2(.94)-roofFw,vec2(.94)+max(roofFw,vec2(.001)),panel);
+        float seam=seams.x+seams.y;
+        float plant=step(.73,hash(floor(vPosition.xy/9.)))*step(.24,panel.x)*step(panel.x,.63)*step(.23,panel.y)*step(panel.y,.7);
+        base=mix(base,base*(1.-mix(.025,seam*.14+plant*.24,roofDetail))+grain*.009,roof);
         gl_FragColor=vec4(base,1.);
       }`,
   });

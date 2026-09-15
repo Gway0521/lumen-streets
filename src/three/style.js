@@ -15,7 +15,7 @@ const mainRoad = [
   0.68,
   ["path", "track"],
   0.08,
-  0.24,
+  0.28,
 ];
 export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
   return {
@@ -33,7 +33,7 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
       {
         id: "night",
         type: "background",
-        paint: { "background-color": "#091219" },
+        paint: { "background-color": "#101e2b" },
       },
       {
         id: "land",
@@ -81,14 +81,14 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
         type: "fill",
         source: "world",
         "source-layer": "water",
-        paint: { "fill-color": "#050e16" },
+        paint: { "fill-color": "#0a2032" },
       },
       {
         id: "waterways",
         type: "line",
         source: "world",
         "source-layer": "waterway",
-        paint: { "line-color": "#050e16", "line-width": zoom(10, 1, 16, 10) },
+        paint: { "line-color": "#0a2032", "line-width": zoom(10, 1, 16, 10) },
       },
       {
         id: "footprints",
@@ -102,10 +102,10 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
         },
       },
       ...[
-        ["road-halo", 5.8, "#c99755", 0.1, 5],
-        ["road-glow", 2.7, "#e0b778", 0.24, 2.2],
-        ["road-rim", 1.1, "#e8cc96", 0.64, 0.55],
-        ["road-asphalt", 0.4, "#262b2d", 0.73, 0.25],
+        ["road-halo", 7.0, "#e6912f", 0.18, 5],
+        ["road-glow", 3.1, "#ffb344", 0.45, 1.8],
+        ["road-rim", 1.2, "#ffc575", 0.88, 0.35],
+        ["road-asphalt", 0.3, "#b77832", 0.45, 0.2],
       ].map(([id, mult, color, opacity, blur]) => ({
         id,
         type: "line",

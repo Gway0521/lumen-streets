@@ -5,6 +5,8 @@ import { nightMaterial, trafficMaterial } from "./materials.js";
 import { mercator, metreScale, clamp } from "./geo.js";
 import { unpackGraph } from "./graph-wire.js";
 import { VIEW } from "./view.js";
+import { NightBloom } from "./bloom.js";
+import { NightEnvironment } from "./environment-layer.js";
 
 export class NightLayer {
   id = "lumen-night";
@@ -55,8 +57,24 @@ export class NightLayer {
     });
     this.renderer.autoClear = false;
     this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    this.renderer.info.autoReset = false;
+    this.bloom = new NightBloom();
   }
-  replace({ origin, geometry, graph, routes, surface, surfaceKey }) {
+  replace({
+    origin,
+    geometry,
+    graph,
+    routes,
+    surface,
+    surfaceKey,
+    environment,
+  }) {
+    if (this.environment) {
+      this.scene.remove(this.environment);
+      this.environment.dispose();
+    }
+    this.environment = new NightEnvironment(environment);
+    this.scene.add(this.environment);
     graph = unpackGraph(graph);
     if (this.mesh) {
       this.scene.remove(this.mesh);
@@ -207,6 +225,7 @@ export class NightLayer {
     this.map.triggerRepaint();
   }
   clear() {
+    this.bloom?.release();
     if (this.mesh) {
       this.scene.remove(this.mesh);
       this.mesh.geometry.dispose();
@@ -218,6 +237,11 @@ export class NightLayer {
       this.distant = null;
     }
     this.clearSurface();
+    if (this.environment) {
+      this.scene.remove(this.environment);
+      this.environment.dispose();
+      this.environment = null;
+    }
     this.surfaceKey = null;
     this.traffic = null;
     this.routes = [];
@@ -311,7 +335,7 @@ export class NightLayer {
     this.pointMaterial.uniforms.pointSize.value =
       clamp((z - 11.5) * 0.85, 1.2, 3) * this.map.getPixelRatio();
     this.points.visible = z >= VIEW.traffic;
-    this.lampMaterial.uniforms.glow.value = this.glow * 0.5;
+    this.lampMaterial.uniforms.glow.value = this.glow * 0.85;
     this.lampMaterial.uniforms.pointSize.value =
       clamp((z - 11.7) * 1.25, 1.3, 3.8) * this.map.getPixelRatio();
     if (
@@ -330,14 +354,32 @@ export class NightLayer {
     this.camera.projectionMatrix
       .fromArray(args.defaultProjectionData.mainMatrix)
       .multiply(transform);
+    this.environment?.update(
+      this.time,
+      this.map.getBearing(),
+      this.glow,
+      z,
+      this.map.getPixelRatio(),
+    );
     this.renderer.resetState();
+    this.renderer.info.reset();
     this.renderer.render(this.scene, this.camera);
+    if (visible && this.mesh)
+      this.bloom.render(
+        this.renderer,
+        gl,
+        this.map.getCanvas().width,
+        this.map.getCanvas().height,
+        this.glow,
+      );
     this.renderer.resetState();
     if (now - (this.lastStats || 0) > 1000) {
       this.onStats?.({
         ...this.stats,
         cars: this.traffic?.cars.length || 0,
         drawCalls: this.renderer.info.render.calls,
+        bloomMiB: this.bloom.bytes / 1048576,
+        environmentMiB: (this.environment?.bytes || 0) / 1048576,
       });
       this.lastStats = now;
     }
@@ -360,6 +402,7 @@ export class NightLayer {
     this.distantMaterial.dispose();
     this.pointMaterial.dispose();
     this.lampMaterial.dispose();
+    this.bloom.dispose();
     this.renderer.dispose();
   }
 }

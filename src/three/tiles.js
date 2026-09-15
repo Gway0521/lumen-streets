@@ -92,8 +92,8 @@ export class BuildingTiles {
       );
       for (const [index, t] of batch.entries()) {
         signal?.throwIfAborted();
-        const layer = new VectorTile(new PbfReader(buffers[index])).layers
-          .building;
+        const decoded = new VectorTile(new PbfReader(buffers[index])).layers;
+        const layer = decoded.building;
         const features = [];
         for (let i = 0; i < (layer?.length || 0); i++) {
           const f = layer.feature(i),
@@ -110,7 +110,14 @@ export class BuildingTiles {
             (Number(b.properties.render_height) || 8) -
             (Number(a.properties.render_height) || 8),
         );
-        consume(features);
+        const environment = {};
+        for (const name of ["water", "park", "landcover", "transportation"]) {
+          const source = decoded[name];
+          environment[name] = [];
+          for (let i = 0; i < (source?.length || 0); i++)
+            environment[name].push(source.feature(i).toGeoJSON(t.x, t.y, t.z));
+        }
+        consume(features, environment);
       }
       // Let cancellation messages run even when all requested tiles are cached.
       await new Promise((resolve) => setTimeout(resolve, 0));

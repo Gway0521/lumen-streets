@@ -7,6 +7,7 @@ import { packGraph } from "./graph-wire.js";
 import { BuildingTiles } from "./tiles.js";
 import { groundSurface } from "./surface.js";
 import { compactVolumes } from "./volumes.js";
+import { EnvironmentBuilder } from "./environment.js";
 
 let cached = null;
 const tileSource = new BuildingTiles();
@@ -58,6 +59,7 @@ self.onmessage = async ({ data }) => {
     } = data;
     const active = cityId ? await snapshot(cityId, base) : null;
     const origin = active ? regions[cityId].center : center;
+    const landscape = new EnvironmentBuilder(origin, bounds, mobile);
     const outside = (f) =>
       !active ||
       !inside(
@@ -79,7 +81,8 @@ self.onmessage = async ({ data }) => {
       tileURL,
       mobile,
       signal,
-      (buildings) => {
+      (buildings, environment) => {
+        landscape.consume(environment);
         const part = vectorGeometry(
           buildings.filter(outside),
           origin,
@@ -168,6 +171,7 @@ self.onmessage = async ({ data }) => {
           : null;
     if (signal.aborted) surface?.bitmap.close();
     signal.throwIfAborted();
+    const environment = landscape.finish();
     self.postMessage(
       {
         generation,
@@ -177,12 +181,18 @@ self.onmessage = async ({ data }) => {
         routes,
         surface,
         surfaceKey,
+        environment,
       },
       [
         ...Object.values(geometry)
           .filter((v) => v instanceof Float32Array)
           .map((v) => v.buffer),
         ...(surface ? [surface.bitmap] : []),
+        environment.water.buffer,
+        environment.green.buffer,
+        environment.bridges.buffer,
+        environment.lamps.buffer,
+        environment.light,
       ],
     );
   } catch (error) {

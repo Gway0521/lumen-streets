@@ -22,6 +22,43 @@ import { packGraph, unpackGraph } from "../src/three/graph-wire.js";
 import { buildGraph, Traffic } from "../src/traffic.js";
 import { coveringBuildings } from "../src/three/tiles.js";
 import { compactVolumes } from "../src/three/volumes.js";
+import { CityStream } from "../src/three/stream.js";
+
+test("a cancelled build at the same camera can be scheduled again", () => {
+  const PreviousWorker = globalThis.Worker;
+  globalThis.Worker = class {
+    postMessage() {}
+    terminate() {}
+  };
+  const map = { on() {}, off() {}, getZoom: () => 16.5 };
+  const stream = new CityStream(map, {}, { mobile: false, status() {} });
+  try {
+    stream.lastKey = "same-camera";
+    stream.busy = true;
+    stream.moved();
+    let closed = 0;
+    stream.worker.onmessage({
+      data: {
+        generation: stream.generation - 1,
+        environment: {
+          light: {
+            close() {
+              closed++;
+            },
+          },
+        },
+      },
+    });
+    assert.equal(stream.lastKey, "");
+    assert.equal(stream.busy, false);
+    assert.equal(stream.pending, false);
+    assert.ok(stream.timer);
+    assert.equal(closed, 1);
+  } finally {
+    stream.dispose();
+    globalThis.Worker = PreviousWorker;
+  }
+});
 test("night style validates against the installed map renderer", () =>
   assert.deepEqual(validateStyleMin(nightStyle()), []));
 test("3D coordinates remain local and roundtrip across the antimeridian", () => {
@@ -43,7 +80,7 @@ test("3D coordinates remain local and roundtrip across the antimeridian", () => 
   });
   assert.equal(r.lng, 121.4938);
   assert.equal(r.lat, 80);
-  assert.equal(r.zoom, 14.5);
+  assert.equal(r.zoom, 16.5);
   assert.equal(r.pitch, 0);
   assert.equal(r.glow, 1);
   assert.equal(detailLevel(10), "map");
