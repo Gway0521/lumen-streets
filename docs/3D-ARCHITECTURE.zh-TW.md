@@ -90,3 +90,5 @@ PNG 保留目前長寬比，最長邊可選 1920、2560、3840 像素；直式�
 `node scripts/check-3d-aerial.mjs` 另外驗證畫面上、中、下方的真實右鍵拖曳、最近縮放限制、上海全城遠景、札幌全球載入、地圖模式釋放與直式構圖，輸出至 `artifacts/3d-revision/`。`view.js` 統一鏡頭門檻，`tiles.js` 處理建築圖磚，`surface.js` 與 `volumes.js` 處理地景貼圖及遠景量體。
 
 `bloom.js`、`environment.js`、`environment-layer.js` 負責畫面光暈、地景遮罩、植被及反射燈光。`node scripts/check-3d-art.mjs` 在開發伺服器上擷取固定札幌視角，驗證多出的兩級「＋」、3840／1920／3840 PNG 匯出與狀態恢復、倒影旋轉、重複切換地圖後的資源釋放及手機尺寸，輸出至 `artifacts/3d-art/`。截圖仍需實際目視審查，不能只以斷言通過當作美術驗收。
+
+`node scripts/check-3d-facades.mjs` 以六個種子、三個透視角度，檢查精細網格與實例量體的實際 GPU 隨機值傳遞。建築種子使用 flat 插值保持固定，避免微小插值誤差讓相鄰像素切換窗戶亮暗或立面樣式。測試包含修正路徑與 smooth 插值對照組，並把札幌近景、旋轉截圖存於 `artifacts/3d-facades/`。

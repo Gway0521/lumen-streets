@@ -5,7 +5,9 @@ export function nightMaterial(instanced = false) {
     vertexColors: true,
     defines: instanced ? { CITY_INSTANCES: 1 } : {},
     uniforms: { glow: { value: 1 }, rise: { value: 1 }, detail: { value: 1 } },
-    vertexShader: `attribute float seed; varying vec3 vNormal; varying vec3 vColor; varying vec2 vUv; varying float vSeed; varying float vHeight; varying vec3 vPosition;
+    // A building seed is categorical. Smooth interpolation introduces tiny
+    // errors that the procedural hash amplifies into per-pixel facade noise.
+    vertexShader: `attribute float seed; varying vec3 vNormal; varying vec3 vColor; varying vec2 vUv; flat varying float vSeed; varying float vHeight; varying vec3 vPosition;
       #ifdef CITY_INSTANCES
       attribute vec3 offset; attribute vec3 extent; attribute vec2 heading; attribute vec3 tone; attribute float idSeed;
       #endif
@@ -22,7 +24,7 @@ export function nightMaterial(instanced = false) {
         vPosition=p;
         gl_Position=projectionMatrix*modelViewMatrix*vec4(p.xy,p.z*rise,1.0);}`,
     fragmentShader: `precision highp float;
-      uniform float glow;uniform float detail;varying vec3 vNormal;varying vec3 vColor;varying vec2 vUv;varying float vSeed;varying float vHeight;varying vec3 vPosition;
+      uniform float glow;uniform float detail;varying vec3 vNormal;varying vec3 vColor;varying vec2 vUv;flat varying float vSeed;varying float vHeight;varying vec3 vPosition;
       float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+vSeed)*43758.5453);}
       void main(){
         vec3 n=normalize(vNormal);float roof=smoothstep(.65,.9,abs(n.z));
