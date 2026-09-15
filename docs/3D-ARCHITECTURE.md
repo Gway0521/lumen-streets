@@ -14,12 +14,22 @@ Drag to pan; right-drag to rotate and tilt; scroll to zoom. Horizontal rotation 
 
 - Global vector tiles load and unload as the camera moves. There is no fixed neighbourhood boundary.
 - Default zoom is 13.65 on desktop and 13.35 on phones, with a nearest limit of 16.5 and pitch capped at 55°. The close limit allows two additional + presses from the previous 14.5 limit; the default aerial framing is unchanged. Buildings retain full height down to 12.3, fade into the atlas between 12.3 and 11.8, and traffic starts at 12.8.
-- Amber road cores and soft bloom contrast with blue roofs, grouped warm/cool window light and roof panel detail. Mapped parks have irregular procedural canopies; mapped water receives camera-oriented golden light streaks. Hardware depth testing handles facade, landmark and moving-light occlusion.
+- Muted champagne road shoulders surround dark asphalt, with sparse lamp highlights and restrained bloom. Low-saturation blue-grey roofs contrast with grouped ivory and cool window light. Mapped parks have dark irregular canopies; mapped water receives camera-oriented shoreline reflections. Hardware depth testing handles facade, landmark and moving-light occlusion.
 - The eight existing snapshots preserve OSM height/floor parsing, building assemblies, courtyard holes and six reviewed landmark models. Parametric curves and portals become physical triangles. Rectangular gabled roofs have a supported roof generator; unsupported roof types fall back to flat.
 - The original traffic simulation supplies seeded demand, one-way handling, following gaps, signals and turning. Snapshot railways retain simulated trains. Retained graph edges preserve traffic when the same snapshot scene is rebuilt.
 - PNG, GIF and short video export, view links, embed mode and a bounded local GLB importer are available in English and Traditional Chinese.
 
 ## Renderer decision
+
+### Visual baseline
+
+The nightscape should read as illuminated buildings and individual street lights, with space for darkness between them. Roads connect the composition without becoming solid luminous ribbons. Bloom is reserved for the brightest points; reducing road brightness must not simply underexpose the whole scene. The light control shares the default road values with the map style so returning to 100% restores this baseline.
+
+Roof colour stays subdued, while facade bays, window proportions and occupied suites vary deterministically between buildings. These patterns are artistic material variation, not surveyed facade details. Low-resolution facades retain integrated window light rather than turning black. Vegetation is quieter than buildings; water keeps a dark open centre and sparse warm reflections with visible inferred shoreline lights. Source building heights and water outlines remain unchanged.
+
+Traffic uses camera-dependent head/tail visibility and a short exposure sampled along the current road, up to eight metres and two points per vehicle. Stationary cars remain sharp. The display effect retains no frame history and does not alter traffic speed, demand, routes or export checkpoints. The camera range and default aerial framing remain unchanged.
+
+### Graphics backend
 
 MapLibre GL JS 6.9.1 and Three.js 0.186.0 share a **WebGL 2** context and depth buffer. MapLibre handles global geography, camera math, source workers and tile caching. Three.js handles one batched facade mesh, lamps, vehicles and imported landmarks. WebGPU is not implemented.
 

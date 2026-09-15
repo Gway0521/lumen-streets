@@ -150,6 +150,19 @@ try {
     assert.equal(visit.glError, 0);
   }
   await page.keyboard.press("Escape");
+  report.lightControl = await page.evaluate(async () => {
+    const { ROAD_LIGHT } = await import("/src/three/style.js");
+    const input = document.querySelector("#glow");
+    input.value = "1.3";
+    input.dispatchEvent(new Event("input"));
+    input.value = "1";
+    input.dispatchEvent(new Event("input"));
+    return Object.entries(ROAD_LIGHT).every(
+      ([id, value]) =>
+        window.__lumen3d.map.getPaintProperty(id, "line-opacity") === value,
+    );
+  });
+  assert.ok(report.lightControl, "100% restores the default road palette");
   await page.evaluate(() => {
     window.__lumen3d.map.jumpTo({ zoom: 14.5 });
   });

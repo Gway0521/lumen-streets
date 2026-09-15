@@ -80,6 +80,21 @@ test("tunnels emit no lights; bridge lights clear decks and repeated roads dedup
   const data = b.finish();
   assert.ok(data.bridges.length > 0 && data.lamps.length > 0);
   for (let i = 2; i < data.lamps.length; i += 3) assert.ok(data.lamps[i] > 4);
+  for (let i = 1; i < data.lamps.length; i += 3)
+    assert.equal(Math.abs(data.lamps[i]), 9);
+});
+
+test("nearby shore lights share the road point budget", () => {
+  const b = new EnvironmentBuilder(origin, bounds, false);
+  b.addRoad(road());
+  b.shore = [
+    [100, 0],
+    [200, 0],
+  ];
+  const count = b.lampPoints.length;
+  assert.equal(b.finish().lamps.length, count + 6);
+  b.lampPoints = new Array(90000).fill(0);
+  assert.equal(b.finish().lamps.length, 90000);
 });
 
 test("terrain budgets retain whole triangles and bound texture dimensions", () => {

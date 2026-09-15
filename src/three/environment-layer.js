@@ -39,8 +39,8 @@ export class NightEnvironment extends THREE.Group {
             reflection+=texture2D(lamps,uv).r*exp(-d/76.)*valid;
           }
           float ripple=.62+.3*wave;
-          vec3 water=vec3(.033,.085,.145)+vec3(.009,.018,.031)*wave;
-          water+=vec3(1.,.64,.25)*reflection*ripple*.85*glow;
+          vec3 water=vec3(.027,.058,.080)+vec3(.006,.011,.016)*wave;
+          water+=vec3(.94,.74,.46)*reflection*ripple*.85*glow;
           gl_FragColor=vec4(water,1.);}`,
     });
     this.greenMaterial = new THREE.ShaderMaterial({
@@ -55,7 +55,7 @@ export class NightEnvironment extends THREE.Group {
           float aa=max(fwidth(r),.06),crown=1.-smoothstep(.82-aa,1.+aa,r);
           vec3 n=normalize(vec3(delta*.7,sqrt(max(.01,1.-min(1.,r*r)))));
           float light=.27+.73*max(0.,dot(n,normalize(vec3(-.35,-.5,.8))));
-          vec3 color=mix(vec3(.02,.045,.035),vec3(.14,.23,.085)*(.65+variation*.5)*light,crown);
+          vec3 color=mix(vec3(.016,.029,.025),vec3(.075,.12,.063)*(.65+variation*.5)*light,crown);
           gl_FragColor=vec4(color,1.);}`,
     });
     for (const [name, material] of [
@@ -83,7 +83,7 @@ export class NightEnvironment extends THREE.Group {
       side: THREE.DoubleSide,
       uniforms: { glow: { value: 1 } },
       vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-      fragmentShader: `varying vec2 vUv;uniform float glow;void main(){float edge=smoothstep(.3,.85,abs(vUv.x));float lane=1.-smoothstep(.02,.07,abs(vUv.x));vec3 c=mix(vec3(.12,.10,.065),vec3(1.,.61,.22)*glow,edge);c+=vec3(.20,.13,.045)*lane;gl_FragColor=vec4(c,1.);}`,
+      fragmentShader: `varying vec2 vUv;uniform float glow;void main(){float edge=smoothstep(.80,.99,abs(vUv.x));float lane=1.-smoothstep(.01,.025,abs(vUv.x));vec3 c=mix(vec3(.055,.068,.079),vec3(.51,.39,.26)*glow,edge);c+=vec3(.07,.065,.05)*lane;gl_FragColor=vec4(c,1.);}`,
     });
     const bridge = new THREE.Mesh(bridgeGeometry, this.bridgeMaterial);
     bridge.frustumCulled = false;
@@ -93,8 +93,8 @@ export class NightEnvironment extends THREE.Group {
       depthWrite: false,
       blending: THREE.AdditiveBlending,
       uniforms: { size: { value: 2.5 }, glow: { value: 1 } },
-      vertexShader: `uniform float size;void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=size;}`,
-      fragmentShader: `uniform float glow;void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(1.,.78,.40)*glow,exp(-r*r*4.));}`,
+      vertexShader: `uniform float size;varying float warmth;void main(){warmth=fract(sin(dot(floor(position.xy),vec2(.13,.37)))*43758.5453);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=size;}`,
+      fragmentShader: `uniform float glow;varying float warmth;void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;vec3 light=mix(vec3(.94,.88,.73),vec3(.91,.67,.38),warmth);gl_FragColor=vec4(light*glow,exp(-r*r*4.)*.85);}`,
     });
     const lamps = new THREE.BufferGeometry();
     lamps.setAttribute("position", new THREE.BufferAttribute(data.lamps, 3));

@@ -26,20 +26,27 @@ export function nightMaterial(instanced = false) {
       float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+vSeed)*43758.5453);}
       void main(){
         vec3 n=normalize(vNormal);float roof=smoothstep(.65,.9,abs(n.z));
-        float light=.55+.45*max(0.,dot(n,normalize(vec3(-.4,-.6,.7))));
-        vec3 base=vColor*light*mix(vec3(.7,.85,1.06),vec3(.92,1.21,1.55),roof);
-        vec2 cell=vec2(vUv.x/5.2,vUv.y/4.0),grid=fract(cell),fw=max(fwidth(cell),vec2(.015));
-        vec2 pane=smoothstep(vec2(.16)-fw,vec2(.16)+fw,grid)*(1.-smoothstep(vec2(.7)-fw,vec2(.7)+fw,grid));
-        float row=hash(vec2(floor(cell.y),15.)),occupied=step(.54,hash(floor(cell)))*step(.18,row);
+        float light=.44+.56*max(0.,dot(n,normalize(vec3(-.4,-.6,.7))));
+        vec3 base=vColor*light*mix(vec3(.83,.94,1.04),vec3(.86,1.02,1.16),roof);
+        float architecture=hash(vec2(19.,7.)),office=step(.66,architecture);
+        vec2 cell=vec2(vUv.x/mix(4.4,3.6,office),vUv.y/3.5),grid=fract(cell),fw=max(fwidth(cell),vec2(.015));
+        vec2 opening=mix(vec2(.68,.72),vec2(.79,.76),office);
+        vec2 pane=smoothstep(vec2(.18)-fw,vec2(.18)+fw,grid)*(1.-smoothstep(opening-fw,opening+fw,grid));
+        float row=hash(vec2(floor(cell.y),15.));
+        float suite=hash(floor(cell/vec2(4.,3.))+31.);
+        float occupied=step(mix(.60,.39,office),hash(floor(cell)))*step(.16,row)*mix(.45,1.,step(.26,suite));
         float fade=1.-smoothstep(.5,1.8,max(fw.x,fw.y));
-        vec3 window=mix(vec3(1.,.69,.29),vec3(.43,.7,1.),step(.80,hash(vec2(vSeed,13.))));
+        vec3 window=mix(vec3(1.,.83,.59),vec3(.70,.82,.96),step(.72,architecture));
         // At subpixel scale integrate window energy rather than making the facade black.
         float resolved=pane.x*pane.y*occupied;
-        float energy=mix(.055+.035*row,resolved,fade);
+        float energy=mix(.115+.085*office+.025*row,resolved,fade);
         float emission=energy*(1.-roof)*detail;
-        base+=window*emission*glow*(1.15+.9*row);
+        base+=window*emission*glow*(1.25+.65*row);
+        // Broad facade bays remain quiet when their mullions become subpixel.
+        float bay=1.-smoothstep(.025,.025+max(fw.x*.24,.012),abs(fract(cell.x/4.)-.5));
+        base*=1.-bay*.14*(1.-roof)*fade;
         float shop=(1.-smoothstep(3.,6.,vHeight))*(1.-roof)*step(.5,hash(vec2(floor(cell.x),2.)));
-        base+=vec3(.28,.15,.04)*shop*glow;
+        base+=vec3(.13,.105,.075)*shop*glow;
         base*=.78+.22*smoothstep(0.,15.,vHeight);
         vec2 roofCell=vPosition.xy/9.,roofFw=fwidth(roofCell),panel=fract(roofCell);
         float roofDetail=1.-smoothstep(.3,1.2,max(roofFw.x,roofFw.y));

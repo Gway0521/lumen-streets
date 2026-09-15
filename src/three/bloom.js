@@ -20,7 +20,7 @@ export class NightBloom {
       },
       vertexShader,
       fragmentShader: `varying vec2 vUv;uniform sampler2D source;uniform vec2 step;uniform float extract;
-        vec3 sampleLight(vec2 p){vec3 c=texture2D(source,p).rgb;float l=max(c.r,max(c.g,c.b));return mix(c,c*smoothstep(.28,.75,l),extract);}
+        vec3 sampleLight(vec2 p){vec3 c=texture2D(source,p).rgb;float l=max(c.r,max(c.g,c.b));return mix(c,c*smoothstep(.48,.88,l),extract);}
         void main(){vec3 c=sampleLight(vUv)*.227027;
           c+=(sampleLight(vUv+step*1.384615)+sampleLight(vUv-step*1.384615))*.316216;
           c+=(sampleLight(vUv+step*3.230769)+sampleLight(vUv-step*3.230769))*.070270;
@@ -32,7 +32,7 @@ export class NightBloom {
       uniforms: {
         source: { value: null },
         light: { value: null },
-        strength: { value: 0.85 },
+        strength: { value: 0.24 },
       },
       vertexShader,
       fragmentShader: `varying vec2 vUv;uniform sampler2D source;uniform sampler2D light;uniform float strength;
@@ -82,7 +82,7 @@ export class NightBloom {
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
     renderer.setViewport(0, 0, width, height);
     this.quad.material = this.composite;
-    this.composite.uniforms.strength.value = 0.48 * glow;
+    this.composite.uniforms.strength.value = 0.24 * glow;
     renderer.render(this.scene, this.camera);
     gl.viewport(...viewport);
   }

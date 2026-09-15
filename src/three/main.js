@@ -3,7 +3,7 @@ import mapWorkerURL from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./style.css";
 import { regions } from "../city.js";
-import { nightStyle } from "./style.js";
+import { nightStyle, ROAD_LIGHT } from "./style.js";
 import { NightLayer } from "./layer.js";
 import { CityStream } from "./stream.js";
 import { viewRecipe, detailLevel, clamp, localPoint } from "./geo.js";
@@ -300,12 +300,7 @@ $("glow").oninput = (e) => {
       map.setPaintProperty(
         id,
         "line-opacity",
-        clamp(
-          { "road-halo": 0.18, "road-glow": 0.45, "road-rim": 0.88 }[id] *
-            layer.glow,
-          0,
-          1,
-        ),
+        clamp(ROAD_LIGHT[id] * layer.glow, 0, 1),
       );
   map?.triggerRepaint();
 };

@@ -121,7 +121,20 @@ export class EnvironmentBuilder {
           const key = `${Math.round(x / 20)}/${Math.round(y / 20)}`;
           if (this.lamps.has(key) || this.lamps.size >= 30000) continue;
           this.lamps.add(key);
-          this.lampPoints.push(x, y, f.properties.brunnel === "bridge" ? 5 : 2);
+          const side = Math.floor(d / 70) % 2 ? -1 : 1;
+          const shoulder = [
+            "motorway",
+            "trunk",
+            "primary",
+            "secondary",
+          ].includes(f.properties.class)
+            ? 9
+            : 4;
+          this.lampPoints.push(
+            x - ((b[1] - a[1]) / length) * shoulder * side,
+            y + ((b[0] - a[0]) / length) * shoulder * side,
+            f.properties.brunnel === "bridge" ? 5 : 2,
+          );
           const cell = `${Math.floor(x / 160)}/${Math.floor(y / 160)}`;
           if (!this.roadCells.has(cell)) this.roadCells.set(cell, []);
           this.roadCells.get(cell).push([x, y]);
@@ -157,6 +170,8 @@ export class EnvironmentBuilder {
           );
       if (!near) continue;
       seen.add(key);
+      // Give inferred shoreline reflections a visible source, within the same point budget.
+      if (this.lampPoints.length < 90000) this.lampPoints.push(x, y, 1.6);
       const g = this.ctx.createRadialGradient(x, y, 0, x, y, 8);
       g.addColorStop(0, "#eeeeee");
       g.addColorStop(0.3, "#aaaaaa");

@@ -7,6 +7,7 @@ import { unpackGraph } from "./graph-wire.js";
 import { VIEW } from "./view.js";
 import { NightBloom } from "./bloom.js";
 import { NightEnvironment } from "./environment-layer.js";
+import { vehicleLights } from "./vehicle-lights.js";
 
 export class NightLayer {
   id = "lumen-night";
@@ -287,13 +288,9 @@ export class NightLayer {
       col.set(c, i * 3);
       i++;
     };
-    for (const car of this.traffic?.cars || []) {
-      const p = sample(car.edge, car.s),
-        dx = Math.cos(p.angle),
-        dy = Math.sin(p.angle);
-      add(p.x + dx * 2, p.y + dy * 2, 1.2, [1, 0.92, 0.72]);
-      add(p.x - dx * 2, p.y - dy * 2, 1.2, [0.95, 0.14, 0.045]);
-    }
+    const bearing = ((this.map?.getBearing() || 0) * Math.PI) / 180;
+    for (const car of this.traffic?.cars || [])
+      vehicleLights(car, bearing, add);
     for (const [index, route] of this.routes.entries()) {
       const train = trainState(route, this.time, index);
       if (!train) continue;
@@ -335,7 +332,7 @@ export class NightLayer {
     this.pointMaterial.uniforms.pointSize.value =
       clamp((z - 11.5) * 0.85, 1.2, 3) * this.map.getPixelRatio();
     this.points.visible = z >= VIEW.traffic;
-    this.lampMaterial.uniforms.glow.value = this.glow * 0.85;
+    this.lampMaterial.uniforms.glow.value = this.glow * 0.7;
     this.lampMaterial.uniforms.pointSize.value =
       clamp((z - 11.7) * 1.25, 1.3, 3.8) * this.map.getPixelRatio();
     if (
@@ -361,6 +358,8 @@ export class NightLayer {
       z,
       this.map.getPixelRatio(),
     );
+    // Paused views still need camera-dependent head/tail visibility after rotation.
+    if (!this.playing) this.updatePoints();
     this.renderer.resetState();
     this.renderer.info.reset();
     this.renderer.render(this.scene, this.camera);
