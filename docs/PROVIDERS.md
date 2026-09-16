@@ -1,12 +1,14 @@
 # Map services
 
+The 3D editor streams OpenMapTiles-compatible vector tiles directly from OpenFreeMap by default. Set `VITE_LUMEN_TILEJSON_URL` on the build machine to choose another compatible source; rebuild after changing it. The TileJSON, tiles and glyphs must be reachable from visitors' browsers. All preset views also require this service. Update provider attribution when changing sources. Continuous panning does not call Overpass; the bounded area-import API described below remains for legacy tooling.
+
 The Node server includes place search and bounded map imports. Run `npm start` after building; see [Hosting](HOSTING.md) for server settings. The website and `/api/` share one origin. Static-only `dist/` hides search when no API is available.
 
 Map query version `overpass-area-v2` includes standalone building parts, building relations and tower/mast nodes and ways, along with their member geometry. The cache key includes this version so old query results are not reused as new coverage. Readers still accept cached/imported v1 snapshots. Landmark supplementation is an offline maintenance step; scene generation makes no per-building external requests. See [Buildings](BUILDINGS.md).
 
 ## Bundled maps and maintenance
 
-Eight bundled places each have a base snapshot and a rail snapshot in `public/data/`. They retain OpenStreetMap IDs, tags, geometry and retrieval metadata, including the legacy `pocketPlaces` metadata key. Included places work without upstream requests.
+Eight bundled places each have a base snapshot and a rail snapshot in `public/data/`. They retain OpenStreetMap IDs, tags, geometry and retrieval metadata, including the legacy `pocketPlaces` metadata key. These snapshots require no upstream request, but the 3D preset views still need online vector tiles for the basemap and surrounding geometry.
 
 `src/regions.json` centres use longitude/latitude; query bounds use south/west/north/east. Rendering uses local projected metres. Preserve coordinate order and source metadata when updating an adapter. Snapshot extents and licenses are listed in [Attribution](../ATTRIBUTION.md).
 

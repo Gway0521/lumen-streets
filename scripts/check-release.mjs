@@ -11,8 +11,11 @@ const pkg = JSON.parse(await readFile('package.json', 'utf8'));
 const lock = JSON.parse(await readFile('package-lock.json', 'utf8'));
 assert.equal(lock.version, pkg.version, 'Lockfile version differs from package');
 assert.equal(lock.packages[''].version, pkg.version, 'Root lockfile version differs from package');
-assert((await readFile(`docs/releases/v${pkg.version}.md`, 'utf8')).includes(`v${pkg.version}`), 'Missing release notes');
-for(const name of ['index.html','player.html','gallery.html','scenes.html','wallpapers.html','third-party-notices.txt','mediabunny-license.txt','source.html','license.txt','lumen-streets-source.tar.gz'])assert(relative.includes(name),`Missing ${name}`);
+const releaseVersion = pkg.version.split('-')[0];
+const releaseNotes = await readFile(`docs/releases/v${releaseVersion}.md`, 'utf8');
+assert(releaseNotes.includes(`v${releaseVersion}`), 'Missing release notes');
+if (pkg.version.includes('-')) assert(releaseNotes.includes(pkg.version) && releaseNotes.includes('Unreleased'), 'Prerelease notes must identify the development build');
+for(const name of ['index.html','three.html','player.html','gallery.html','scenes.html','wallpapers.html','third-party-notices.txt','mediabunny-license.txt','source.html','license.txt','lumen-streets-source.tar.gz'])assert(relative.includes(name),`Missing ${name}`);
 assert((await readFile(path.join(root,'license.txt'))).equals(await readFile('LICENSE')), 'Published license differs from LICENSE');
 // Social crawlers read the delivered HTML, not the running application.
 for (const name of ['index.html', 'player.html']) {
@@ -40,7 +43,7 @@ assert.equal(archive.status,0,archive.stderr);
 const members=archive.stdout.trim().split(/\r?\n/).map(f=>f.replace(/\/$/,''));
 assert(members.every(f=>f==='lumen-streets'||f.startsWith('lumen-streets/')), 'Source archive root');
 assert(!members.some(f=>/(^|\/)(\.\.|\.git|\.local|\.cache|AGENTS\.md|node_modules|dist|artifacts)(\/|$)/i.test(f)||/(^|\/)\.env(?!\.example(?:\/|$))/.test(f)), 'Private content in source archive');
-for(const name of ['LICENSE','NOTICE','package.json','package-lock.json','vite.config.js','scripts/package-source.mjs','server/start.mjs','src/main.js','README.md'])assert(members.includes('lumen-streets/'+name),`Missing source ${name}`);
+for(const name of ['LICENSE','NOTICE','package.json','package-lock.json','vite.config.js','scripts/package-source.mjs','server/start.mjs','src/main.js','src/three/main.js','src/three/city.worker.js','src/three/scene-recipe.js','three.html','README.md'])assert(members.includes('lumen-streets/'+name),`Missing source ${name}`);
 const sourcePackage = spawnSync('tar', ['-xOzf', path.join(root, 'lumen-streets-source.tar.gz'), 'lumen-streets/package.json'], { encoding: 'utf8' });
 if (sourcePackage.error) throw sourcePackage.error;
 assert.equal(sourcePackage.status, 0, sourcePackage.stderr);
@@ -49,7 +52,7 @@ assert(!relative.some(f=>/(^|\/)(AGENTS\.md|\.local|\.cache|\.env[^/]*|node_modu
 for(const file of files) {
   if(/\.(html|js|css|txt)$/.test(file)) {
     const content=await readFile(file,'utf8');
-    assert(!/window\.__(?:sceneQA|playerQA|beta)|[A-Z]:[\\/]Users[\\/]/.test(content),`Debug hook or personal path in ${path.basename(file)}`);
+    assert(!/window\.__(?:sceneQA|playerQA|beta|lumen3d)|[A-Z]:[\\/]Users[\\/]/.test(content),`Debug hook or personal path in ${path.basename(file)}`);
     if(file.endsWith('.html'))for(const match of content.matchAll(/(?:src|href|poster)="([^"#?]+)[^"]*"/g)) {
       if(/^(https?:|data:|mailto:)/.test(match[1]))continue;
       assert(!match[1].startsWith('/'),`Root-relative asset ${match[1]}`);
