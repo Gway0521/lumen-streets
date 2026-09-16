@@ -8,3 +8,5 @@ export const VIEW = Object.freeze({
   traffic: 12.8,
   pitch: 40,
 });
+// A smaller composition stage changes viewport pixels, not the city's detail.
+export const sceneZoom = (map) => map.getZoom() + (map.lumenZoomOffset || 0);

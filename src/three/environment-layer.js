@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 const vertexShader = `varying vec2 world;void main(){world=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const noise = `float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}`;
 
@@ -27,35 +28,45 @@ export class NightEnvironment extends THREE.Group {
       },
       vertexShader,
       fragmentShader: `varying vec2 world;uniform sampler2D lamps;uniform vec2 origin;uniform vec2 span;uniform vec2 direction;uniform float time;uniform float glow;${noise}
+        float field(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+          return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+1.),f.x),f.y);}
         void main(){vec2 crossDir=vec2(direction.y,-direction.x);
-          float along=dot(world,direction),across=dot(world,crossDir);
-          float phase=along*.75+sin(across*.15)*2.+time*.65;
-          float wave=sin(phase)*(1.-smoothstep(.7,3.,fwidth(phase)));
-          vec2 offset=crossDir*(sin(along*.24+time*.4)*.6);
+          // Independent world-space flows avoid camera-locked parallel waves.
+          vec2 flow=vec2(time*.18,-time*.11);
+          float swell=field(world*.035+flow*.08);
+          float chop=field(world*vec2(.19,.31)-flow*.22);
+          float phase=dot(world,vec2(.21,.34))+swell*6.+time*.38;
+          float detail=1.-smoothstep(.5,2.4,fwidth(phase));
+          float wave=sin(phase)*detail;
+          float drift=(field(world*.075+flow*.13)-.5)*2.;
           float reflection=0.;
-          for(int i=0;i<24;i++){float d=float(i)*6.;vec2 p=world-direction*d+offset;
+          for(int i=0;i<24;i++){float t=(float(i)+.5)/24.;float d=180.*t*t;
+            vec2 offset=crossDir*(drift*(1.+d*.045)+wave*.45);
+            vec2 p=world-direction*d+offset;
             vec2 uv=(p-origin)/span;
             float valid=step(0.,uv.x)*step(uv.x,1.)*step(0.,uv.y)*step(uv.y,1.);
-            reflection+=texture2D(lamps,uv).r*exp(-d/76.)*valid;
+            reflection+=texture2D(lamps,uv).r*exp(-d/45.)*(.3+t*1.7)*valid;
           }
-          float ripple=.62+.3*wave;
-          vec3 water=vec3(.027,.058,.080)+vec3(.006,.011,.016)*wave;
-          water+=vec3(.94,.74,.46)*reflection*ripple*.85*glow;
+          float breakup=mix(.64,.28+.72*smoothstep(.22,.78,chop+.12*wave),detail);
+          vec3 water=vec3(.027,.054,.070)+vec3(.002,.003,.004)*(swell-.5);
+          // Soft, broken highlights remain close to their sources with a quiet centre.
+          water+=vec3(.90,.76,.54)*(1.-exp(-reflection*.8))*breakup*glow;
           gl_FragColor=vec4(water,1.);}`,
     });
     this.greenMaterial = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
+      uniforms: {
+        coverage: { value: this.light },
+        origin: this.waterMaterial.uniforms.origin,
+        span: this.waterMaterial.uniforms.span,
+      },
       vertexShader,
-      fragmentShader: `varying vec2 world;${noise}
-        void main(){vec2 p=world/11.,cell=floor(p);float r=10.;vec2 delta=vec2(0.);float variation=0.;
-          for(int x=-1;x<=1;x++)for(int y=-1;y<=1;y++){vec2 id=cell+vec2(float(x),float(y));
-            vec2 center=id+vec2(.15+hash(id)*.7,.15+hash(id+9.)*.7);
-            float radius=.34+hash(id+21.)*.31;vec2 d=(p-center)/radius;float candidate=length(d);
-            if(candidate<r){r=candidate;delta=d;variation=hash(id+4.);}}
-          float aa=max(fwidth(r),.06),crown=1.-smoothstep(.82-aa,1.+aa,r);
-          vec3 n=normalize(vec3(delta*.7,sqrt(max(.01,1.-min(1.,r*r)))));
-          float light=.27+.73*max(0.,dot(n,normalize(vec3(-.35,-.5,.8))));
-          vec3 color=mix(vec3(.016,.029,.025),vec3(.075,.12,.063)*(.65+variation*.5)*light,crown);
+      fragmentShader: `varying vec2 world;uniform sampler2D coverage;uniform vec2 origin;uniform vec2 span;${noise}
+        void main(){vec3 mask=texture2D(coverage,(world-origin)/span).rgb;
+          if(mask.b>.08)discard;
+          vec2 p=world*.055;vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+          float grain=mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+1.),f.x),f.y);
+          vec3 color=mix(vec3(.018,.032,.026),vec3(.012,.023,.021),mask.g)*(.83+grain*.22);
           gl_FragColor=vec4(color,1.);}`,
     });
     for (const [name, material] of [
@@ -69,6 +80,45 @@ export class NightEnvironment extends THREE.Group {
       mesh.renderOrder = -3;
       this.add(mesh);
     }
+    const crown = new THREE.IcosahedronGeometry(1, 1);
+    crown.scale(1, 0.88, 0.34);
+    crown.translate(0, 0, 0.64);
+    const trunk = new THREE.CylinderGeometry(0.055, 0.085, 0.48, 5);
+    trunk.rotateX(Math.PI / 2);
+    trunk.translate(0, 0, 0.24);
+    const treeShape = mergeGeometries([crown, trunk.toNonIndexed()]);
+    const treeGeometry = new THREE.InstancedBufferGeometry();
+    treeGeometry.attributes = treeShape.attributes;
+    treeGeometry.index = treeShape.index;
+    const treeBuffer = new THREE.InstancedInterleavedBuffer(
+      data.trees || new Float32Array(),
+      5,
+    );
+    treeGeometry.setAttribute(
+      "site",
+      new THREE.InterleavedBufferAttribute(treeBuffer, 3, 0),
+    );
+    treeGeometry.setAttribute(
+      "shape",
+      new THREE.InterleavedBufferAttribute(treeBuffer, 2, 3),
+    );
+    treeGeometry.instanceCount = treeBuffer.count;
+    this.treeMaterial = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
+      uniforms: { rise: { value: 1 } },
+      vertexShader: `attribute vec3 site;attribute vec2 shape;uniform float rise;varying vec3 tint;varying vec3 norm;
+        void main(){float a=shape.y*6.283;mat2 rot=mat2(cos(a),sin(a),-sin(a),cos(a));
+          vec3 p=position;p.xy=rot*p.xy*shape.x;p.z*=site.z*rise;p.xy+=site.xy;
+          norm=vec3(rot*normal.xy/shape.x,normal.z/max(1.,site.z*rise));tint=mix(vec3(.065,.098,.072),vec3(.087,.108,.069),shape.y);
+          if(position.z<.39&&length(position.xy)<.12)tint=vec3(.035,.030,.025);
+          gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`,
+      fragmentShader: `varying vec3 tint;varying vec3 norm;void main(){float lit=.3+.7*max(0.,dot(normalize(norm),normalize(vec3(-.35,-.5,.8))));gl_FragColor=vec4(tint*lit,1.);}`,
+    });
+    this.trees = new THREE.Mesh(treeGeometry, this.treeMaterial);
+    this.trees.frustumCulled = false;
+    this.add(this.trees);
+    crown.dispose();
+    trunk.dispose();
     const bridgeGeometry = new THREE.BufferGeometry(),
       bridgeBuffer = new THREE.InterleavedBuffer(data.bridges, 5);
     bridgeGeometry.setAttribute(
@@ -106,9 +156,15 @@ export class NightEnvironment extends THREE.Group {
       data.green.byteLength +
       data.bridges.byteLength +
       data.lamps.byteLength +
+      (data.trees?.byteLength || 0) +
       data.light.width * data.light.height * 4;
   }
   update(time, bearing, glow, zoom, ratio) {
+    this.trees.visible = zoom > 14;
+    this.treeMaterial.uniforms.rise.value = Math.min(
+      1,
+      Math.max(0.05, (zoom - 14) / 0.7),
+    );
     const a = (bearing * Math.PI) / 180;
     this.waterMaterial.uniforms.direction.value.set(-Math.sin(a), Math.cos(a));
     this.waterMaterial.uniforms.time.value = time;
@@ -124,6 +180,7 @@ export class NightEnvironment extends THREE.Group {
     this.light.dispose();
     this.waterMaterial.dispose();
     this.greenMaterial.dispose();
+    this.treeMaterial.dispose();
     this.bridgeMaterial.dispose();
     this.lampMaterial.dispose();
   }

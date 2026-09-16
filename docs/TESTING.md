@@ -2,7 +2,24 @@
 
 `npm test` checks geometry, simulation, scene isolation, import errors, locale coverage, export behaviour and the production server boundary (Host/origin, proxy trust, limits, cancellation, file isolation and HTTP ranges). `npm run check:presets` checks the eight datasets. `npm run build` runs TypeScript and landmark-pack checks and creates `dist/`; `npm run check:release` verifies documentation and build links, artwork hashes, versions, fonts, licenses and private-file exclusions. `npm run check:landmarks` checks reviewed source conflicts, anchors, model heights and pack hashes without network access.
 
-## Browser checks
+## 3D browser checks
+
+The current editor is 3D. After `npm ci`, start `npm run dev` on port 5180 and set `QA_URL=http://127.0.0.1:5180/` for the suites below (their default is the optional `dev:3d` server on 5183). The locked `@playwright/test` dependency is included; these suites use installed Microsoft Edge.
+
+| Command | Checks |
+| --- | --- |
+| `npm run check:3d:browser` | Real PNG/GIF/video, rotation, global travel, atlas disposal, languages and mobile viewport |
+| `npm run check:3d:capture` | Portrait framing, scene restore, cancellation and landmark contribution ZIP |
+| `node scripts/check-3d-landscape.mjs` | Vegetation masks and nearby/long-distance search navigation |
+| `node scripts/check-3d-facades.mjs` | Actual GPU facade hashes, detail and instanced geometry |
+| `node scripts/check-3d-import.mjs` | Local GLB import/removal, malformed input and export cancellation |
+| `node scripts/check-3d-architecture.mjs` | Multi-city architecture and mobile views, including production builds |
+
+Run GPU suites one at a time. Keep evidence beneath ignored `artifacts/`, inspect screenshots and independently decode output files. Physical-device tests remain separate from viewport emulation.
+
+## Legacy Canvas browser checks
+
+The historical suites below target the v0.2.0 editor and its debug hooks. They do not run against the new 3D homepage. Use an isolated historical checkout for those editor checks; the legacy player and shared geometry still receive unit coverage in the current checkout.
 
 The scripts use Playwright separately from the app's dependencies. After `npm ci`, install the browser test tools without changing the package manifest or lockfile:
 
@@ -47,13 +64,15 @@ Inspect actual output and independently decode animations. Verify dimensions, du
 
 ## Device and performance checks
 
-Test production builds on physical phones separately from desktop viewport tests. Reload the editor, switch all eight maps and three palettes, try both languages, and export a PNG. Inspect the displayed image and browser errors. Android GPU regressions also need device GPU logs; a completed page load alone does not prove that the display rendered correctly.
+Test production builds on physical phones separately from desktop viewport tests. Reload the editor, visit the preset cities and a global location, rotate and zoom, try both languages, and export a PNG. Inspect the displayed image and browser errors. Android GPU regressions also need device GPU logs; a completed page load alone does not prove that the display rendered correctly.
 
 For performance comparisons, use the same browser, map snapshot, camera, seed, traffic density and output size. Measure atlas construction separately from animation frame work. Run one browser suite at a time. Record browser/device versions and distinguish diagnostic samples from repeated benchmarks.
 
 The projection suite checks saved-file, link and capture pixel equality, open landmark geometry and optional comparison with an archived renderer. Review landscape and portrait output for each affected city. Current support and remaining device gaps are listed in [Compatibility](COMPATIBILITY.md).
 
 ## Public artwork
+
+The existing gallery, README cover and social preview are archived v0.2.0 artwork. The showcase workflow below targets that historical Canvas editor; do not run it against the 3D homepage. A reviewed 3D artwork refresh is separate release work.
 
 `create-showcase.mjs` downloads five actual PNGs, including Xinyi's Taipei 101, and a 30-second MP4. The public gallery clip is a compressed 12-second excerpt.
 

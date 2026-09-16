@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { Traffic, sample } from "../traffic.js";
 import { trainState, railPosition } from "../rail.js";
-import { nightMaterial, trafficMaterial } from "./materials.js";
+import { nightMaterial, trafficMaterial, beaconMaterial } from "./materials.js";
 import { mercator, metreScale, clamp } from "./geo.js";
 import { unpackGraph } from "./graph-wire.js";
-import { VIEW } from "./view.js";
+import { VIEW, sceneZoom } from "./view.js";
 import { NightBloom } from "./bloom.js";
 import { NightEnvironment } from "./environment-layer.js";
 import { vehicleLights } from "./vehicle-lights.js";
@@ -29,6 +29,7 @@ export class NightLayer {
     this.scene = new THREE.Scene();
     this.material = nightMaterial();
     this.distantMaterial = nightMaterial(true);
+    this.beaconMaterial = beaconMaterial();
     this.pointMaterial = trafficMaterial();
     const positions = new Float32Array(6000 * 3),
       colors = new Float32Array(6000 * 3);
@@ -70,6 +71,10 @@ export class NightLayer {
     surfaceKey,
     environment,
   }) {
+    this.landmarks = [
+      ...(geometry.landmarks || []),
+      ...(geometry.placeLabels || []),
+    ];
     if (this.environment) {
       this.scene.remove(this.environment);
       this.environment.dispose();
@@ -88,6 +93,7 @@ export class NightLayer {
       uv: 2,
       color: 3,
       seed: 1,
+      facade: 4,
     }))
       g.setAttribute(key, new THREE.BufferAttribute(geometry[key], size));
     g.computeBoundingSphere();
@@ -119,6 +125,23 @@ export class NightLayer {
     this.distant = new THREE.Mesh(instances, this.distantMaterial);
     this.distant.frustumCulled = false;
     this.scene.add(this.distant);
+    if (this.beacons) {
+      this.scene.remove(this.beacons);
+      this.beacons.geometry.dispose();
+    }
+    const beaconGeometry = new THREE.BufferGeometry();
+    const beaconData = new THREE.InterleavedBuffer(geometry.beacons, 4);
+    beaconGeometry.setAttribute(
+      "position",
+      new THREE.InterleavedBufferAttribute(beaconData, 3, 0),
+    );
+    beaconGeometry.setAttribute(
+      "phase",
+      new THREE.InterleavedBufferAttribute(beaconData, 1, 3),
+    );
+    this.beacons = new THREE.Points(beaconGeometry, this.beaconMaterial);
+    this.beacons.frustumCulled = false;
+    this.scene.add(this.beacons);
     if (surface !== undefined) this.clearSurface();
     this.surfaceKey = surfaceKey;
     if (surface) {
@@ -179,6 +202,7 @@ export class NightLayer {
       tiles: geometry.tileCount,
       tileLimited: geometry.tileLimited,
       tileCacheMiB: geometry.tileCacheMiB,
+      beacons: geometry.beacons.length / 4,
     };
     if (this.lamps) {
       this.scene.remove(this.lamps);
@@ -227,6 +251,11 @@ export class NightLayer {
   }
   clear() {
     this.bloom?.release();
+    if (this.beacons) {
+      this.scene.remove(this.beacons);
+      this.beacons.geometry.dispose();
+      this.beacons = null;
+    }
     if (this.mesh) {
       this.scene.remove(this.mesh);
       this.mesh.geometry.dispose();
@@ -315,7 +344,7 @@ export class NightLayer {
     const now = performance.now(),
       dt = this.last ? (now - this.last) / 1000 : 0;
     this.last = now;
-    const z = this.map.getZoom(),
+    const z = sceneZoom(this.map),
       visible = z >= VIEW.atlas;
     this.scene.visible = visible;
     this.material.uniforms.rise.value = clamp(
@@ -343,6 +372,13 @@ export class NightLayer {
       this.points.visible
     )
       this.advance(dt);
+    // The same simulation clock freezes on pause and is restored after export.
+    this.beaconMaterial.uniforms.time.value = this.time;
+    this.beaconMaterial.uniforms.glow.value =
+      this.glow * this.material.uniforms.detail.value;
+    this.beaconMaterial.uniforms.rise.value = this.material.uniforms.rise.value;
+    this.beaconMaterial.uniforms.pointSize.value =
+      clamp((z - 11) * 0.8, 2.2, 4.2) * this.map.getPixelRatio();
     const origin = mercator(...this.origin),
       s = metreScale(this.origin[1]);
     const transform = new THREE.Matrix4()
@@ -399,6 +435,7 @@ export class NightLayer {
     this.pointsGeometry.dispose();
     this.material.dispose();
     this.distantMaterial.dispose();
+    this.beaconMaterial.dispose();
     this.pointMaterial.dispose();
     this.lampMaterial.dispose();
     this.bloom.dispose();

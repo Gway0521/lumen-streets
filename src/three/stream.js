@@ -1,3 +1,4 @@
+import { sceneZoom } from "./view.js";
 import { regions } from "../city.js";
 import { detailLevel, geometryKey } from "./geo.js";
 
@@ -22,7 +23,7 @@ export class CityStream {
       if (
         data.generation === this.generation &&
         !this.locked &&
-        detailLevel(map.getZoom()) !== "map"
+        detailLevel(sceneZoom(map)) !== "map"
       ) {
         if (data.cancelled) {
           data.surface?.bitmap.close();
@@ -70,7 +71,7 @@ export class CityStream {
     map.on("moveend", this.moved);
     map.on("sourcedata", this.changed);
     this.zoomed = () => {
-      if (detailLevel(map.getZoom()) === "map") {
+      if (detailLevel(sceneZoom(map)) === "map") {
         this.generation++;
         this.layer.clear();
         this.lastKey = "";
@@ -91,7 +92,7 @@ export class CityStream {
     this.schedule();
   }
   build() {
-    if (this.locked || detailLevel(this.map.getZoom()) === "map") return;
+    if (this.locked || detailLevel(sceneZoom(this.map)) === "map") return;
     if (this.busy) {
       this.pending = true;
       return;
@@ -145,7 +146,7 @@ export class CityStream {
       bounds.getEast(),
       bounds.getNorth(),
     ];
-    const key = `${city}:${viewport.map((n) => n.toFixed(3))}:${Math.floor(this.map.getZoom() * 4)}:${roads.length}:${roads.at(-1)?.id}`;
+    const key = `${city}:${viewport.map((n) => n.toFixed(3))}:${Math.floor(sceneZoom(this.map) * 4)}:${roads.length}:${roads.at(-1)?.id}`;
     if (this.lastKey === key) return;
     this.lastKey = key;
     this.busy = true;
@@ -164,7 +165,7 @@ export class CityStream {
         location.href,
       ).href,
       mobile: this.mobile,
-      zoom: this.map.getZoom(),
+      zoom: sceneZoom(this.map),
       surfaceKey: this.layer.surfaceKey,
       base: new URL(import.meta.env.BASE_URL, location.href).href,
       limit: this.mobile ? 280000 : 700000,

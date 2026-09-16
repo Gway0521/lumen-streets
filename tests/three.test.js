@@ -229,6 +229,12 @@ test("Shanghai emits all four source landmarks with finite physical geometry", a
     city = parseCity(raw, "shanghai"),
     g = snapshotGeometry(city, 700000);
   assert.equal(g.landmarks.length, 4);
+  assert.ok(g.placeLabels.length > 0 && g.placeLabels.length <= 32);
+  for (const p of g.placeLabels) {
+    assert.ok(p.anchor.every(Number.isFinite));
+    assert.ok(Number.isFinite(p.height));
+    assert.ok(p.names.en && p.names["zh-TW"]);
+  }
   assert.ok(g.position.every(Number.isFinite));
   assert.ok(g.position.length / 3 <= 700000);
   assert.ok(g.position.some((v, i) => i % 3 === 2 && v === 632));

@@ -1,6 +1,6 @@
 {
   "name": "lumen-streets",
-  "version": "0.2.0",
+  "version": "0.3.0-dev.0",
   "private": true,
   "type": "module",
   "description": "Turn real streets into living nightscapes.",
@@ -22,7 +22,8 @@
     "start": "node --env-file-if-exists=.env server/start.mjs",
     "dev:3d": "vite --host 127.0.0.1 --port 5183 --strictPort --open /three.html",
     "check:3d": "node --test tests/three.test.js",
-    "check:3d:browser": "node scripts/check-3d-browser.mjs"
+    "check:3d:browser": "node scripts/check-3d-browser.mjs",
+    "check:3d:capture": "node scripts/check-3d-capture.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

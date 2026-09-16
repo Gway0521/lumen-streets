@@ -1,5 +1,7 @@
 # Art direction
 
+The main editor now uses MapLibre/Three.js. Its accepted lighting direction is dark asphalt, thin muted champagne shoulders, sparse warm lamps, restrained ivory/cool windows, subdued blue-grey roofs and dark vegetation. See [3D facade design](3D-FACADES.md) and [3D architecture](3D-ARCHITECTURE.md). The fixed-projection Canvas details below describe the legacy renderer and archived v0.2.0 gallery, not the current camera or rendering implementation.
+
 Lumen Streets is an artistic aerial view of a city at night. Street structure should make each place recognizable, and the light should be comfortable to watch.
 
 ## Light and movement

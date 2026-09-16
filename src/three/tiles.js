@@ -1,6 +1,11 @@
 import { VectorTile } from "@mapbox/vector-tile";
 import { PbfReader } from "pbf";
 import { mercator } from "./geo.js";
+import {
+  buildingPolygons,
+  footprintCenter,
+  uniqueBuildingShells,
+} from "./building-source.js";
 
 // Fixed source detail preserves individual buildings even when the atlas is zoomed out.
 // Only compressed buffers are cached; decoded tile objects are short-lived.
@@ -96,14 +101,18 @@ export class BuildingTiles {
         const layer = decoded.building;
         const features = [];
         for (let i = 0; i < (layer?.length || 0); i++) {
-          const f = layer.feature(i),
-            b = f.bbox();
-          // Assign buffered copies to the tile containing the fragment's centre.
-          // Clipped parts crossing an edge remain in both owning tiles.
-          const x = (b[0] + b[2]) / 2,
-            y = (b[1] + b[3]) / 2;
-          if (x < 0 || y < 0 || x >= f.extent || y >= f.extent) continue;
-          features.push(f.toGeoJSON(t.x, t.y, t.z));
+          const f = layer.feature(i);
+          for (const polygon of buildingPolygons([
+            f.toGeoJSON(t.x, t.y, t.z),
+          ])) {
+            const [x, y] = mercator(...footprintCenter(polygon));
+            if (
+              Math.floor(x * 2 ** t.z) !== t.x ||
+              Math.floor(y * 2 ** t.z) !== t.y
+            )
+              continue;
+            features.push(polygon);
+          }
         }
         features.sort(
           (a, b) =>
@@ -117,7 +126,7 @@ export class BuildingTiles {
           for (let i = 0; i < (source?.length || 0); i++)
             environment[name].push(source.feature(i).toGeoJSON(t.x, t.y, t.z));
         }
-        consume(features, environment);
+        consume(uniqueBuildingShells(features), environment);
       }
       // Let cancellation messages run even when all requested tiles are cached.
       await new Promise((resolve) => setTimeout(resolve, 0));

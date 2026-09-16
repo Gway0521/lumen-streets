@@ -1,4 +1,6 @@
-import { VIEW } from "./view.js";
+import { VIEW, sceneZoom } from "./view.js";
+import { captureSize, paintComposition, labelFontText } from "./composition.js";
+import { ensureTitleFonts } from "../export/title-fonts.ts";
 const pendingDownloads = new Set();
 if (typeof window !== "undefined")
   window.addEventListener("pagehide", () => {
@@ -37,11 +39,13 @@ export async function exportNight({
   stream,
   format,
   longEdge = 1920,
-  duration = 6,
+  duration = 30,
+  composition = {},
+  aspect,
   signal,
   progress,
 }) {
-  if (!layer.mesh && map.getZoom() >= VIEW.atlas)
+  if (!layer.mesh && sceneZoom(map) >= VIEW.atlas)
     throw Error("Wait for the city to finish loading.");
   const ratio = map.getPixelRatio(),
     snapshot = layer.traffic?.snapshot(),
@@ -51,18 +55,17 @@ export async function exportNight({
   const canvas = map.getCanvas(),
     cssWidth = canvas.clientWidth,
     cssHeight = canvas.clientHeight;
-  const size =
-      format === "gif" ? Math.min(longEdge, 720) : Math.min(longEdge, 3840),
-    scale = size / Math.max(cssWidth, cssHeight);
+  const [width, height] = captureSize(
+    aspect ?? cssWidth / cssHeight,
+    longEdge,
+    format,
+  );
+  const scale = Math.max(width / cssWidth, height / cssHeight);
   const output = document.createElement("canvas");
-  output.width = Math.round(cssWidth * scale);
-  output.height = Math.round(cssHeight * scale);
-  if (format === "video") {
-    output.width -= output.width % 2;
-    output.height -= output.height % 2;
-  }
+  output.width = width;
+  output.height = height;
   const ctx = output.getContext("2d", { willReadFrequently: format === "gif" });
-  let worker;
+  let worker, wakeLock;
   stream.locked = true;
   stream.generation++;
   layer.capturing = true;
@@ -81,30 +84,19 @@ export async function exportNight({
   enabled.forEach((k) => map[k].disable());
   const copy = () => {
     ctx.drawImage(canvas, 0, 0, output.width, output.height);
-    const font = Math.max(10, Math.round(output.width / 120));
-    ctx.font = `${font}px sans-serif`;
-    const credit =
-      "Map data © OpenStreetMap contributors · ODbL | OpenFreeMap · OpenMapTiles";
-    const lines =
-      ctx.measureText(credit).width > output.width - font * 2
-        ? [
-            "Map data © OpenStreetMap contributors · ODbL",
-            "OpenFreeMap · OpenMapTiles",
-          ]
-        : [credit];
-    const height = font * (lines.length * 1.3 + 0.7);
-    ctx.fillStyle = "rgba(5,13,19,.7)";
-    ctx.fillRect(0, output.height - height, output.width, height);
-    ctx.fillStyle = "#9bafb5";
-    lines.forEach((line, i) =>
-      ctx.fillText(
-        line,
-        font,
-        output.height - font * 0.6 - (lines.length - 1 - i) * font * 1.3,
-      ),
-    );
+    paintComposition(ctx, output.width, output.height, composition, layer);
   };
   try {
+    try {
+      wakeLock = await navigator.wakeLock?.request("screen");
+    } catch {}
+    const names = composition.landmarkLabels
+      ? labelFontText(layer, composition.locale)
+      : "";
+    await ensureTitleFonts(
+      `${composition.placeTitle?.text || ""} ${names}`,
+      signal,
+    );
     map.setPixelRatio(scale);
     await paintNext(map);
     signal?.throwIfAborted();
@@ -113,9 +105,11 @@ export async function exportNight({
       return await new Promise((resolve, reject) =>
         output.toBlob(
           (b) =>
-            b
-              ? resolve({ blob: b, extension: "png" })
-              : reject(Error("PNG encoding failed.")),
+            signal?.aborted
+              ? reject(signal.reason)
+              : b
+                ? resolve({ blob: b, extension: "png" })
+                : reject(Error("PNG encoding failed.")),
           "image/png",
         ),
       );
@@ -156,7 +150,7 @@ export async function exportNight({
           },
           [rgba.buffer],
         );
-        progress((i + 1) / 60);
+        progress?.((i + 1) / 60);
       }
       const { bytes } = await request({ type: "finish" });
       return {
@@ -176,6 +170,7 @@ export async function exportNight({
       },
     });
   } finally {
+    await wakeLock?.release().catch(() => {});
     worker?.terminate();
     if (snapshot) layer.traffic?.restore(snapshot);
     layer.time = time;

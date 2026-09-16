@@ -1,29 +1,19 @@
-# 3D roadmap
+# Roadmap
 
 [繁體中文](3D-ROADMAP.zh-TW.md)
 
-The current preview establishes global movement, WebGL 2 depth rendering, bounded background geometry, the six original landmarks, traffic, short exports and local GLB placement. Work should advance through observable gates rather than replacing the entire renderer at once.
+## City detail
 
-The aerial revision adds position-independent rotation, a wider camera range, independent building-detail tiles, instanced overflow volumes and the classic preset terrain treatment. It remains a visual development preview; wider coverage alone does not satisfy the art or physical-device release gates.
+Add richer source data for building height, floor count, roof shape and part identity. Keep measured values distinguishable from estimates. Extend roof generators and improve facade depth and building-light reflections. See the [facade design](3D-FACADES.md).
 
-## 1. Visual and device baseline
+## Streaming and devices
 
-The current art baseline uses dark asphalt, muted champagne shoulders, individual lamp highlights, restrained bloom, low-saturation roof colour, varied grouped windows, subdued vegetation and sparse shoreline reflections. Camera-dependent red/white traffic exposures keep moving lights legible. The close limit allows two extra + steps without changing the default city view. Review Shanghai, Sapporo, Tokyo and Taipei in landscape and portrait. Continue tuning district contrast, facade variety and skyline silhouettes against actual exports; reference artwork is a direction, not proof of rendered quality. Test real Android and iPhone devices, sustained travel, heat, context loss and video encoding. Record device/browser, camera, warm-up, frame pacing and memory scope with every measurement.
+Reuse spatial chunks, prioritize visible landmarks and distribute geometry uploads across frames. Preserve traffic across tile seams and expand railway coverage. Add offline ground maps for the included cities. Extend physical-device coverage to more Android devices and iPhones, including sustained travel and context recovery.
 
-## 2. Streamed geometry quality
+## Wallpapers
 
-Move from bounded whole-view mesh replacement to spatial chunk reuse, prioritize near tiles and visible landmarks, and use incremental upload budgets per frame. Add hysteresis between LOD levels. Keep distant footprints until replacement chunks are ready. Extend gabled, hipped, pyramidal and curved roofs through shared tested generators, preserve holes, and avoid duplicates between building outlines and parts.
+Add playlists and camera paths. Preserve source revisions and model hashes in durable scene packages, and define migration for existing scene formats. Investigate seamless loops without changing the meaning of a saved traffic state.
 
-Adopt a richer tile schema when needed: OSM identities, parts, roof tags, transport layers, one-way information and source revisions. Preserve traffic across chunk seams and add global rail routes. Build a practical self-hosted pipeline before relying on unrestricted production traffic through a public service. Support an offline ground layer for the eight snapshots.
+## Community landmarks
 
-## 3. Wallpaper and saved scenes
-
-Extend the fixed-rate video exporter with framing independent of viewport shape, robust long capture, reusable playlists and optional seamless camera loops. A new versioned 3D scene format should retain source revisions, model hashes, renderer semantics and traffic state. Existing 2D scene files remain with their original reader until migration is explicit.
-
-## 4. Community landmarks
-
-Turn local GLB + manifest packages into reviewed submissions. Add authenticated upload, object storage, validation jobs, moderation, attribution, geospatial lookup, revision history and explicit replacement/retention rules. Serve simplified and detailed LODs by projected size. The model store should be replaceable and should not couple the renderer to one hosting provider.
-
-## Release gates
-
-A public 3D release needs an accepted visual comparison, measured physical-device coverage, tested memory plateaus during sustained travel, accurate export claims, recoverable source failures and audited software/map/model attribution. Keep the existing 2D editor available while these gates are open. WebGPU adoption is a separate measured decision, not a prerequisite for the first usable 3D release.
+Build a reviewed catalog from [GitHub contributions](3D-LANDMARKS.md), with attribution, replacement rules, revisions and levels of detail. A hosted upload service can follow when submission volume warrants accounts, storage and a moderation interface.

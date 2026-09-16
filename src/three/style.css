@@ -136,21 +136,46 @@ a:hover {
   background: #101e28c9;
   backdrop-filter: blur(12px);
 }
-.preview {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1.8px;
-  color: #c5b486;
-  border: 1px solid #9b875c55;
-  padding: 7px 9px;
-  border-radius: 5px;
-  background: #0b171eb8;
-}
 .square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
   width: 39px;
   height: 39px;
   padding: 0;
   font-size: 20px;
+  line-height: 1;
+}
+.square svg,
+.icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+.header-actions a.square {
+  background: #101e28c9;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  backdrop-filter: blur(12px);
+}
+.masthead,
+.navigation,
+.bottom-note {
+  z-index: 3;
+}
+.scene-label {
+  z-index: 2;
+}
+.panel {
+  z-index: 5;
+}
+.dock {
+  z-index: 6;
+}
+.panel-open .scene-label {
+  display: none;
 }
 .scene-label {
   position: fixed;
@@ -220,6 +245,11 @@ a:hover {
   color: #ead5a3;
 }
 .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   font-size: 18px;
   color: var(--gold);
 }
@@ -246,6 +276,10 @@ a:hover {
   font-size: 17px;
   display: block;
   color: var(--gold);
+}
+#needle svg {
+  width: 19px;
+  height: 19px;
 }
 .bottom-note {
   position: fixed;
@@ -554,9 +588,6 @@ html[lang="zh-TW"] .brand small {
     left: 22px;
     right: 22px;
   }
-  .preview {
-    display: none;
-  }
   .panel {
     bottom: 101px;
   }
@@ -591,8 +622,9 @@ html[lang="zh-TW"] .brand small {
     padding: 8px;
   }
   .header-actions .square {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
     font-size: 17px;
   }
   .dock {
@@ -671,4 +703,144 @@ html[lang="zh-TW"] .brand small {
   * {
     transition: none !important;
   }
+}
+@media (max-width: 360px) {
+  .masthead {
+    left: 12px;
+    right: 12px;
+  }
+  .brand {
+    font-size: 15px;
+    gap: 6px;
+  }
+  .brand img {
+    width: 28px;
+    height: 28px;
+  }
+  .brand small {
+    font-size: 6px;
+    letter-spacing: 1.3px;
+  }
+  .header-actions {
+    gap: 4px;
+  }
+}
+
+#composition-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  outline: 1px solid #a9906045;
+}
+#frame-hint {
+  position: fixed;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.4px;
+}
+.composing .vignette,
+.composing .scene-label,
+.composing .masthead,
+.composing .navigation,
+.composing .bottom-note {
+  display: none;
+}
+.composing .panel {
+  left: auto;
+  right: 24px;
+  top: 24px;
+  bottom: 106px;
+  transform: none;
+  width: 352px;
+  max-height: none;
+}
+.panel details {
+  border-top: 1px solid var(--border);
+  padding-top: 15px;
+  margin-top: 18px;
+}
+.panel summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: #ddd3bc;
+}
+.panel .check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panel .check input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--gold);
+}
+.panel .check span {
+  margin: 0;
+}
+.composing #map {
+  border-radius: 3px;
+  overflow: hidden;
+}
+@media (max-width: 799px) {
+  .composing .panel {
+    left: 14px;
+    right: 14px;
+    top: calc(40dvh + 44px);
+    bottom: 104px;
+    width: auto;
+    padding: 18px;
+  }
+  .composing .panel h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .composing .panel .eyebrow {
+    display: none;
+  }
+  .composing .panel p:not(.eyebrow) {
+    margin-bottom: 10px;
+  }
+}
+@media (max-height: 550px) and (min-width: 800px) {
+  .panel {
+    top: 16px;
+    max-height: none;
+    bottom: 94px;
+  }
+  .scene-label {
+    display: none;
+  }
+}
+.composing .maplibregl-control-container {
+  display: none;
+}
+.submission-link {
+  display: block;
+  font-size: 12px;
+  color: var(--gold);
+  margin-top: 12px;
+}
+
+#compose-full {
+  width: 100%;
+  font-size: 11px;
+  background: transparent;
+}
+#finish-frame {
+  position: fixed;
+  z-index: 5;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #c9b184;
+  color: #10202b;
+}
+.frame-only .panel,
+.frame-only .dock {
+  display: none;
+}
+#export-percent {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
 }

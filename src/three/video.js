@@ -13,7 +13,7 @@ export async function encodeNightVideo(
   canvas,
   { duration, signal, frame, progress },
 ) {
-  if (![6, 15, 30].includes(duration))
+  if (!Number.isInteger(duration) || duration < 30 || duration > 300)
     throw Error("Unsupported video duration.");
   const bitrate = Math.min(
     24000000,
@@ -33,7 +33,9 @@ export async function encodeNightVideo(
     }
   if (!codec) throw Error("Video encoding is unavailable at this resolution.");
   signal?.throwIfAborted();
-  const large = Math.max(canvas.width, canvas.height) > 1920;
+  const large =
+    Math.max(canvas.width, canvas.height) > 1920 ||
+    (bitrate * duration) / 8 > 200000000;
   if (!(await videoStorageAvailable(large, (bitrate * duration) / 8)))
     throw Error("Not enough temporary storage for this video.");
   const storage = await videoStorage(large),
@@ -68,7 +70,7 @@ export async function encodeNightVideo(
       keyFrameInterval: 2,
       onEncodedPacket(packet) {
         encoded += packet.byteLength;
-        if (encoded > 128 * 1024 * 1024) {
+        if (encoded > storage.limit) {
           failure = Error("Video exceeded its output budget.");
           cancel();
         }
@@ -76,7 +78,7 @@ export async function encodeNightVideo(
     });
     output.addVideoTrack(source, { frameRate: 30 });
     output.setMetadataTags({
-      title: "Lumen Streets 3D",
+      title: "Lumen Streets",
       comment:
         "Map data © OpenStreetMap contributors · ODbL | https://www.openstreetmap.org/copyright",
     });

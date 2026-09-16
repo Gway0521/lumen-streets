@@ -9,7 +9,8 @@ const lock = JSON.parse(await readFile('package-lock.json', 'utf8'));
 assert(/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(pkg.version), 'Invalid release version');
 assert.equal(lock.version, pkg.version, 'Lockfile version differs');
 assert.equal(lock.packages[''].version, pkg.version, 'Root package version differs');
-await readFile(`docs/releases/v${pkg.version}.md`);
+const releaseNotes = await readFile(`docs/releases/v${pkg.version.split('-')[0]}.md`, 'utf8');
+if (pkg.version.includes('-')) assert(releaseNotes.includes(pkg.version) && releaseNotes.includes('Unreleased'), 'Prerelease notes must identify the development build');
 
 // Verify that the packaged server and source belong to this version.
 for (const [archive, member] of [

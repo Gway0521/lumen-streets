@@ -10,6 +10,16 @@ globalThis.OffscreenCanvas = class {
   }
   getContext() {
     return {
+      beginPath() {},
+      moveTo() {},
+      lineTo() {},
+      closePath() {},
+      fill() {},
+      stroke() {},
+      getImageData: () => ({
+        data: new Uint8ClampedArray(this.width * this.height * 4),
+      }),
+      putImageData() {},
       fillRect() {},
       scale() {},
       translate() {},

@@ -42,17 +42,19 @@ try {
   });
   await page.screenshot({ path: `${out}/shanghai.png` });
   assert.ok(report.state.stats.buildings > 100);
-  assert.ok(report.state.stats.geometryMiB < 35);
+  // 16 extra bytes per detailed vertex describe physical facade bounds/type.
+  assert.ok(report.state.stats.geometryMiB < 46);
   await page.evaluate(() => {
     window.__lumen3d.layer.playing = false;
   });
   await page.locator("#tab-capture").click();
+  await page.waitForFunction(() => window.__lumen3d.stream.ready && !window.__lumen3d.stream.busy);
   const before = await page.evaluate(() =>
     JSON.stringify(window.__lumen3d.layer.traffic.snapshot()),
   );
   const capture = async (format) => {
     await page.locator("#format").selectOption(format);
-    const event = page.waitForEvent("download", { timeout: 60000 });
+    const event = page.waitForEvent("download", { timeout: 180000 });
     await page.locator("#save").click();
     const file = await event;
     const path = `${out}/export.${file.suggestedFilename().split(".").at(-1)}`;
@@ -73,8 +75,8 @@ try {
     ...(await track.computePacketStats()),
     codec: track.codec,
   };
-  assert.equal(report.video.duration, 6);
-  assert.equal(report.video.packetCount, 180);
+  assert.equal(report.video.duration, 30);
+  assert.equal(report.video.packetCount, 900);
   assert.equal(report.video.averagePacketRate, 30);
   input.dispose();
   assert.equal(

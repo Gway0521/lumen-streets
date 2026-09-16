@@ -4,6 +4,8 @@
 
 Lumen Streets runs as one Node.js 24 process serving the website and search API. Rendering and exports run in visitors' browsers; the server needs no database or GPU.
 
+The 3D renderer also loads online vector tiles and glyphs in the browser, even for presets. Set the public build-time `VITE_LUMEN_TILEJSON_URL` to change the compatible tile provider; rebuild afterward. See [Map services](PROVIDERS.md). Do not put credentials in VITE variables.
+
 ## Build and run
 
 From the source checkout:
@@ -58,7 +60,7 @@ Check the public URL from another device: load a preset, search for a place, imp
 
 ## Static-only hosting
 
-Serve the contents of `dist/` on any HTTPS static host to use bundled maps, exports and scene files. Search is hidden without the API. Relative assets support a subdirectory; no SPA fallback is required.
+Serve the contents of `dist/` on any HTTPS static host to use the 3D editor, exports and scene files with online vector tiles. Search is hidden without the API. Relative assets support a subdirectory; no SPA fallback is required.
 
 ## Source and license
 

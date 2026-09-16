@@ -19,9 +19,9 @@ For visual changes, compare actual exports in both languages on desktop and a na
 
 ## Keep changes focused
 
-Preserve the [art direction](docs/ART_DIRECTION.md) and keep the editor, player and exports on one rendering path. Fix shared rules instead of special-casing a city. Seed procedural randomness and use the simulation clock.
+Preserve the [art direction](docs/ART_DIRECTION.md) and keep the 3D editor, embeds and exports on one rendering path. The legacy 2D player retains its separate compatibility engine. Fix shared rules instead of special-casing a city. Seed procedural randomness and use the simulation clock.
 
-Interface messages live in `src/locales/`; update English and Traditional Chinese together, including error and accessibility text. Map names may fall back to their source language.
+The 3D interface messages live in `src/three/locales.js`; legacy player messages live in `src/locales/`; update English and Traditional Chinese together, including error and accessibility text. Map names may fall back to their source language.
 
 Add tests for behaviour and regressions. Explain the need, license and bundle cost of a new dependency. Keep build output, personal paths, credentials and machine settings out of commits.
 

@@ -1,6 +1,6 @@
 # Attribution
 
-The experimental 3D view uses MapLibre GL JS (BSD-3-Clause), Three.js (MIT) Earcut (ISC), @mapbox/vector-tile (BSD-3-Clause) and pbf (BSD-3-Clause); notices are included in `public/third-party-notices.txt`. Its global vector tiles are served by OpenFreeMap using the OpenMapTiles schema and OpenStreetMap data (ODbL). The in-view credit and every 3D export retain map attribution. Local imported models retain their own creator and license, recorded in their placement manifest; they are not distributed with the application.
+The 3D editor uses MapLibre GL JS (BSD-3-Clause), Three.js (MIT), Earcut (ISC), @mapbox/vector-tile (BSD-3-Clause) and pbf (BSD-3-Clause); notices are included in `public/third-party-notices.txt`. Its global vector tiles are served by OpenFreeMap using the OpenMapTiles schema and OpenStreetMap data (ODbL). The viewer retains map attribution; publicly shared exports need visible credit alongside the work. Local imported models retain their own creator and license, recorded in their placement manifest; they are not distributed with the application.
 
 Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), licensed under [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
 
@@ -31,7 +31,7 @@ Light intensity and colors approximate an artistic district character from build
 
 The original parametric Taipei 101 and Sapporo TV Tower artwork is covered by the project license. No external model meshes, photographs, textures or document images are shipped. Mapped footprints/identities retain their OSM attribution. Height facts, conflicting candidates, review dates and Wikidata revisions are recorded in [landmark sources](data/landmarks/sources-v1.json); intermediate model dimensions are artistic approximations. Wikidata structured entity data is supplied under [CC0](https://www.wikidata.org/wiki/Wikidata:Licensing). Source references are for provenance, not an endorsement by the landmark operators.
 
-Publicly shared map images and animations must carry readable OSM attribution in or alongside their presentation as appropriate to the medium. Clean private wallpaper exports show source credit in the download dialog, provide a companion credits file and offer an on-image credit option. Metadata or a detached file alone is not a blanket substitute for visible attribution in public uses. See the [OSMF attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines). Embedded scenes also require attribution. Database redistribution and adaptation remain subject to ODbL; the AGPL program license does not replace the map license.
+Publicly shared map images and animations must carry readable OSM attribution in or alongside their presentation as appropriate to the medium. The 3D map displays attribution in the viewer. Its exported pixels have no source-credit option; provide visible credit alongside publicly shared images and videos. Metadata or a detached file alone is not a blanket substitute for visible attribution in public uses. See the [OSMF attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines). Embedded scenes also require attribution. Database redistribution and adaptation remain subject to ODbL; the AGPL program license does not replace the map license.
 
 ## Software
 

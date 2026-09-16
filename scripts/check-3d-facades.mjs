@@ -118,7 +118,59 @@ try {
         probe(instanced, false);
         probe(instanced, true);
       }
-      return { results, glError: renderer.getContext().getError() };
+      // Exercise the production Z-up instance path on every wall. Horizontal
+      // UVs must vary across a wall, while remaining constant up its height.
+      const box = new THREE.BoxGeometry(1, 1, 1);
+      box.translate(0, 0, 0.5);
+      const geometry = new THREE.InstancedBufferGeometry().copy(box);
+      geometry.instanceCount = 1;
+      for (const [name, values, size] of [
+        ["offset", [0, 0, 0], 3],
+        ["extent", [40, 28, 100], 3],
+        ["heading", [1, 0], 2],
+        ["tone", [1, 1, 1], 3],
+        ["idSeed", [30013], 1],
+      ])
+        geometry.setAttribute(
+          name,
+          new THREE.InstancedBufferAttribute(new Float32Array(values), size),
+        );
+      const uvMaterial = nightMaterial(true);
+      uvMaterial.fragmentShader = uvMaterial.fragmentShader.replace(
+        /void main\(\)\{[\s\S]*$/,
+        "void main(){gl_FragColor=vec4(vUv.x/vFacade.w,vUv.y/100.,0.,1.);}",
+      );
+      const scene = new THREE.Scene();
+      scene.add(new THREE.Mesh(geometry, uvMaterial));
+      const ortho = new THREE.OrthographicCamera(-25, 25, 60, -60, 1, 500);
+      ortho.up.set(0, 0, 1);
+      const walls = [];
+      for (const [x, y] of [
+        [150, 0],
+        [-150, 0],
+        [0, 150],
+        [0, -150],
+      ]) {
+        ortho.position.set(x, y, 50);
+        ortho.lookAt(0, 0, 50);
+        renderer.setRenderTarget(target);
+        renderer.render(scene, ortho);
+        const bytes = new Uint8Array(256 * 256 * 4);
+        renderer.readRenderTargetPixels(target, 0, 0, 256, 256, bytes);
+        const pixel = (u, v) =>
+          Array.from(bytes.slice((v * 256 + u) * 4, (v * 256 + u) * 4 + 4));
+        walls.push({
+          view: [x, y],
+          left: pixel(96, 128),
+          right: pixel(160, 128),
+          low: pixel(128, 80),
+          high: pixel(128, 176),
+        });
+      }
+      geometry.dispose();
+      box.dispose();
+      uvMaterial.dispose();
+      return { results, walls, glError: renderer.getContext().getError() };
     } finally {
       target.dispose();
       renderer.dispose();
@@ -138,6 +190,20 @@ try {
       "Control must reproduce smooth-interpolation noise",
     );
   assert.equal(report.gpu.glError, 0);
+  for (const wall of report.gpu.walls) {
+    assert.ok(
+      Math.abs(wall.left[0] - wall.right[0]) > 60,
+      "All walls need horizontal window coordinates",
+    );
+    assert.ok(
+      Math.abs(wall.low[0] - wall.high[0]) <= 1,
+      "Window columns must not follow height",
+    );
+    assert.ok(
+      Math.abs(wall.low[1] - wall.high[1]) > 90,
+      "Window rows follow Z height",
+    );
+  }
   await page.evaluate(() => {
     window.__lumen3d.map.jumpTo({ bearing: 27, pitch: 48 });
   });

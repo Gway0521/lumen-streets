@@ -1,9 +1,9 @@
 import { VIEW } from "./view.js";
 // Shared with the light control so returning to 100% restores the art baseline.
 export const ROAD_LIGHT = Object.freeze({
-  "road-halo": 0.065,
-  "road-glow": 0.2,
-  "road-rim": 0.56,
+  "road-halo": 0.045,
+  "road-glow": 0.16,
+  "road-rim": 0.44,
 });
 const zoom = (...stops) => [
   "interpolate",
@@ -39,7 +39,7 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
       {
         id: "night",
         type: "background",
-        paint: { "background-color": "#101e2b" },
+        paint: { "background-color": "#080f18" },
       },
       {
         id: "land",
@@ -51,8 +51,8 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
             "match",
             ["get", "class"],
             ["wood", "grass"],
-            "#0b1c1c",
-            "#101c23",
+            "#091312",
+            "#0b141c",
           ],
           "fill-opacity": 0.85,
         },
@@ -67,10 +67,10 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
             "match",
             ["get", "class"],
             ["commercial", "retail"],
-            "#141e24",
+            "#0d151d",
             ["industrial"],
-            "#111b23",
-            "#0d171d",
+            "#0a131b",
+            "#091119",
           ],
           "fill-opacity": 0.8,
         },
@@ -80,7 +80,7 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
         type: "fill",
         source: "world",
         "source-layer": "park",
-        paint: { "fill-color": "#091c1c", "fill-opacity": 0.95 },
+        paint: { "fill-color": "#071310", "fill-opacity": 0.95 },
       },
       {
         id: "water",
@@ -103,7 +103,7 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
         "source-layer": "building",
         minzoom: 12,
         paint: {
-          "fill-color": "#23313a",
+          "fill-color": "#111c26",
           "fill-opacity": zoom(12, 0.15, 14, 0.7, 16, 0.6),
         },
       },
@@ -111,7 +111,7 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
         ["road-halo", 4.5, "#af8259", ROAD_LIGHT["road-halo"], 4],
         ["road-glow", 2.0, "#d8af7e", ROAD_LIGHT["road-glow"], 1.4],
         ["road-rim", 1.05, "#e4c59b", ROAD_LIGHT["road-rim"], 0.3],
-        ["road-asphalt", 0.68, "#172029", 0.94, 0.12],
+        ["road-asphalt", 0.68, "#0e161f", 0.94, 0.12],
       ].map(([id, mult, color, opacity, blur]) => ({
         id,
         type: "line",

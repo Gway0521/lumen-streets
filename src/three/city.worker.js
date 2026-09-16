@@ -8,6 +8,7 @@ import { BuildingTiles } from "./tiles.js";
 import { groundSurface } from "./surface.js";
 import { compactVolumes } from "./volumes.js";
 import { EnvironmentBuilder } from "./environment.js";
+import { buildingPolygons, snapshotCoverage } from "./building-source.js";
 
 let cached = null;
 const tileSource = new BuildingTiles();
@@ -60,6 +61,7 @@ self.onmessage = async ({ data }) => {
     const active = cityId ? await snapshot(cityId, base) : null;
     const origin = active ? regions[cityId].center : center;
     const landscape = new EnvironmentBuilder(origin, bounds, mobile);
+    const covered = snapshotCoverage(active?.city);
     const outside = (f) =>
       !active ||
       !inside(
@@ -83,8 +85,9 @@ self.onmessage = async ({ data }) => {
       signal,
       (buildings, environment) => {
         landscape.consume(environment);
+        for (const f of buildings) landscape.excludeBuilding(f);
         const part = vectorGeometry(
-          buildings.filter(outside),
+          buildingPolygons(buildings).filter((f) => !covered(f)),
           origin,
           Math.max(0, remaining),
           zoom,
@@ -95,7 +98,16 @@ self.onmessage = async ({ data }) => {
     );
     signal.throwIfAborted();
     const geometry = {};
-    for (const key of ["position", "normal", "uv", "color", "seed", "boxes"]) {
+    for (const key of [
+      "position",
+      "normal",
+      "uv",
+      "color",
+      "seed",
+      "facade",
+      "beacons",
+      "boxes",
+    ]) {
       geometry[key] = new Float32Array(
         parts.reduce((n, p) => n + p[key].length, 0),
       );
@@ -106,7 +118,9 @@ self.onmessage = async ({ data }) => {
       }
     }
     geometry.buildings = parts.reduce((n, p) => n + p.buildings, 0);
+    geometry.beacons = geometry.beacons.slice(0, 4096 * 4);
     geometry.landmarks = local?.landmarks || [];
+    geometry.placeLabels = local?.placeLabels || [];
     geometry.truncated = parts.some((p) => p.truncated);
     geometry.buildings += geometry.boxes.length / 12;
     const before = geometry.boxes.length / 12;
@@ -192,6 +206,7 @@ self.onmessage = async ({ data }) => {
         environment.green.buffer,
         environment.bridges.buffer,
         environment.lamps.buffer,
+        environment.trees.buffer,
         environment.light,
       ],
     );
