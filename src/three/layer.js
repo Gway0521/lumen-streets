@@ -192,6 +192,9 @@ export class NightLayer {
     this.stats = {
       buildings: geometry.buildings,
       triangles: geometry.position.length / 9,
+      landmarkCount: geometry.landmarkCount || 0,
+      landmarkVertices: geometry.landmarkVertices || 0,
+      landmarkOmitted: geometry.landmarkOmitted || 0,
       geometryMiB:
         Object.values(geometry)
           .filter((v) => v?.byteLength)
@@ -275,8 +278,16 @@ export class NightLayer {
     this.surfaceKey = null;
     this.traffic = null;
     this.routes = [];
+    this.landmarks = [];
     this.pointsGeometry.setDrawRange(0, 0);
-    this.stats = { buildings: 0, triangles: 0, geometryMiB: 0 };
+    this.stats = {
+      buildings: 0,
+      triangles: 0,
+      geometryMiB: 0,
+      landmarkCount: 0,
+      landmarkVertices: 0,
+      landmarkOmitted: 0,
+    };
     if (this.lamps) {
       this.scene.remove(this.lamps);
       this.lamps.geometry.dispose();

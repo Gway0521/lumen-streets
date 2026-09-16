@@ -4,6 +4,8 @@
 
 Bring a building from your city to Lumen Streets. Place a local GLB, check its silhouette, then download a contribution ZIP for GitHub review.
 
+The built-in showcase has 51 original parametric assemblies. See the [inventory, source boundaries and capacity measurements](SHOWCASE.md). Imported GLBs have separate limits below.
+
 ## Prepare the model
 
 Create an original, low-poly model. Concentrate detail on the roofline, setbacks, openings and distinctive structures that read from above. Use material base colours with restrained warm accents.

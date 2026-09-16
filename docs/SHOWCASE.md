@@ -1,0 +1,29 @@
+# Showcase locations and landmarks
+
+[繁體中文：完整清單與容量評估](SHOWCASE.zh-TW.md) · [Architecture](3D-ARCHITECTURE.md)
+
+The development showcase contains two locations in each of four groups: Shanghai and Guangzhou; Taipei Xinyi and Kaohsiung; Sapporo and Yokohama; Seattle and Lower Manhattan. Each pair includes an urban waterfront. Shanghai, Xinyi and Sapporo remain; Seattle moves from South Lake Union to Elliott Bay. Guangzhou, Kaohsiung, Yokohama and New York replace Beijing, Gongguan, Shinjuku and Washington in Explore.
+
+The selection combines actual renderer review with references from [Guangzhou](https://www.gz.gov.cn/guangzhouinternational/home/citynews/content/post_8558363.html), [Yokohama tourism](https://www.yokohamajapan.com/article/yokohama-skyline/) and [Visit Seattle](https://visitseattle.org/neighborhoods/waterfront/). Chicago was also compared; Lower Manhattan provides a denser, more distinctive skyline for this set. Kaohsiung has sparser ordinary building data and more open water. Missing neighbourhood detail is not invented.
+
+## Scope and accuracy
+
+There are **51 landmark assemblies: 45 additions and 6 retained models**. The reviewed inventory covers major structures in the initial views and roughly 2–3 km around them, not every named attraction or historic building. Towers, cultural buildings, wheels and bridges receive original low-polygon silhouettes. Parks and ordinary streets remain map geometry. The Statue of Liberty lies beyond this inventory's radius.
+
+[The catalog](../src/three/showcase-landmarks.json) records bilingual names, OSM identities, anchors, source heights, display heights, retrieval dates and replacement footprints. Attribution is © OpenStreetMap contributors, [ODbL](https://www.openstreetmap.org/copyright). No reference photos or third-party meshes are bundled. Height bases distinguish existing reviewed references, OSM tags and approximate display values. Shapes, facade details, freeform surfaces, bridge structures and lighting remain artistic approximations rather than survey models.
+
+Stepped towers are the easiest to extend. Historic roofs require more silhouette review. Freeform buildings such as MoPOP, Guangzhou Opera House and the cruise terminal need the most refinement for close views. Open lattices, wheel spokes and suspension cables consume the most geometry. See the [full inventory and evaluation](SHOWCASE.zh-TW.md).
+
+## Measured capacity
+
+Run `node scripts/measure-showcase.mjs [report.json]` to reproduce geometry counts and source/gzip sizes. The current 51 assemblies total **50,355 triangles and 9.221 MiB of vertex attributes** if all were generated together. They are geographically culled. The largest city group is Guangzhou at 15,408 triangles / 2.821 MiB.
+
+The catalog, generators and selection/replacement module total about **179 KiB source / 24 KiB gzip**, excluding existing legacy definitions. These are source measurements, not the site's transfer size. There are no per-building GLB or texture downloads. Each view reserves up to **90,000 landmark vertices**, within the existing total facade budget. Complete assemblies are admitted atomically; an omitted model leaves its ordinary map building intact. Models share the existing facade mesh and draw call.
+
+The current average suggests about **30 simultaneous assemblies**, or **2–5 intricate lattice structures**, within that geometry allocation. For geographically distributed content, **500–1,000 comparable assemblies** extrapolate to roughly **1.7–3.4 MiB source / 0.23–0.46 MiB gzip**. Only 51 have been validated: add regional lazy loading and a spatial index before expanding to hundreds, and measure on physical phones. Textured GLBs do not fit this estimate. Vertex figures exclude map resources, generic buildings, CPU temporary allocations, browser overhead and export targets; they are not total memory or frame-rate guarantees.
+
+## Viewer and compatibility
+
+**Settings → Landmark names** controls labels during exploration, including when controls are hidden. View links and scene files preserve this separately as `viewLabels`. Older scene files default to off. Capture's landmark-label option remains independent and controls exports and embed composition. Collision avoidance limits visible labels to nine in landscape and five in narrow portrait, prioritising tall special landmarks.
+
+Showcase cameras are separate from the eight legacy snapshots. Retired city links and historical scene data remain readable. The four new regions use global vector tiles; surviving snapshots retain their local coverage. New regions have no bundled rail routes. Built-in landmark selection follows geography, so models also appear when navigating from search or another preset.

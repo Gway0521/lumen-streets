@@ -182,6 +182,7 @@ function model(builder, feature, anchor, profile, convert) {
   const type =
     profile.generator === "tiered" || profile.id === "jin-mao" ? 5 : 8;
   const lighting =
+    profile.lighting ||
     {
       "taipei-101": 4,
       "jin-mao": 1,
@@ -189,7 +190,8 @@ function model(builder, feature, anchor, profile, convert) {
       "shanghai-wfc": 2,
       "oriental-pearl": 3,
       "sapporo-tv-tower": 1,
-    }[profile.id] || 1;
+    }[profile.id] ||
+    1;
   builder.appearance = {
     type,
     bottom: profile.baseElevation || 0,
@@ -302,6 +304,62 @@ function model(builder, feature, anchor, profile, convert) {
       );
   }
 }
+/** Add complete landmark assemblies before spending the remaining facade budget.
+ * A rejected assembly leaves both geometry and replacement ownership untouched. */
+export function landmarkGeometry(profiles, origin, limit) {
+  const builder = new MeshBuilder(limit),
+    accepted = [];
+  const attributes = [
+    "position",
+    "normal",
+    "uv",
+    "color",
+    "seed",
+    "facade",
+    "beacons",
+  ];
+  for (const profile of profiles) {
+    const lengths = attributes.map((k) => builder[k].length),
+      count = builder.buildings;
+    const anchor = localPoint(...profile.anchor, origin);
+    const feature = {
+      id: accepted.length + 1,
+      sourceId: profile.osm[0],
+      tags: { building: "yes" },
+      holes: [],
+      points: profile.footprints[0]?.map((p) => localPoint(...p, origin)) || [
+        [anchor[0] - 1, anchor[1] - 1],
+        [anchor[0] + 1, anchor[1] - 1],
+        [anchor[0], anchor[1] + 1],
+      ],
+    };
+    model(builder, feature, anchor, profile, (p) => p);
+    if (builder.truncated) {
+      attributes.forEach((k, i) => {
+        builder[k].length = lengths[i];
+      });
+      builder.buildings = count;
+      builder.truncated = false;
+      continue;
+    }
+    builder.buildings = count + 1;
+    accepted.push(profile);
+  }
+  return {
+    ...builder.finish(),
+    boxes: new Float32Array(),
+    landmarks: accepted.map((p) => ({
+      id: p.id,
+      names: p.names,
+      anchor: p.anchor,
+      height: p.height,
+      priority: p.height,
+    })),
+    acceptedIds: accepted.map((p) => p.id),
+    omitted: profiles.length - accepted.length,
+  };
+}
+
 function ordinary(builder, f, convert, detail = true) {
   if (f.points.length > 2048 || buildingArea(f.points) < 8) return;
   const seed = featureSeed(f),
@@ -388,15 +446,23 @@ function ordinary(builder, f, convert, detail = true) {
     }
   }
 }
-export function snapshotGeometry(city, limit, zoom = 15) {
+export function snapshotGeometry(
+  city,
+  limit,
+  zoom = 15,
+  exclude = () => false,
+  suppliedModels = new Set(),
+) {
   const builder = new MeshBuilder(limit),
     convert = (p) => snapshotPoint(p, city.center),
     plan = resolveRenderPlan(city, LANDMARK_PACK.profiles),
     activity = districtField(city),
     boxes = [];
-  for (const m of plan.models)
+  const models = plan.models.filter((m) => !suppliedModels.has(m.profile.id));
+  for (const m of models)
     model(builder, m.feature, m.anchor, m.profile, convert);
   for (const { feature, kind } of plan.normal) {
+    if (exclude(feature)) continue;
     if (kind === "frame" && !builder.truncated) {
       const m = genericTower(feature);
       model(builder, feature, m.anchor, m.profile, convert);
@@ -413,7 +479,7 @@ export function snapshotGeometry(city, limit, zoom = 15) {
   return {
     ...builder.finish(),
     boxes: new Float32Array(boxes),
-    landmarks: plan.models.map((m) => ({
+    landmarks: models.map((m) => ({
       id: m.profile.id,
       anchor: m.profile.anchor,
       height: m.profile.height,

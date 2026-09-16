@@ -1,5 +1,15 @@
 import { parseCity, regions } from "../city.js";
-import { snapshotGeometry, vectorGeometry } from "./geometry.js";
+import {
+  snapshotGeometry,
+  vectorGeometry,
+  landmarkGeometry,
+} from "./geometry.js";
+import {
+  nearbyLandmarks,
+  profileForLandmark,
+  landmarkCoverage,
+  SHOWCASE_VERTEX_BUDGET,
+} from "./showcase.js";
 import { buildGraph } from "../traffic.js";
 import { parseRail, buildRailRoutes } from "../rail.js";
 import { localPoint, snapshotPoint } from "./geo.js";
@@ -60,6 +70,17 @@ self.onmessage = async ({ data }) => {
     } = data;
     const active = cityId ? await snapshot(cityId, base) : null;
     const origin = active ? regions[cityId].center : center;
+    const candidates = nearbyLandmarks(bounds, center);
+    const landmarks = landmarkGeometry(
+      candidates.map(profileForLandmark),
+      origin,
+      Math.min(SHOWCASE_VERTEX_BUDGET, Math.floor(limit * 0.35)),
+    );
+    const supplied = new Set(landmarks.acceptedIds);
+    const replacement = landmarkCoverage(
+      candidates.filter((p) => supplied.has(p.id)),
+    );
+    const genericLimit = limit - landmarks.position.length / 3;
     const landscape = new EnvironmentBuilder(origin, bounds, mobile);
     const covered = snapshotCoverage(active?.city);
     const outside = (f) =>
@@ -73,11 +94,17 @@ self.onmessage = async ({ data }) => {
         regions[cityId].bbox,
       );
     const local = active
-      ? snapshotGeometry(active.city, Math.floor(limit * 0.55), zoom)
+      ? snapshotGeometry(
+          active.city,
+          Math.floor(genericLimit * 0.55),
+          zoom,
+          (f) => replacement.snapshot(f, origin),
+          supplied,
+        )
       : null;
     // Decode and build one tile at a time. Never retain a viewport's full GeoJSON.
-    const parts = local ? [local] : [];
-    let remaining = limit - (local?.position.length || 0) / 3;
+    const parts = local ? [landmarks, local] : [landmarks];
+    let remaining = genericLimit - (local?.position.length || 0) / 3;
     const loaded = await tileSource.load(
       bounds,
       tileURL,
@@ -87,7 +114,9 @@ self.onmessage = async ({ data }) => {
         landscape.consume(environment);
         for (const f of buildings) landscape.excludeBuilding(f);
         const part = vectorGeometry(
-          buildingPolygons(buildings).filter((f) => !covered(f)),
+          buildingPolygons(buildings).filter(
+            (f) => !covered(f) && !replacement.vector(f),
+          ),
           origin,
           Math.max(0, remaining),
           zoom,
@@ -119,8 +148,19 @@ self.onmessage = async ({ data }) => {
     }
     geometry.buildings = parts.reduce((n, p) => n + p.buildings, 0);
     geometry.beacons = geometry.beacons.slice(0, 4096 * 4);
-    geometry.landmarks = local?.landmarks || [];
-    geometry.placeLabels = local?.placeLabels || [];
+    geometry.landmarks = [...landmarks.landmarks, ...(local?.landmarks || [])];
+    geometry.placeLabels = (local?.placeLabels || []).filter(
+      (p) =>
+        !candidates.some(
+          (m) =>
+            supplied.has(m.id) &&
+            (m.osm.includes(p.id) ||
+              Math.hypot(...localPoint(...p.anchor, m.anchor)) < 25),
+        ),
+    );
+    geometry.landmarkVertices = landmarks.position.length / 3;
+    geometry.landmarkCount = landmarks.landmarks.length;
+    geometry.landmarkOmitted = landmarks.omitted;
     geometry.truncated = parts.some((p) => p.truncated);
     geometry.buildings += geometry.boxes.length / 12;
     const before = geometry.boxes.length / 12;

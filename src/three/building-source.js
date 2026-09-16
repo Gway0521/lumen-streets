@@ -38,7 +38,7 @@ export function footprintCenter(feature) {
   return [(west + east) / 2, (south + north) / 2];
 }
 
-function nearRing(p, ring, tolerance = 2) {
+export function nearRing(p, ring, tolerance = 2) {
   return (
     inside(p, ring) ||
     ring.some((a, i) => {

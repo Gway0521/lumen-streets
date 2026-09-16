@@ -56,9 +56,9 @@ export function labelFontText(layer, locale) {
   ].join(" ");
 }
 
-function paintLabels(ctx, width, height, layer, locale) {
+function paintLabels(ctx, width, height, layer, locale, minSize = 9) {
   if (!layer?.mesh?.visible) return;
-  const size = Math.max(9, Math.min(width, height) / 75),
+  const size = Math.max(minSize, Math.min(width, height) / 75),
     padding = size * 0.7,
     occupied = [];
   ctx.save();
@@ -68,7 +68,7 @@ function paintLabels(ctx, width, height, layer, locale) {
   const landmarks = [
     ...(layer.landmarks || []),
     ...(layer.uploads?.children || []).map((m) => m.userData),
-  ];
+  ].sort((a, b) => (b.priority || 0) - (a.priority || 0));
   for (const landmark of landmarks) {
     const name =
       landmarkNames[landmark.id]?.[locale === "zh-TW" ? 1 : 0] ||
@@ -141,7 +141,14 @@ export function paintComposition(ctx, width, height, options = {}, layer) {
     ctx.fillRect(0, 0, width, height);
   }
   if (options.landmarkLabels)
-    paintLabels(ctx, width, height, layer, options.locale);
+    paintLabels(
+      ctx,
+      width,
+      height,
+      layer,
+      options.locale,
+      options.labelMinSize,
+    );
   if (options.placeTitle?.text)
     paintPlaceTitle(ctx, width, height, options.placeTitle, height);
   ctx.restore();

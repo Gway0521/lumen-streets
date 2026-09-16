@@ -10,8 +10,8 @@ Lumen Streets turns OpenStreetMap streets and buildings into a navigable 3D nigh
 
 ## Make it your night
 
-- **Explore beyond one neighbourhood.** Pan, rotate, tilt and zoom across global vector maps. Eight starting places add detailed attributed map snapshots.
-- **Buildings and light.** Varied architectural facades, restrained windows, street lamps, vegetation and stylized water reflections surround six modeled landmarks.
+- **Explore beyond one neighbourhood.** Pan, rotate, tilt and zoom across global vector maps. Eight curated starting views pair city streets with waterfronts; existing snapshots add detail where available.
+- **Buildings and light.** Varied architectural facades, restrained windows, street lamps, vegetation and stylized water reflections surround 51 modeled landmark assemblies. Toggle landmark names in Settings. See the [showcase inventory and capacity study](docs/SHOWCASE.md).
 - **Frame a wallpaper.** PNG up to a 3840-pixel long edge, video up to 2560 pixels and a six-second GIF preview. Desktop, ultrawide, tablet, phone and custom ratios share titles, landmark labels and soft edge shading.
 - **Return and share.** Save camera, composition and traffic in a scene file, share a view link, or copy an embed.
 - **Contribute a landmark.** Preview a bounded local GLB and download its model, placement, license and preview as a contribution ZIP.
@@ -25,7 +25,7 @@ npm ci
 npm run dev
 ```
 
-Open **http://127.0.0.1:5180/**. Use **Explore**, **Light & motion** and **Capture**. Drag to pan, right-drag to rotate and tilt, and scroll to zoom. English and Traditional Chinese are supported.
+Open **http://127.0.0.1:5180/**. Use **Explore**, **Settings** and **Capture**. Drag to pan, right-drag to rotate and tilt, and scroll to zoom. English and Traditional Chinese are supported.
 
 The 3D renderer requires WebGL2 and online vector tiles, including at preset locations. Search uses the included Node gateway. See [browser compatibility](docs/COMPATIBILITY.md) and [map services](docs/PROVIDERS.md).
 

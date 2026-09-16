@@ -5,7 +5,7 @@ The 3D editor saves view files and shares camera links from **Capture**.
 | Format | Includes | Limitations |
 | --- | --- | --- |
 | Scene file, `.lumen-view.json` | Camera, lighting, density, playback, simulation time, traffic and composition | Requires online tiles; does not embed map snapshots or imported GLBs |
-| View link | Camera, lighting, density, playback, place name and language | Starts fresh traffic |
+| View link | Camera, lighting, density, playback, live landmark names, place name and language | Starts fresh traffic |
 | Embed | View link with optional captions, landmark labels and shading | Requires online tiles; imported GLBs are not included |
 
 Open **Scene files → Save scene** to download and **Open scene** to restore. Scene files stay in the browser; opening does not upload them. Traffic reconnects by stable road endpoints. If map data changes, unmatched vehicles restart; a file is not a permanent map revision or pixel-identical archive.
@@ -14,7 +14,7 @@ Copy the interface's embed code into a website. Embeds use the 3D page with `emb
 
 ## Current file contract
 
-The JSON envelope uses `format: "lumen-streets-view"`, `version: 1`. It contains `view`, `name`, `time`, `playing`, `aspect`, `composition` and optional `traffic`. Imports are limited to 1.5 million bytes and 1600 cars, with bounded coordinates, camera values, text and composition. Imported models must be loaded separately.
+The JSON envelope uses `format: "lumen-streets-view"`, `version: 1`. It contains `view`, `name`, `time`, `playing`, `aspect`, `composition`, optional `viewLabels` (boolean, defaults to false) and optional `traffic`. Imports are limited to 1.5 million bytes and 1600 cars, with bounded coordinates, camera values, text and composition. Imported models must be loaded separately.
 
 See [3D architecture](3D-ARCHITECTURE.md), [landmark contributions](3D-LANDMARKS.md) and the [in-app guide](../public/scenes.html).
 

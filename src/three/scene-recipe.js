@@ -46,6 +46,8 @@ export function validateScene(value) {
     typeof value.playing !== "boolean"
   )
     fail();
+  if (value.viewLabels !== undefined && typeof value.viewLabels !== "boolean")
+    fail();
   const v = value.view;
   for (const [key, a, b] of [
     ["lng", -180, 180],
@@ -139,6 +141,7 @@ export function validateScene(value) {
     name: value.name || "",
     time: value.time,
     playing: value.playing,
+    viewLabels: value.viewLabels === true,
     aspect: value.aspect,
     composition: {
       quiet: { edge: q.edge, brightness: q.brightness, area: q.area },

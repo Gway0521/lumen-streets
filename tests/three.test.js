@@ -78,14 +78,14 @@ test("3D coordinates remain local and roundtrip across the antimeridian", () => 
     pitch: -40,
     glow: "bad",
   });
-  assert.equal(r.lng, 121.4938);
+  assert.equal(r.lng, 121.495);
   assert.equal(r.lat, 80);
   assert.equal(r.zoom, 16.5);
   assert.equal(r.pitch, 0);
   assert.equal(r.glow, 1);
   assert.equal(detailLevel(10), "map");
   assert.notEqual(detailLevel(12.3), "map");
-  assert.ok(viewRecipe().zoom < 14);
+  assert.ok(viewRecipe().zoom > 14 && viewRecipe().zoom < 16.5);
 });
 test("distant coverage uses building-detail tiles, wraps longitude and bounds requests", () => {
   const result = coveringBuildings([121.44, 31.2, 121.55, 31.29]);

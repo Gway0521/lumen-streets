@@ -10,14 +10,14 @@ Lumen Streets uses MapLibre and Three.js to render a continuously navigable city
 
 Use Node.js 24, run `npm ci` and `npm run dev:3d`, and open `http://127.0.0.1:5183/three.html`. The same editor opens at `/index.html`. For production, run `npm run build` then `npm start` on port 5180.
 
-Drag to pan; right-drag to rotate and tilt; scroll to zoom. Horizontal rotation uses a linear 0.25°/pixel response everywhere on the canvas. On phones, use two fingers to zoom and rotate. Explore chooses a preset or searches through the existing server gateway. Light & motion controls brightness, density, tilt, orbit and resolution. Hide controls creates an uncluttered wallpaper view.
+Drag to pan; right-drag to rotate and tilt; scroll to zoom. Horizontal rotation uses a linear 0.25°/pixel response everywhere on the canvas. On phones, use two fingers to zoom and rotate. Explore chooses a preset or searches through the existing server gateway. Settings controls brightness, density, tilt, orbit, resolution and live landmark names. Hide controls creates an uncluttered wallpaper view.
 
 ## Implemented
 
 - Global vector tiles load and unload as the camera moves. There is no fixed neighbourhood boundary.
-- Default zoom is 13.65 on desktop and 13.35 on phones, with a nearest limit of 16.5 and pitch capped at 55°. Buildings retain full height down to 12.3, fade into the atlas between 12.3 and 11.8, and traffic starts at 12.8.
+- Each showcase has its own camera (desktop zoom 14.4–14.85, with a 0.65 reduction on phones), with a nearest limit of 16.5 and pitch capped at 55°. Buildings retain full height down to 12.3, fade into the atlas between 12.3 and 11.8, and traffic starts at 12.8.
 - Muted champagne road shoulders surround dark asphalt, with sparse lamp highlights and restrained bloom. Subdued blue-grey roofs contrast with grouped ivory and cool window light. Parks retain open grass and groups of instanced trees; mapped water receives camera-oriented shoreline reflections. Hardware depth testing handles facade, landmark and moving-light occlusion.
-- The eight existing snapshots preserve OSM height/floor parsing, building assemblies, courtyard holes and six reviewed landmark models. Parametric curves and portals become physical triangles. Rectangular gabled roofs have a supported roof generator; unsupported roof types fall back to flat.
+- The eight existing snapshots preserve OSM height/floor parsing, building assemblies and courtyard holes. A separate geographically selected catalog now supplies 51 landmark assemblies, including the six existing models. Parametric curves and portals become physical triangles. Rectangular gabled roofs have a supported roof generator; unsupported roof types fall back to flat.
 - The original traffic simulation supplies seeded demand, one-way handling, following gaps, signals and turning. Snapshot railways retain simulated trains. Retained graph edges preserve traffic when the same snapshot scene is rebuilt.
 - PNG, GIF, 30-second to five-minute video, saved scenes, view links, embeds and landmark contribution packages are available in English and Traditional Chinese.
 
@@ -43,7 +43,7 @@ Bloom copies the completed shared framebuffer once, extracts and blurs bright pi
 
 `VITE_LUMEN_TILEJSON_URL` can select a compatible OpenMapTiles TileJSON URL at build time. The default is `https://tiles.openfreemap.org/planet`. The expected layers include building, transportation, water, landuse, landcover and park. Public service availability is not guaranteed; deployments can self-host compatible tiles. No public Overpass endpoint is used for continuous panning. Search uses the inherited bounded gateway.
 
-Near a selected preset, the original attributed OSM snapshot supplies detailed geometry and topology; vector tiles extend its surroundings. Elsewhere, buildings use vector-tile heights and conservative estimates, and roads use quantized coordinate junctions. This loses tags and original OSM node identity. Global roof shapes, building relations, lanes and grade-separated junctions are not fully represented. Roads and cars at the boundary of a bundled snapshot are not yet a single persistent transport network. Global trains are not implemented.
+Near a selected preset with an existing snapshot, its attributed OSM data supplies detailed geometry and topology; vector tiles extend its surroundings. Guangzhou, Kaohsiung, Yokohama and Lower Manhattan use global vector tiles, without new bundled road or rail snapshots. Elsewhere, buildings use vector-tile heights and conservative estimates, and roads use quantized coordinate junctions. This loses tags and original OSM node identity. Global roof shapes, building relations, lanes and grade-separated junctions are not fully represented. Roads and cars at the boundary of a bundled snapshot are not yet a single persistent transport network. Global trains are not implemented.
 
 The renderer requires global tiles even for preset scenes. Network failure is surfaced with Retry; a completely offline preset ground layer remains future work. Preset ground artwork adds contact shadows and soft road lighting. Water, parks, woods, grass and bridge masks are decoded from the same zoom-14 tiles already requested for buildings. Polygon holes retain islands and clearings. A packed coverage texture keeps vegetation clear of roads, water and buildings. Mapped woodland receives instanced low-polygon crowns and trunks; parks receive occasional inferred groves, while explicit grass remains open. Individual tree positions are artistic estimates. Trees share one draw call and appear at neighbourhood zoom levels.
 
@@ -58,6 +58,7 @@ Vegetation and lighting references include [Mapbox Standard](https://docs.mapbox
 | Display pixel ratio ceiling, adaptive | 1.75 | 1.25 |
 | Source tile cache entries | 160 | 64 |
 | Active facade vertices | 700,000 | 280,000 |
+| Landmark vertex reservation, within facade budget | 90,000 | 90,000 |
 | Building-detail tiles per view, source zoom 14 | 180 | 96 |
 | Compressed building tile cache | 24 MiB | 8 MiB |
 | Concurrent building requests | 4 | 2 |
@@ -88,7 +89,7 @@ PNG supports a longest edge of 1920, 2560 or 3840 pixels. GIF is six seconds at 
 
 All three formats use the same soft edge shading, brightness and area controls, optional place title and landmark labels. Cormorant Garamond and Noto Serif TC load from bundled font files. Capture restores the traffic checkpoint, time, playback, resolution and interactions on completion or cancellation. A screen wake lock is requested when supported. Video repeats with a cut at the end.
 
-View links preserve the camera, light, traffic density, playback setting and language. Embeds can also carry captions, landmark labels and edge shading. Scene JSON files retain composition and traffic state; stable road endpoints reconnect vehicles when loading. If map data changes, unmatched traffic restarts. Scene files require online map tiles and keep imported GLBs separate. See the [landmark guide](3D-LANDMARKS.md).
+View links preserve the camera, light, traffic density, playback setting, live landmark-name switch and language. Embeds can also carry captions, landmark labels and edge shading. Scene JSON files retain composition and traffic state; stable road endpoints reconnect vehicles when loading. If map data changes, unmatched traffic restarts. Scene files require online map tiles and keep imported GLBs separate. See the [landmark guide](3D-LANDMARKS.md).
 
 ## Source map and validation
 
@@ -117,3 +118,5 @@ Run `npm test`, `npm run check:presets`, `npm run check:docs` and `npm run build
 `node scripts/check-3d-landscape.mjs` checks vegetation exclusions using real canvas pixels, grass clearings, feature-order independence and both long-distance and nearby search navigation.
 
 The global tile schema uses 5 metres when height and level data are absent. A tile value of 5 cannot distinguish a measured low building from that fallback; these values are preserved rather than guessed upward. See the [upstream height calculation](https://github.com/openmaptiles/openmaptiles/blob/master/layers/building/building.sql).
+
+Showcase cameras live in `src/three/presets.js`, independently of historical snapshots. `showcase-landmarks.json`, `showcase-shapes.js` and `showcase.js` supply reviewed identities/footprints, original silhouettes and geographic selection. The worker admits complete models first, suppresses only their owned map footprints, and spends the remaining vertex budget on ordinary facades. No circular deletion zones are used. Run `node scripts/measure-showcase.mjs` for geometry/storage figures and `node scripts/check-3d-showcase.mjs` for desktop/mobile viewer, labels and scene checks. See the [capacity study](SHOWCASE.md).

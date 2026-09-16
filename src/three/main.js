@@ -2,7 +2,7 @@ import * as maplibregl from "maplibre-gl";
 import mapWorkerURL from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./style.css";
-import { regions } from "../city.js";
+import { viewRegions as regions, presetCamera } from "./presets.js";
 import { nightStyle, ROAD_LIGHT } from "./style.js";
 import { NightLayer } from "./layer.js";
 import { CityStream } from "./stream.js";
@@ -36,17 +36,10 @@ let locale = params.get("lang") === "zh-TW" ? "zh-TW" : "en",
 const mobile =
   matchMedia("(max-width: 700px)").matches ||
   navigator.hardwareConcurrency <= 4;
-if (mobile && !params.has("zoom")) initial.zoom = VIEW.mobile;
+if (mobile && !params.has("zoom"))
+  initial.zoom = presetCamera(initial.city, true).zoom;
 if (mobile && !params.has("density")) initial.density = 400;
-if (
-  mobile &&
-  initial.city === "shanghai" &&
-  !params.has("lng") &&
-  !params.has("lat")
-) {
-  initial.lng = 121.5;
-  initial.lat = 31.236;
-}
+
 let quality = "auto",
   orbit = false,
   focus = params.get("embed") === "1",
@@ -89,6 +82,7 @@ $("app").innerHTML =
  <label><span data-i18n="density"></span><output id="density-value"></output><input id="density" type="range" min="0" max="1600" step="50"></label>
  <label><span data-i18n="tilt"></span><output id="pitch-value"></output><input id="pitch" type="range" min="0" max="55" step="1"></label>
  <label><span data-i18n="quality"></span><select id="quality"><option value="auto" data-i18n="auto"></option><option value="high" data-i18n="high"></option><option value="low" data-i18n="low"></option></select></label>
+ <label class="check"><input id="view-landmark-labels" type="checkbox"><span data-i18n="landmarkNames"></span></label>
  <div class="pair"><button id="play"></button><button id="orbit" data-i18n="rotate" aria-pressed="false"></button></div></div>
  <div data-panel="capture" hidden><p class="eyebrow">KEEP A LITTLE OF THE NIGHT</p><h2 data-i18n="exportTitle"></h2><p data-i18n="exportHint"></p>
  <label><span data-i18n="format"></span><select id="format"><option value="png" data-i18n="png"></option><option value="gif" data-i18n="gif"></option><option value="video" data-i18n="video"></option></select></label>
@@ -179,6 +173,7 @@ function layoutCapture() {
   if (!active) {
     container.removeAttribute("style");
     resize();
+    drawCompositionPreview();
     return;
   }
   const narrow = innerWidth < 800,
@@ -207,25 +202,25 @@ function layoutCapture() {
   updateComposition();
 }
 function drawCompositionPreview() {
-  if (
-    (activePanel !== "capture" && !(focus && params.get("embed") === "1")) ||
-    capturing ||
-    !map
-  )
-    return;
+  if (!map) return;
   const canvas = $("composition-preview"),
     rect = map.getCanvas();
-  if (focus && params.get("embed") === "1") {
-    canvas.hidden = false;
+  const composing =
+    activePanel === "capture" || (focus && params.get("embed") === "1");
+  canvas.hidden =
+    capturing || (!composing && !$("view-landmark-labels").checked);
+  if (canvas.hidden) return;
+  if (activePanel !== "capture")
     canvas.style.cssText = "inset:0;width:100%;height:100%";
-  }
-  const [width, height] = captureSize(
-    activePanel === "capture"
-      ? selectedAspect()
-      : rect.clientWidth / rect.clientHeight,
-    Number($("resolution").value),
-    $("format").value,
-  );
+  const [width, height] = composing
+    ? captureSize(
+        activePanel === "capture"
+          ? selectedAspect()
+          : rect.clientWidth / rect.clientHeight,
+        Number($("resolution").value),
+        $("format").value,
+      )
+    : [rect.clientWidth, rect.clientHeight];
   // Draw in output coordinates so typography and gradients match the saved file.
   const scale =
     (Math.min(2, devicePixelRatio || 1) *
@@ -242,7 +237,15 @@ function drawCompositionPreview() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.scale(canvas.width / width, canvas.height / height);
-  paintComposition(ctx, width, height, compositionOptions(), layer);
+  paintComposition(
+    ctx,
+    width,
+    height,
+    composing
+      ? compositionOptions()
+      : { landmarkLabels: true, labelMinSize: 12, locale },
+    layer,
+  );
 }
 let fontRequest = 0;
 function updateComposition() {
@@ -260,9 +263,10 @@ function updateComposition() {
   $("output-size").textContent = `${w} × ${h} px`;
   drawCompositionPreview();
   const text = compositionOptions().placeTitle?.text || "";
-  const names = $("landmark-labels").checked
-    ? labelFontText(layer, locale)
-    : "";
+  const names =
+    $("landmark-labels").checked || $("view-landmark-labels").checked
+      ? labelFontText(layer, locale)
+      : "";
   clearTimeout(fontRequest);
   fontRequest = setTimeout(
     () =>
@@ -279,7 +283,9 @@ function setStatus(key) {
   statusKey = key;
   if (
     ["ready", "budget"].includes(key) &&
-    (activePanel === "capture" || (focus && params.get("embed") === "1"))
+    (activePanel === "capture" ||
+      $("view-landmark-labels").checked ||
+      (focus && params.get("embed") === "1"))
   )
     updateComposition();
   $("status").textContent = t(key);
@@ -302,7 +308,12 @@ function setStatus(key) {
   }
 }
 function cityName(id = selected) {
-  return cities[id]?.[locale === "en" ? 0 : 1] || id;
+  const region = Object.hasOwn(regions, id) ? regions[id] : null;
+  return (
+    cities[id]?.[locale === "en" ? 0 : 1] ||
+    (locale === "en" ? region?.english : region?.name) ||
+    id
+  );
 }
 function translate() {
   document.documentElement.lang = locale;
@@ -323,7 +334,7 @@ function translate() {
   $("close-panel").setAttribute("aria-label", t("close"));
   setStatus(statusKey);
   renderCities();
-  if (activePanel === "capture") updateComposition();
+  updateComposition();
 }
 function renderCities() {
   const container = $("cities");
@@ -338,11 +349,11 @@ function renderCities() {
 }
 function updatePlaceLabel() {
   const center = map?.getCenter().toArray() || [initial.lng, initial.lat];
+  const region = Object.hasOwn(regions, selected) ? regions[selected] : null;
   const near =
-    regions[selected] &&
-    Math.hypot(...localPoint(...center, regions[selected].center)) < 4000;
+    region && Math.hypot(...localPoint(...center, region.center)) < 4000;
   $("city-title").textContent =
-    regions[selected] && !near
+    region && !near
       ? locale === "en"
         ? "Night atlas"
         : "世界夜色"
@@ -380,10 +391,14 @@ function setFocus(value) {
   if (value && activePanel) togglePanel(null);
   focus = value;
   document.body.classList.toggle("focus", focus);
-  if (!focus && activePanel !== "capture")
-    $("composition-preview").hidden = true;
+  drawCompositionPreview();
   map?.triggerRepaint();
 }
+$("view-landmark-labels").checked = params.get("viewLabels") === "1";
+$("view-landmark-labels").onchange = () => {
+  updateComposition();
+  map?.triggerRepaint();
+};
 const layer = new NightLayer({
   mobile,
   onStats: (stats) => {
@@ -481,18 +496,7 @@ function chooseCity(id) {
   stream?.setCity(id);
   $("city-title").textContent = cityName();
   renderCities();
-  const camera = {
-    center:
-      id === "shanghai"
-        ? mobile
-          ? [121.5, 31.236]
-          : [121.4938, 31.2359]
-        : regions[id].center,
-    zoom: mobile ? VIEW.mobile : VIEW.desktop,
-    pitch: VIEW.pitch,
-    bearing: id === "shanghai" ? -8 : 0,
-    duration: 1000,
-  };
+  const camera = { ...presetCamera(id, mobile), duration: 1000 };
   // Closing a capture frame resizes/jumps the camera. Finish that first so it
   // cannot cancel the navigation that follows.
   if (mobile) togglePanel(null);
@@ -622,8 +626,10 @@ function link(embed = false) {
   const url = new URL("./three.html", location.href),
     p = map.getCenter();
   const recipe = {
-    city: regions[selected] ? selected : initial.city,
-    ...(!regions[selected] ? { name: String(selected).slice(0, 120) } : {}),
+    city: Object.hasOwn(regions, selected) ? selected : initial.city,
+    ...(!Object.hasOwn(regions, selected)
+      ? { name: String(selected).slice(0, 120) }
+      : {}),
     lng: p.lng.toFixed(6),
     lat: p.lat.toFixed(6),
     zoom: sceneZoom(map).toFixed(3),
@@ -632,6 +638,7 @@ function link(embed = false) {
     glow: layer.glow,
     density: layer.density,
     lang: locale,
+    viewLabels: $("view-landmark-labels").checked ? "1" : "0",
   };
   for (const [k, v] of Object.entries(recipe))
     url.searchParams.set(k, String(v));
@@ -822,6 +829,7 @@ $("save-scene").onclick = () => {
     playing: layer.playing,
     aspect: selectedAspect(),
     composition: compositionOptions(),
+    viewLabels: $("view-landmark-labels").checked,
     traffic: trafficRecipe(layer.traffic),
   });
   download(
@@ -852,6 +860,7 @@ $("scene-file").onchange = async (e) => {
     $("title-corner").value = c.placeTitle?.corner || "bottom-left";
     $("title-size").value = c.placeTitle?.size || "medium";
     $("landmark-labels").checked = c.landmarkLabels;
+    $("view-landmark-labels").checked = scene.viewLabels;
     $("aspect").value = "custom";
     $("ratio-width").value = Math.round(scene.aspect * 1000);
     $("ratio-height").value = 1000;

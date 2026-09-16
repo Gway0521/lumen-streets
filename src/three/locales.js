@@ -1,8 +1,9 @@
+import { presets } from "./presets.js";
 export const messages = {
   en: {
     tagline: "THE WORLD, AFTER DARK",
     explore: "Explore",
-    light: "Light & motion",
+    light: "Settings",
     capture: "Capture",
     models: "Landmarks",
     language: "繁體中文",
@@ -126,7 +127,7 @@ export const messages = {
   "zh-TW": {
     tagline: "世界入夜之後",
     explore: "探索城市",
-    light: "光影與車流",
+    light: "設定",
     capture: "匯出",
     models: "地標模型",
     language: "English",
@@ -242,13 +243,6 @@ export const messages = {
     sceneError: "這個檔案不是支援的夜景場景。",
   },
 };
-export const cities = {
-  shanghai: ["Shanghai", "上海"],
-  sapporo: ["Sapporo", "札幌"],
-  xinyi: ["Taipei · Xinyi", "台北・信義"],
-  tokyo: ["Tokyo · Shinjuku", "東京・新宿"],
-  ntu: ["Taipei · Gongguan", "台北・公館"],
-  beijing: ["Beijing", "北京"],
-  seattle: ["Seattle", "西雅圖"],
-  washington: ["Washington, DC", "華盛頓特區"],
-};
+export const cities = Object.fromEntries(
+  Object.entries(presets).map(([id, p]) => [id, p.names]),
+);

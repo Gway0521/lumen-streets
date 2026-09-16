@@ -1,6 +1,7 @@
 import { projectVertex } from './generators.js';
 import { featureSeed } from './heights.js';
 import { random } from '../city.js';
+import earcut from 'earcut';
 
 const sub=(a,b)=>a.map((v,i)=>v-b[i]);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
@@ -22,6 +23,14 @@ export function generateComponents(feature, anchor, profile) {
       add(a,b,c,component,component.windows);add(a,c,d,component,component.windows);
     }
     for(const [ring,top]of [[rings[0],false],[rings.at(-1),true]]) {
+      if (component.shape === 'polygon') {
+        const indices=earcut(ring.flatMap(p=>p.slice(0,2)));
+        for(let i=0;i<indices.length;i+=3) {
+          const [a,b,c]=indices.slice(i,i+3).map(j=>ring[j]);
+          add(a,top?b:c,top?c:b,component);
+        }
+        continue;
+      }
       const center=ring[0].map((_,i)=>ring.reduce((s,p)=>s+p[i],0)/ring.length);
       for(let i=0;i<ring.length;i++)add(center,ring[top?i:(i+1)%ring.length],ring[top?(i+1)%ring.length:i],component);
     }
@@ -30,7 +39,7 @@ export function generateComponents(feature, anchor, profile) {
     if(component.kind==='loft') {
       const rings=component.sections.map(([z,width,depth,rotation,x,y])=>{
         const a=rotation*Math.PI/180;
-        const coords=component.shape==='rectangle'?[[-1,-1],[1,-1],[1,1],[-1,1]]:
+        const coords=component.shape==='polygon'?component.outline:component.shape==='rectangle'?[[-1,-1],[1,-1],[1,1],[-1,1]]:
           Array.from({length:24},(_,i)=>{const t=i*Math.PI/12,r=component.shape==='rounded-triangle'?1+.13*Math.cos(3*t):1;return [r*Math.cos(t),r*Math.sin(t)];});
         return coords.map(([u,v])=>{const px=u*width/2,py=v*depth/2;return [x+px*Math.cos(a)-py*Math.sin(a),y+px*Math.sin(a)+py*Math.cos(a),z];});
       });

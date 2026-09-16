@@ -1,4 +1,4 @@
-import regions from "../regions.json" with { type: "json" };
+import { viewRegions as regions, presetCamera } from "./presets.js";
 import { VIEW } from "./view.js";
 export const EARTH = 40075016.68557849;
 export const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -42,8 +42,8 @@ export function geometryKey(feature) {
 }
 export function viewRecipe(input = {}) {
   const city = Object.hasOwn(regions, input.city) ? input.city : "shanghai";
-  const center =
-    city === "shanghai" ? [121.4938, 31.2359] : regions[city].center;
+  const camera = presetCamera(city),
+    center = camera.center;
   const number = (key, fallback, a, b) =>
     Number.isFinite(Number(input[key]))
       ? clamp(Number(input[key]), a, b)
@@ -51,22 +51,11 @@ export function viewRecipe(input = {}) {
   return {
     lng: number("lng", center[0], -180, 180),
     lat: number("lat", center[1], -80, 80),
-    zoom: number("zoom", VIEW.desktop, 2, VIEW.nearest),
-    bearing: number("bearing", -8, -360, 360),
-    pitch: number("pitch", VIEW.pitch, 0, 55),
+    zoom: number("zoom", camera.zoom, 2, VIEW.nearest),
+    bearing: number("bearing", camera.bearing, -360, 360),
+    pitch: number("pitch", camera.pitch, 0, 55),
     glow: number("glow", 1, 0.4, 1.6),
     density: number("density", 700, 0, 1600),
-    city: [
-      "shanghai",
-      "sapporo",
-      "xinyi",
-      "tokyo",
-      "ntu",
-      "beijing",
-      "seattle",
-      "washington",
-    ].includes(input.city)
-      ? input.city
-      : "shanghai",
+    city,
   };
 }
