@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -14,7 +14,11 @@ test('site packaging removes staging files after success and import failure', as
     // Distribution validation has its own command; isolate the packaging lifecycle here.
     await writeFile(join(work, 'scripts/check-release.mjs'), '');
     await cp('scripts/package-site.mjs', join(work, 'scripts/package-site.mjs'));
-    for (const dir of ['server', 'deploy']) await cp(dir, join(work, dir), { recursive: true });
+    await symlink(resolve('node_modules'),join(work,'node_modules'),'junction');
+    for (const dir of ['server', 'deploy', 'src/buildings', 'scripts/buildings', 'data']) await cp(dir, join(work, dir), { recursive: true });
+    await cp('scripts/setup-buildings.mjs',join(work,'scripts/setup-buildings.mjs'));
+    await mkdir(join(work,'public'));
+    await cp('public/third-party-notices.txt',join(work,'public/third-party-notices.txt'));
     for (const name of ['area.js', 'validate.js']) await cp(`src/search/${name}`, join(work, 'src/search', name));
     for (const name of ['HOSTING.md', 'HOSTING.zh-TW.md', 'PROVIDERS.md']) await cp(`docs/${name}`, join(work, 'docs', name));
     for (const name of ['package.json', '.env.example', 'LICENSE', 'NOTICE']) await cp(name, join(work, name));

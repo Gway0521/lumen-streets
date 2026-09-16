@@ -1,6 +1,6 @@
 # Map services
 
-Prepared building heights have an independent, optional manifest URL and offline source registry. See [Building height data](BUILDING-HEIGHTS.md) for Overture, PLATEAU, EUBUCCO, local vector/raster inputs, attribution and deployment. The basemap provider below still supplies roads and terrain.
+The default [global building service](GLOBAL-BUILDING-SERVICE.md) reads Overture PMTiles by HTTP Range and automatically enriches missing heights with GHS-BUILT-H regional context and geographically matched PLATEAU/EUBUCCO. It runs in the existing Node deployment with bounded Python background workers. No visitor or city-specific configuration is required. The basemap below supplies roads and terrain.
 
 The 3D editor streams OpenMapTiles-compatible vector tiles directly from OpenFreeMap by default. Set `VITE_LUMEN_TILEJSON_URL` on the build machine to choose another compatible source; rebuild after changing it. The TileJSON, tiles and glyphs must be reachable from visitors' browsers. All preset views also require this service. Update provider attribution when changing sources. Continuous panning does not call Overpass; the bounded area-import API described below remains for legacy tooling.
 

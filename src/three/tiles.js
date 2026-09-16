@@ -2,7 +2,7 @@ import { VectorTile } from "@mapbox/vector-tile";
 import { PbfReader } from "pbf";
 import { mercator } from "./geo.js";
 import { renderedHeight } from "./building-heights.js";
-import { boundedBytes, decodeHeightTile, heightRegion, validateManifest } from "./height-tiles.js";
+import { boundedBytes, parseHeightTile, heightRegion, validateManifest } from "./height-tiles.js";
 import {
   buildingPolygons,
   footprintCenter,
@@ -43,12 +43,15 @@ export function coveringBuildings(bounds, maximum = 180) {
 export class BuildingTiles {
   cache = new Map();
   bytes = 0;
+  heightTimes = new Map();
   async buffer(key, endpoint, mobile, signal) {
+    if (key.startsWith("height/") && Date.now() - (this.heightTimes.get(key) || 0) > 30000 && this.cache.has(key)) { this.bytes -= this.cache.get(key).byteLength; this.cache.delete(key); }
     let bytes = this.cache.get(key);
     if (!bytes) {
       bytes = await boundedBytes(await fetch(endpoint, { signal }), 8 * 1048576, signal);
       signal?.throwIfAborted();
       this.cache.set(key, bytes);
+      if (key.startsWith("height/")) this.heightTimes.set(key, Date.now());
       this.bytes += bytes.byteLength;
     } else {
       this.cache.delete(key);
@@ -58,8 +61,13 @@ export class BuildingTiles {
       const oldest = this.cache.keys().next().value;
       this.bytes -= this.cache.get(oldest).byteLength;
       this.cache.delete(oldest);
+      this.heightTimes.delete(oldest);
     }
     return bytes;
+  }
+  clearHeights() {
+    this.heightTimes.clear();
+    for (const [key, bytes] of this.cache) if (key.startsWith("height/")) { this.bytes -= bytes.byteLength; this.cache.delete(key); }
   }
   async configure(url, heightURL, signal) {
     heightURL = heightURL || null;
@@ -69,6 +77,7 @@ export class BuildingTiles {
       this.metadata = null;
       this.heightMetadata = null;
       this.cache.clear();
+      this.heightTimes.clear();
       this.bytes = 0;
     }
     if (!this.metadata) {
@@ -91,7 +100,7 @@ export class BuildingTiles {
     if (!template) throw Error("Building TileJSON has no tiles");
     const selection = coveringBuildings(bounds, mobile ? 96 : 180);
     const concurrency = mobile ? 2 : 4;
-    const preparedTiles = new Set(), identities = new Set(), credits = new Set(), heights = {};
+    const preparedTiles = new Set(), identities = new Set(), credits = new Set(), heights = {}, statuses = new Set(), revisions = new Set();
     for (
       let cursor = 0;
       cursor < selection.tiles.length;
@@ -145,10 +154,12 @@ export class BuildingTiles {
           }
         }
         if (prepared) {
-          for (const credit of heightRegion(this.heightMetadata, t).attribution || this.heightMetadata.attribution)
-            credits.add(credit);
+          const tile = parseHeightTile(prepared), info = tile.lumen;
+          for (const credit of info?.attribution || heightRegion(this.heightMetadata, t).attribution || this.heightMetadata.attribution) credits.add(credit);
+          if (info?.status) statuses.add(info.status);
+          if (info?.revision) revisions.add(info.revision);
           preparedTiles.add(`${t.x}/${t.y}`);
-          features = decodeHeightTile(prepared).filter(f => {
+          features = tile.features.filter(f => {
             if (identities.has(f.id)) return false;
             identities.add(f.id);
             return true;
@@ -181,8 +192,10 @@ export class BuildingTiles {
       cacheMiB: this.bytes / 1048576,
       preparedTiles,
       heights,
+      heightPending: [...statuses].some(s => ["pending", "queued", "deferred"].includes(s)),
+      heightStatus: [...statuses],
       attribution: [...credits],
-      heightRevision: preparedTiles.size ? this.heightMetadata.revision : null,
+      heightRevision: preparedTiles.size ? [...revisions].sort().join("|") || this.heightMetadata.revision : null,
     };
   }
 }

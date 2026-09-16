@@ -1,3 +1,4 @@
+import { expandTile } from "../buildings/tile-wire.js";
 import { mercator } from "./geo.js";
 import { tileHeight } from "./building-heights.js";
 
@@ -53,8 +54,9 @@ export function pointTile(point) {
   return `${((Math.floor(p[0] * 16384) % 16384) + 16384) % 16384}/${Math.max(0, Math.min(16383, Math.floor(p[1] * 16384)))}`;
 }
 
-export function decodeHeightTile(bytes) {
-  const data = JSON.parse(new TextDecoder().decode(bytes));
+export function decodeHeightTile(bytes) { return parseHeightTile(bytes).features; }
+export function parseHeightTile(bytes) {
+  const data = expandTile(JSON.parse(new TextDecoder().decode(bytes)));
   if (data?.type !== "FeatureCollection" || !Array.isArray(data.features) || data.features.length > 30000)
     throw Error("Invalid prepared building tile");
   let points = 0;
@@ -81,5 +83,5 @@ export function decodeHeightTile(bytes) {
       }
     }
   }
-  return data.features;
+  return data;
 }

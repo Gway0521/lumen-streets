@@ -74,7 +74,7 @@ def normalize(feature, spec):
         levels = p.get("num_floors")
         # sources.property scopes height provenance; a footprint source is not a
         # height measurement. Unknown origins remain explicitly uncertain.
-        height_sources = [s for s in upstream if s.get("property") in ("", "/height", "height")]
+        height_sources = [s for s in upstream if s.get("property") in ("", "/height", "height", "properties/height")]
         names = " ".join(str(s.get("dataset", "")).lower() for s in height_sources)
         if any(n in names for n in ("microsoft", "ml", "google")):
             method, definition = "model", "roof_mean"
@@ -82,6 +82,7 @@ def normalize(feature, spec):
             method = "mapped"
         elif h is not None:
             method = "model"  # unknown acquisition is not promoted to measured
+            definition = "roof_unspecified"
     elif adapter == "eubucco":
         hs = str(p.get("height_source") or "unknown")
         method = "model" if any(s in hs.lower() for s in ("estimated", "unknown", "msft", "microsoft")) else "mapped"
@@ -102,7 +103,7 @@ def normalize(feature, spec):
     elif adapter != "generic":
         raise ValueError(f"Unknown adapter: {adapter}")
     minimum = number(bottom, zero=True) or 0
-    if bottom is None:
+    if number(bottom, zero=True) is None:
         minimum = (floors(p.get("min_floor", p.get("building:min_level"))) or 0) * 3.2
     candidates = [candidate(h, source, fid, method, definition, observed,
                             upstream=upstream, release=spec.get("release"),
@@ -116,7 +117,7 @@ def normalize(feature, spec):
     return dict(id=f"{source}/{fid}", source_id=fid, geometry=feature["geometry"],
                 raw=p, source=source, raw_height=h, raw_floors=levels,
                 minimum=minimum, part=part, parent=parent, candidates=candidates,
-                building=p.get("building") or p.get("subtype") or "yes")
+                building=p.get("building") or p.get("class") or p.get("subtype") or "yes")
 
 
 def eligible(c, bottom=0):
@@ -189,7 +190,7 @@ def conflate(base, supplements, bounds):
     return matched
 
 
-def resolve(records, bounds, reference_year=2026):
+def resolve(records, bounds, reference_year=2026, use_statistics=True):
     geometries = metric_geometries(records, bounds)
     chosen = [choose(r["candidates"], r["minimum"], reference_year) for r in records]
     # Parts of one tower are correlated observations, not independent nearby
@@ -204,7 +205,7 @@ def resolve(records, bounds, reference_year=2026):
     for r, g, c in zip(records, geometries, chosen):
         if c is None:
             samples = groups[group(r, g)]
-            if len(samples) >= 5:
+            if use_statistics and len(samples) >= 5:
                 c = candidate(median(samples), "regional-statistics", str(group(r, g)),
                               "regional", "roof_unspecified", sample_count=len(samples))
             else:
@@ -232,5 +233,7 @@ def tile_feature(record):
         "height_year": c.get("observed_year"), "height_match": c["match"],
         "height_estimated": c["method"] not in ("survey", "mapped"),
         "height_conflict": record["conflict"], "building:part": "yes" if record["part"] else None,
+        "height_resolution_m": c.get("effective_resolution_m"),
+        "height_support": c.get("support"),
         "parent_id": record["parent"],
     })

@@ -48,6 +48,7 @@ self.onmessage = async ({ data }) => {
   }
   if (data.type === "clear") {
     controller?.abort();
+    tileSource.clearHeights();
     tileSource.cache.clear();
     tileSource.bytes = 0;
     cached = null;
@@ -70,6 +71,7 @@ self.onmessage = async ({ data }) => {
       mobile,
       zoom,
     } = data;
+    if (data.refreshHeights) tileSource.clearHeights();
     const active = cityId ? await snapshot(cityId, base) : null;
     const origin = active ? regions[cityId].center : center;
     const candidates = nearbyLandmarks(bounds, center);
@@ -97,7 +99,7 @@ self.onmessage = async ({ data }) => {
       );
     await tileSource.configure(tileURL, heightURL, signal);
     const enriching = tileSource.hasPreparedCoverage(bounds, mobile);
-    const localBudget = active ? Math.floor(genericLimit * 0.55) : 0;
+    const localBudget = active && !tileSource.heightMetadata?.global ? Math.floor(genericLimit * 0.55) : 0;
     let local = active && !enriching ? snapshotGeometry(active.city, localBudget, zoom,
       (f) => replacement.snapshot(f, origin), supplied) : null;
     // Preserve the existing allocation/order outside prepared coverage. Inside,
@@ -137,7 +139,7 @@ self.onmessage = async ({ data }) => {
     };
     if (active && enriching) {
       local = snapshotGeometry(active.city, localBudget + Math.max(0, remaining), zoom,
-        (f) => replacement.snapshot(f, origin) || coveredByPrepared(f), supplied);
+        (f) => tileSource.heightMetadata?.global || replacement.snapshot(f, origin) || coveredByPrepared(f), supplied);
       parts.push(local);
     }
     signal.throwIfAborted();
@@ -188,6 +190,8 @@ self.onmessage = async ({ data }) => {
     geometry.heightRevision = loaded.heightRevision;
     geometry.preparedTileCount = loaded.preparedTiles.size;
     geometry.heightSummary = loaded.heights;
+    geometry.heightPending = loaded.heightPending;
+    geometry.heightStatus = loaded.heightStatus;
     const localRoads = active
       ? active.city.roads.map((r) => ({
           ...r,

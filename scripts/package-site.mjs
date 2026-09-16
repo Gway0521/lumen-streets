@@ -4,6 +4,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import './check-release.mjs';
+import { build as bundleServer } from 'rolldown';
 
 // Explicit inputs keep credentials and working notes out of the deployment archive.
 const out = resolve('artifacts');
@@ -17,16 +18,19 @@ try {
   for (const file of ['lumen-streets.service', 'server.env.example']) {
     await cp(join('deploy', file), join(bundle, 'deploy', file));
   }
-  await mkdir(join(bundle, 'server'));
-  for (const file of ['config.mjs', 'guard.mjs', 'maps.mjs', 'site.mjs', 'start.mjs']) {
-    await cp(join('server', file), join(bundle, 'server', file));
-  }
-  await mkdir(join(bundle, 'src/search'), { recursive: true });
-  for (const file of ['area.js', 'validate.js']) await cp(join('src/search', file), join(bundle, 'src/search', file));
+  await bundleServer({input: {start:'server/start.mjs',site:'server/site.mjs',config:'server/config.mjs'},
+    platform:'node',output:{dir:join(bundle,'server'),format:'esm',entryFileNames:'[name].mjs',chunkFileNames:'shared-[hash].mjs'}});
+  await mkdir(join(bundle,'scripts/buildings'),{recursive:true});
+  for(const file of ['enrich.py','ghsl.py','model.py','providers.py','requirements.txt'])
+    await cp(join('scripts/buildings',file),join(bundle,'scripts/buildings',file));
+  await cp('scripts/setup-buildings.mjs',join(bundle,'scripts/setup-buildings.mjs'));
+  await mkdir(join(bundle,'data'));
+  await cp('data/building-sources.json',join(bundle,'data/building-sources.json'));
+  await cp('public/third-party-notices.txt',join(bundle,'third-party-notices.txt'));
   const pkg = JSON.parse(await readFile('package.json', 'utf8'));
   await writeFile(join(bundle, 'package.json'), JSON.stringify({
     name: pkg.name, version: pkg.version, private: true, type: 'module', license: pkg.license,
-    engines: pkg.engines, scripts: { start: pkg.scripts.start },
+    engines: pkg.engines, scripts: { start: pkg.scripts.start, prestart: pkg.scripts.prestart, 'setup:buildings': pkg.scripts['setup:buildings'] },
   }, null, 2) + '\n');
   await cp('.env.example', join(bundle, '.env.example'));
   await cp('docs/HOSTING.md', join(bundle, 'HOSTING.md'));

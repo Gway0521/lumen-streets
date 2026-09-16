@@ -58,4 +58,4 @@ Code: [AGPL-3.0-only](LICENSE). Map data: [OpenStreetMap](https://www.openstreet
 
 Building heights combine mapped values and estimates. Lighting, vegetation placement and traffic are artistic simulations. Imported models stay local until their creator submits them for review. See the [landmark guide](docs/3D-LANDMARKS.md).
 
-Optional [building-height preprocessing](docs/BUILDING-HEIGHTS.md) combines Overture with regional sources, preserves missing values and provenance, and serves nearby building tiles. The tools are included; a hosted global enriched dataset is not bundled.
+The [global building service](docs/GLOBAL-BUILDING-SERVICE.md) automatically streams Overture footprints, preserves raw missing heights, and fills gaps using GHS regional estimates. PLATEAU and EUBUCCO are matched geographically in background jobs. Every location uses this pipeline; measurement coverage still varies. Hosting requires Node 24 and Python 3.12; visitors need only their browser.

@@ -13,7 +13,8 @@ from shapely.geometry import box, mapping
 from build import build, partition, tile_bounds
 from catalog import combine
 from model import candidate, choose, conflate, floors, normalize, number, resolve, tile_feature
-from providers import read_citygml, raster_candidates, restricted_eubucco
+from providers import Downloads, read_citygml, raster_candidates, restricted_eubucco
+from ghsl import tile_names
 
 BOUNDS = [0, 0, .01, .01]
 SPEC = {"id": "osm", "adapter": "osm", "license": "ODbL-1.0", "attribution": "OpenStreetMap contributors"}
@@ -128,6 +129,22 @@ class Heights(unittest.TestCase):
         self.assertEqual(missing["resolved"]["method"], "regional")
         self.assertEqual(missing["resolved"]["sample_count"], 5)
         self.assertEqual(missing["resolved"]["value"], 12)
+
+    def test_service_shared_height_contract_and_geographic_grid(self):
+        fixtures = json.loads((Path(__file__).resolve().parents[2]/"tests/fixtures/global-heights.json").read_text())
+        for item in fixtures:
+            r = normalize(dict(id="a", properties=item["properties"], geometry=mapping(box(0,0,.0001,.0001))),
+                          dict(id="overture", adapter="overture"))
+            resolve([r], BOUNDS, use_statistics=False)
+            value = tile_feature(r)["properties"]
+            for key, expected in item["expected"].items():
+                self.assertEqual(value[key], expected, item["name"]+": "+key)
+        self.assertTrue(tile_names([120.3,22.61,120.31,22.62])[0].endswith("R7_C30.zip"))
+        with tempfile.TemporaryDirectory() as directory:
+            downloads = Downloads(directory, allowed_hosts={"jeodpp.jrc.ec.europa.eu"})
+            for url in ["https://127.0.0.1/data", "https://jeodpp.jrc.ec.europa.eu:8443/data", "http://jeodpp.jrc.ec.europa.eu/data"]:
+                with self.assertRaises(ValueError):
+                    downloads.get(url)
 
     def test_citygml_axes_holes_and_raw_height(self):
         xml = '''<core:CityModel xmlns:core="http://www.opengis.net/citygml/2.0" xmlns:gml="http://www.opengis.net/gml" xmlns:bldg="http://www.opengis.net/citygml/building/2.0">

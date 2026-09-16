@@ -6,7 +6,7 @@ Lumen Streets now opens the MapLibre/Three.js editor at `index.html`; `three.htm
 
 The 3D engine reuses the OSM parser, attributed preset snapshots, traffic simulation, reviewed landmark packs and geometry generators. `src/three/` owns the WebGL layers, streaming worker, composition, model imports and current scene format. Captures and embeds use this renderer.
 
-The Node server in `server/` serves built files and a guarded search/map API. Search remains behind bounded provider adapters. Continuous panning loads compatible vector tiles directly from the configured provider, without issuing Overpass area queries.
+The Node server in `server/` serves built files and a guarded search/map API. Search remains behind bounded provider adapters. Continuous panning loads road/environment vector tiles directly from the configured provider. Buildings use the same-origin global tile service, Overture range reads and automatic geographic background enrichment; no Overpass area queries or per-city preparation are needed. See [Global buildings](GLOBAL-BUILDING-SERVICE.md).
 
 ## Legacy compatibility
 

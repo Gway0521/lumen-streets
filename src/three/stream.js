@@ -36,7 +36,9 @@ export class CityStream {
           if (import.meta.env.DEV) console.error(data.error);
         } else {
           layer.replace(data);
-          sources(data.geometry.heightAttribution || []);
+          sources(data.geometry.heightAttribution || [], data.geometry.heightStatus);
+          clearTimeout(this.refreshTimer);
+          if (data.geometry.heightPending || data.geometry.heightStatus?.includes("partial")) this.refreshTimer = setTimeout(() => { this.lastKey = ""; this.refresh = true; this.schedule(); }, data.geometry.heightPending ? 30000 : 3600000);
           map.setLayoutProperty("building-fallback", "visibility", "none");
           this.status(data.geometry.tileLimited ? "budget" : "ready");
           this.ready = true;
@@ -74,6 +76,7 @@ export class CityStream {
     this.zoomed = () => {
       if (detailLevel(sceneZoom(map)) === "map") {
         this.generation++;
+        clearTimeout(this.refreshTimer);
         this.layer.clear();
         sources([]);
         this.lastKey = "";
@@ -166,16 +169,18 @@ export class CityStream {
           "https://tiles.openfreemap.org/planet",
         location.href,
       ).href,
-      heightURL: import.meta.env.VITE_LUMEN_BUILDING_MANIFEST_URL ? new URL(
-        import.meta.env.VITE_LUMEN_BUILDING_MANIFEST_URL, location.href).href : null,
+      heightURL: new URL("/api/buildings/manifest.json", location.href).href,
+      refreshHeights: this.refresh,
       mobile: this.mobile,
       zoom: sceneZoom(this.map),
       surfaceKey: this.layer.surfaceKey,
       base: new URL(import.meta.env.BASE_URL, location.href).href,
       limit: this.mobile ? 280000 : 700000,
     });
+    this.refresh = false;
   }
   dispose() {
+    clearTimeout(this.refreshTimer);
     clearTimeout(this.timer);
     this.worker.terminate();
     this.map.off("moveend", this.moved);

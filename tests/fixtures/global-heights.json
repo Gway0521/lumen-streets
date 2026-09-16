@@ -1,0 +1,70 @@
+[
+  {
+    "name": "mapped-five",
+    "properties": {
+      "height": 5,
+      "sources": [
+        {
+          "dataset": "OpenStreetMap",
+          "property": "properties/height"
+        }
+      ]
+    },
+    "expected": {
+      "height_m": 5,
+      "height_method": "mapped",
+      "height_definition": "ground_to_top",
+      "min_height_m": 0
+    }
+  },
+  {
+    "name": "unknown-five",
+    "properties": {
+      "height": 5
+    },
+    "expected": {
+      "height_m": 5,
+      "height_method": "model",
+      "height_definition": "roof_unspecified",
+      "min_height_m": 0
+    }
+  },
+  {
+    "name": "floors-priority",
+    "properties": {
+      "height": 10,
+      "num_floors": 4,
+      "min_height": 3,
+      "sources": [
+        {
+          "dataset": "Microsoft",
+          "property": "/height"
+        }
+      ]
+    },
+    "expected": {
+      "height_m": 12.8,
+      "height_method": "levels",
+      "height_definition": "ground_to_roof",
+      "min_height_m": 3
+    }
+  },
+  {
+    "name": "model-roof",
+    "properties": {
+      "height": 8,
+      "sources": [
+        {
+          "dataset": "Microsoft",
+          "property": "/height"
+        }
+      ]
+    },
+    "expected": {
+      "height_m": 8,
+      "height_method": "model",
+      "height_definition": "roof_mean",
+      "min_height_m": 0
+    }
+  }
+]

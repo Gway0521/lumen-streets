@@ -2,11 +2,9 @@
 
 [繁體中文](BUILDING-HEIGHTS.zh-TW.md)
 
-The regional implementation below does not yet satisfy automatic worldwide enrichment. The [global building service design](GLOBAL-BUILDING-SERVICE.md) describes the proposed replacement and its live source-access evidence; that runtime migration is not implemented yet.
+The default [global building service](GLOBAL-BUILDING-SERVICE.md) is active for every supported world-map location. It reads Overture PMTiles on demand, preserves nullable height/floor values and provenance, automatically downloads GHS-BUILT-H regional context, and matches PLATEAU/EUBUCCO in background jobs. No city manifest or visitor upload is required. The legacy scene renderer keeps its original normalization.
 
-The 3D renderer can consume independently prepared building tiles. Preparation preserves original heights, floors, identities and provenance; selects compatible measurements; then fills remaining gaps with estimates. The browser downloads nearby tiles and builds its existing lightweight facade mesh. The legacy scene renderer keeps its original normalization.
-
-This repository supplies a regional preprocessing tool and a runtime contract, **not a hosted global enriched dataset**. OpenFreeMap remains the default until a deployment configures prepared tiles. A 5 m `render_height` in the old OpenMapTiles feed remains an upstream value with unknown provenance: it cannot be recovered as either a measured height or a missing value. It is never relabeled as raw OSM height.
+This provides globally automatic processing, not complete measured heights for every building. First visits can show marked fallback estimates while background data arrives. Source outages and data gaps remain visible in the bilingual source disclosure.
 
 ## Sources and selection
 
@@ -19,7 +17,7 @@ This repository supplies a regional preprocessing tool and a runtime contract, *
 | EUBUCCO v0.2 | Geographic boundary lookup and discovery of available Parquet partitions | Per-attribute `height_source`, floors, confidence interval and original provenance; predictions remain estimates |
 | Netherlands 3DBAG | Local normalized GeoJSON/GeoParquet adapter | Roof `b3_h_dak_70p` minus `b3_h_maaiveld`, including negative NAP elevations |
 | Other national vectors | Registry entry using `generic`, explicit CRS, method and height definition | No city-name switches; values in metres after normalization |
-| Satellite height / regional grids | Local GeoTIFF/COG through Rasterio | Masked footprint samples, NoData/support checks; effective resolution ≥30 m is regional context |
+| GHS-BUILT-H / other grids | Automatic official GHS ANBH 100 m tile discovery; optional local GeoTIFF/COG in offline tools | Masked footprint samples, NoData/support checks; effective resolution ≥30 m is regional context |
 
 For a local supplement, copy the registry and add a `supplements` entry with `id`, `adapter` (`3dbag` or `generic`), `path`, `crs`, `bounds`, `license`, `attribution`, and, for `generic`, `method`, `definition`, `observed_year` and `release`. Paths resolve relative to the registry file. Generic properties are `height`, `floors`, `min_height` and `roof_height`. For a raster, add a `rasters` entry with `adapter: "raster"`, a local `path`, `band`, `effective_resolution_m`, `definition`, `observed_year`, source ID, license and attribution. A GeoTIFF must identify its CRS and NoData. Native source grids should be used without resampling them to imply finer precision.
 
@@ -35,7 +33,9 @@ Floor conversion currently assumes 3.2 m per floor plus available roof height an
 
 ## Build a partition
 
-Use Python 3.12 in a separate environment. These dependencies are offline tools; the website has no new dependencies.
+This retained offline tool is for reproducible data analysis and custom dataset production. It is not required to make a city available on the website.
+
+Use Python 3.12 in a separate environment. The same dependencies support the website background worker; they never run in a visitor browser.
 
 ```sh
 python -m venv .cache/building-venv
@@ -64,19 +64,15 @@ python scripts/buildings/catalog.py .cache/building-tiles/tokyo-v1/manifest.json
 
 Overlapping partitions are rejected. Publish new immutable versions rather than overwriting a manifest's tile contents. A catalog supports up to 4096 regions; planet-scale orchestration and hierarchical catalogs are future work. GeoJSON was chosen for an inspectable first implementation; use HTTP gzip/Brotli. Production global coverage will also need measured storage/egress, scheduling, partition consolidation and potentially MVT/PMTiles encoding. Neither a planet-sized dataset nor an external service is created by installing this repository.
 
-## Connect the browser
+## Browser delivery
 
-Serve the output as static files with compression, correct MIME types and CORS if hosted elsewhere. Configure on the build machine, then rebuild:
+The renderer always requests `/api/buildings/manifest.json` and `/api/buildings/14/x/y.json`. The global manifest covers the entire supported grid; `VITE_LUMEN_BUILDING_MANIFEST_URL` is no longer a browser configuration. Offline catalogs remain analysis artifacts.
 
-```dotenv
-VITE_LUMEN_BUILDING_MANIFEST_URL=/building-tiles/v1/manifest.json
-```
+The service reassembles clipped Overture fragments before rendering, including courtyards and parts. Whole-feature GERS identities deduplicate the complete footprints across the view. Requests that cannot stay within geometry/source budgets fail explicitly rather than presenting truncated facades as complete buildings.
 
-`VITE_LUMEN_TILEJSON_URL` still supplies roads, water and vegetation. Prepared buildings replace ordinary snapshot/tile buildings in completed coverage; outside coverage the current source remains available. Traffic and landmark models remain independent. Uncut footprints repeat in intersecting tiles and stable IDs deduplicate them within a view. At boundaries against a different footprint provider, small mismatches or duplicates can remain; a production dataset should extend beyond the intended viewing area and review those transitions.
+The compact `lumen-buildings-1` dictionary encoding repeats the property names once per tile, preserving coordinates, raw nulls and full source fields. The browser expands one tile at a time and validates it using the same height contract as offline GeoJSON. Download concurrency remains 4/2 and encoded-buffer cache limits remain 24/8 MiB for desktop/mobile. The service sends gzip, content hashes and revalidation headers.
 
-The loader retains the existing 4/2 desktop/mobile request concurrency and shares a 24/8 MiB cache between base and prepared tile buffers. JSON tile buffers are decoded one tile at a time. Detailed and simplified geometry use the same selected physical height. Download limits are enforced while streaming, cancelled jobs cannot populate the cache after abort, and missing advertised tiles produce the existing Retry state. New country rules run exclusively in preprocessing.
-
-The building-source disclosure appears in both interface languages. Prepared source credits accompany captured frames. Layer diagnostics report `preparedTiles`, `heightSummary` and `heightRevision`; counts describe source pieces admitted by the loader, before landmark suppression, not surveyed buildings or GPU draw calls. Existing 3D scene files still depend on the deployment's online source revision; the legacy read-only player is unchanged.
+A pending viewport refreshes after 30 seconds while idle; export ownership prevents a background update from replacing geometry during PNG/GIF/video capture. Source credits follow the selected values. Diagnostics include `preparedTiles`, `heightSummary`, `heightStatus` and `heightRevision`; counts describe admitted source pieces before landmark suppression. Existing saved scenes still depend on online data revisions; the read-only legacy player is unchanged.
 
 ## Data review and licensing
 

@@ -2,7 +2,7 @@ import { isIP } from 'node:net';
 import { MapRequestError } from '../src/search/area.js';
 
 // One process owns the limits. No forwarded address is trusted in direct mode.
-export function createGuard({ origin, trustProxy = false, proxyIpHeader = 'x-lumen-client-ip', now = Date.now, perMinute = 30, maxClients = 10000, maxActive = 16 }) {
+export function createGuard({ origin, trustProxy = false, proxyIpHeader = 'x-lumen-client-ip', now = Date.now, perMinute = 30, maxClients = 10000, maxActive = 16, perClientActive = 2 }) {
   if (!['x-lumen-client-ip', 'cf-connecting-ip'].includes(proxyIpHeader)) throw Error('Invalid proxy IP header');
   const host = new URL(origin).host, clients = new Map();
   let active = 0, nextPrune = 0;
@@ -37,7 +37,7 @@ export function createGuard({ origin, trustProxy = false, proxyIpHeader = 'x-lum
     }
     const client = clients.get(ip);
     if (time >= client.reset) { client.count = 0; client.reset = time + 60000; }
-    if (++client.count > perMinute || client.active >= 2 || active >= maxActive) {
+    if (++client.count > perMinute || client.active >= perClientActive || active >= maxActive) {
       throw new MapRequestError('quota', 429, Math.max(2, Math.ceil((client.reset - time) / 1000)));
     }
     active++; client.active++;

@@ -2,6 +2,9 @@ import { presets } from "./presets.js";
 export const messages = {
   en: {
     buildingSources: "Building sources",
+    heightEstimated: "Some heights are estimates. Regional averages are not individual measurements.",
+    heightPending: "Refining nearby heights automatically. Some buildings currently use estimates.",
+    heightPartial: "Some height sources are temporarily unavailable. Estimates remain visible.",
     tagline: "THE WORLD, AFTER DARK",
     explore: "Explore",
     light: "Settings",
@@ -127,6 +130,9 @@ export const messages = {
   },
   "zh-TW": {
     buildingSources: "建築資料來源",
+    heightEstimated: "部分高度為估算；區域平均並非個別建築的實測高度。",
+    heightPending: "正在自動補充附近的高度資料，部分建築暫以估算呈現。",
+    heightPartial: "部分高度來源暫時無法取得，目前仍包含估算高度。",
     tagline: "世界入夜之後",
     explore: "探索城市",
     light: "設定",

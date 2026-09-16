@@ -2,9 +2,13 @@
 
 [繁體中文](HOSTING.zh-TW.md)
 
-Lumen Streets runs as one Node.js 24 process serving the website and search API. Rendering and exports run in visitors' browsers; the server needs no database or GPU.
+Lumen Streets runs as one Node.js 24 process serving the website, search API and global building tiles, with at most two Python 3.12 background enrichment processes. Rendering and exports run in visitors' browsers; the server needs no database or GPU.
 
 The 3D renderer also loads online vector tiles and glyphs in the browser, even for presets. Set the public build-time `VITE_LUMEN_TILEJSON_URL` to change the compatible tile provider; rebuild afterward. See [Map services](PROVIDERS.md). Do not put credentials in VITE variables.
+
+Install Python 3.12 (including `venv` and pip) on the host. `npm dev`, `npm start` and `npm run preview` automatically prepare a shared isolated environment before listening. The first setup needs network access; visitors never install Python or prepare cities. For systemd, run `npm run setup:buildings` once as the service user before starting the unit. The deployment archive bundles the Node tile-service dependencies and Python source/requirements.
+
+Keep the building cache outside `dist/`, writable by the service user. `LUMEN_BUILDINGS_CACHE_DIR` defaults to `.cache/global-buildings`; the supplied systemd environment uses `/var/lib/lumen-streets/buildings`. `LUMEN_BUILDINGS_PYTHON` can select an existing interpreter. The example systemd service protects the application directory, so prepare its Python environment before enabling that protection. Allow space for about 3.25 GiB of retained tile/results/source/audit caches plus bounded active downloads and the Python environment. The 1 GiB DuckDB query limit is additional to Node and raster processing memory; size and monitor the host accordingly. Static-only hosting must proxy `/api/buildings/*` to this service.
 
 ## Build and run
 

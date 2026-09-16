@@ -2,10 +2,9 @@ import { chromium } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 
-// Run against a dev server configured with an actual prepared manifest covering
-// QA_HEIGHT_CENTER. No measurements are mocked in this browser acceptance test.
+// Run against the default global service. No regional manifest or data mocks.
 const out = process.env.QA_OUTPUT || "artifacts/3d-heights";
-const center = (process.env.QA_HEIGHT_CENTER || "139.735,35.66").split(",").map(Number);
+const center = (process.env.QA_HEIGHT_CENTER || "120.3002,22.6114").split(",").map(Number);
 const base = process.env.QA_URL || "http://127.0.0.1:5180/";
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ channel: "msedge", headless: true });
@@ -22,12 +21,13 @@ try {
     const stats = await page.evaluate(() => window.__lumen3d.layer.stats);
     assert.ok(stats.buildings > 100);
     await page.waitForTimeout(800);
-    assert.ok(stats.preparedTiles > 0, "Configure a prepared manifest covering the test view");
+    assert.equal(stats.preparedTiles, stats.tiles, "Every loaded tile must use the global pipeline");
+    assert.equal(stats.heightSummary["upstream-unknown"], undefined);
     assert.ok(stats.heightSummary.survey > 0 || stats.heightSummary.mapped > 0);
     assert.ok(stats.tileCacheMiB <= (mobile ? 8 : 24));
     assert.equal(await page.locator("#building-sources").isVisible(), true);
     await page.locator("#building-sources summary").click();
-    assert.match(await page.locator("#building-sources p").textContent(), /Overture|PLATEAU|EUBUCCO|OpenStreetMap/);
+    assert.match(await page.locator("#building-sources p").first().textContent(), /Overture|PLATEAU|EUBUCCO|OpenStreetMap/);
     for (const locale of ["en", "zh-TW"]) {
       const label = locale === "en" ? "Building sources" : "建築資料來源";
       if ((await page.locator("#building-sources summary").textContent()) !== label)
@@ -45,14 +45,17 @@ try {
     await (await downloaded).saveAs(`${out}/${mobile?"mobile":"desktop"}-export.png`);
     await page.locator("#export-progress").waitFor({state:"hidden"});
     await page.locator("#close-panel").click();
-    await page.evaluate(() => { window.__lumen3d.map.jumpTo({center:[-74.01,40.705],zoom:14.5}); });
+    await page.evaluate(() => { window.__lumen3d.map.jumpTo({center:[36.82,-1.286],zoom:15.5}); });
     await page.waitForFunction(() => window.__lumen3d.stream.ready && !window.__lumen3d.stream.busy &&
-      window.__lumen3d.layer.stats.preparedTiles === 0, null, {timeout:120000});
-    assert.equal(await page.locator("#building-sources").isVisible(), false);
+      Math.abs(window.__lumen3d.layer.origin[0] - 36.82) < .01 && window.__lumen3d.layer.stats.preparedTiles > 0, null, {timeout:120000});
+    assert.equal(await page.locator("#building-sources").isVisible(), true);
+    const globalStats = await page.evaluate(() => window.__lumen3d.layer.stats);
+    assert.equal(globalStats.preparedTiles, globalStats.tiles);
+    assert.equal(globalStats.heightSummary["upstream-unknown"], undefined);
     await page.evaluate(() => { window.__lumen3d.map.jumpTo({zoom:10}); });
     await page.waitForFunction(() => !window.__lumen3d.layer.mesh);
     assert.deepEqual(errors, []);
-    report.push({mobile,stats,errors,checks:["prepared-data","credits","en","zh-TW","PNG","outside-coverage","atlas-disposal"]});
+    report.push({mobile,stats,globalStats,errors,checks:["prepared-data","credits","en","zh-TW","PNG","automatic-africa","atlas-disposal"]});
     await page.close();
   }
   await writeFile(`${out}/report.json`,JSON.stringify(report,null,2));

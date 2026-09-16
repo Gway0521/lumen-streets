@@ -208,6 +208,7 @@ export class NightLayer {
       tileCacheMiB: geometry.tileCacheMiB,
       preparedTiles: geometry.preparedTileCount || 0,
       heightSummary: geometry.heightSummary || {},
+      heightStatus: geometry.heightStatus || [],
       heightRevision: geometry.heightRevision || null,
       beacons: geometry.beacons.length / 4,
     };

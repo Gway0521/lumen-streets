@@ -1,4 +1,4 @@
-# Offline preprocessing only; no browser/runtime dependency.
+# Background preprocessing service and offline tools; never loaded by the browser.
 shapely==2.1.2
 pyproj==3.8.0
 duckdb==1.5.5

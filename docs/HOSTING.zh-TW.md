@@ -2,9 +2,13 @@
 
 [English](HOSTING.md)
 
-Lumen Streets 用一個 Node.js 24 程序提供網站與搜尋 API。繪圖和匯出在訪客的瀏覽器執行，主機不需要資料庫或顯示卡。
+Lumen Streets 用一個 Node.js 24 程序提供網站、搜尋與全球建築圖磚，另外最多啟動兩個 Python 3.12 背景補充程序。繪圖和匯出在訪客的瀏覽器執行，主機不需要資料庫或顯示卡。
 
 3D 繪圖也會在瀏覽器載入線上向量圖磚與字型，預設地點亦需連網。更換相容圖磚來源時，請在建置端設定公開的 `VITE_LUMEN_TILEJSON_URL` 並重新建置；VITE 變數不可放憑證。詳見[地圖服務](PROVIDERS.md)。
+
+主機需先安裝 Python 3.12（含 venv 與 pip）。`npm dev`、`npm start`、`npm run preview` 會在啟動前自動準備共用的獨立環境；首次需要連網，訪客不用安裝軟體或手動建置城市。systemd 部署請先以服務帳號執行 `npm run setup:buildings`，再啟動 unit。
+
+`LUMEN_BUILDINGS_CACHE_DIR` 指向 `dist/` 以外可寫入的持久快取，預設 `.cache/global-buildings`；systemd 範例使用 `/var/lib/lumen-streets/buildings`。`LUMEN_BUILDINGS_PYTHON` 可指定已準備的直譯器。快取保留預算約 3.25 GiB，另需環境及執行中下載空間；DuckDB 的 1 GiB 查詢記憶體上限不包含 Node 與柵格處理。部署包已包含 Node 服務相依程式及 Python 原始碼／依賴清單。純靜態網站需要把 `/api/buildings/*` 轉送至此服務。
 
 ## 建置與啟動
 

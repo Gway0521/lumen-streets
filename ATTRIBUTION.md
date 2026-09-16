@@ -44,3 +44,13 @@ Place titles use locally hosted Cormorant Garamond Medium and Noto Serif TC Medi
 ## Portable scene files
 
 Complete `.lumen.json` files include the original OpenStreetMap snapshots and provenance alongside the program's scene settings. Redistributed map data remains under ODbL; keep its source metadata and copyright/license reference. The read-only player shows linked source attribution. Saving or importing a scene file does not change either the map license or the application's AGPL license.
+
+## Global building context
+
+The automatic height service samples GHS-BUILT-H ANBH 100 m cells and uses them as regional estimates; this is a derived visualization, not endorsement or a survey of individual buildings. Data: European Commission, Joint Research Centre, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+Dataset: Pesaresi, M.; Politis, P. (2023), *GHS-BUILT-H R2023A — GHS building height, derived from AW3D30, SRTM30, and Sentinel2 composite (2018)*, JRC. [DOI](https://doi.org/10.2905/85005901-3A49-48DD-9D19-6261354F56FE).
+
+Methodology: Pesaresi, M. et al. (2024), *Advances on the Global Human Settlement Layer by joint assessment of Earth Observation and population survey data*, International Journal of Digital Earth 17(1). [DOI](https://doi.org/10.1080/17538947.2024.2390454). See the [required citation guidance](https://human-settlement.emergency.copernicus.eu/GHSLhowToCite.php).
+
+The server bundles PMTiles (BSD-3-Clause), polygon-clipping (MIT), splaytree (MIT), robust-predicates (Unlicense), and fflate (MIT); complete notices are in `public/third-party-notices.txt`. Python dependencies are installed with their upstream distributions and licenses during deployment setup.

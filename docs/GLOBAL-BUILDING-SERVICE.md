@@ -1,6 +1,6 @@
-# Global building service design
+# Global building service
 
-Status: proposed architecture, supported by live source probes on 2026-09-17. The runtime has **not** been migrated to this design. The current regional preprocessing implementation is described in [Building heights](BUILDING-HEIGHTS.md).
+Status: implemented as the default development, preview and Node deployment path. The service replaces the former city-by-city manifest configuration. The retained offline tool is documented in [Building heights](BUILDING-HEIGHTS.md).
 
 The product must let a visitor navigate to their hometown and receive the same height-processing pipeline without uploading data, running Python, selecting a source or asking an operator to add a city. Coverage of high-quality measurements varies; eligibility for the pipeline must not vary by an operator-maintained city list.
 
@@ -63,7 +63,7 @@ Every location uses the same resolver and preserves input nulls independently of
 4. Global coarse height context and qualified local statistics, with effective resolution and estimate status preserved.
 5. Deterministic class/use/footprint fallback when no evidence is available. Density is supporting context, not a universal rule that urban buildings must be towers.
 
-Use [GHS-BUILT-H](https://human-settlement.emergency.copernicus.eu/ghs_buH2023.php) as the first global context candidate: 2018 reference data at 100 m / 3 arcsec. Its [CC BY 4.0 terms and required citations](https://human-settlement.emergency.copernicus.eu/GHSLhowToCite.php) permit reuse with attribution. Its grid values must remain regional estimates, not individual building measurements. Automated catalog access, serving format, cold-fetch time and storage still need an implementation spike; no global raster service was verified in this review.
+[GHS-BUILT-H](https://human-settlement.emergency.copernicus.eu/ghs_buH2023.php) supplies the first automatic global context layer: official ANBH 100 m Mollweide tiles, 2018 reference data, R2023A. The worker discovers published 1,000 km tile archives, downloads only intersecting cells, validates their ZIP contents and samples valid pixel support over each footprint. It labels these values `regional` / `cell_mean` with the effective 100 m resolution, never individual measurements. [Reuse terms and citations](https://human-settlement.emergency.copernicus.eu/GHSLhowToCite.php) accompany the data.
 
 Keep PLATEAU, EUBUCCO, 3DBAG and other reviewed sources in a geographic catalog with data coverage, releases, access mechanism, license, CRS and height definition. Coverage indexes are dataset metadata, not manually maintained showcase lists. The worker discovers the relevant source partitions and caches successful normalized extracts. Unsupported or restricted inputs must have a recorded reason.
 
@@ -72,7 +72,7 @@ Keep PLATEAU, EUBUCCO, 3DBAG and other reviewed sources in a geographic catalog 
 ## Request and update behavior
 
 - A global tile request always enters the new pipeline, including a location never visited before. Missing cache entries trigger bounded source reads and resolution automatically. Ocean/no-building tiles are valid empty results.
-- Regional matching runs on stable geographic blocks with a halo and complete GeoParquet footprints. Background requests are coalesced across visitors. A moving camera must not enqueue an unlimited number of national downloads.
+- Regional matching runs on fixed z14 blocks with a halo and reassembled full Overture footprints. Background requests are coalesced across visitors. A moving camera must not enqueue an unlimited number of national downloads.
 - The fast response can use global evidence and estimates while a regional job runs. Publish the improved result atomically, then refresh an idle viewport. Never label an estimated result as surveyed or a pending enrichment as complete.
 - Distinguish `pending`, `complete`, `no-coverage`, `failed` and `deferred` source status. Apply provider timeouts/backoff and negative-cache expiry. A source outage must not erase a valid cached scene or turn into an unmarked 5 m default.
 - Store global-source release, resolver version, regional-source revision, selected method and uncertainty/provenance in the result. Validate a new source release before activation, with rollback available.
@@ -82,18 +82,42 @@ Keep PLATEAU, EUBUCCO, 3DBAG and other reviewed sources in a geographic catalog 
 
 The current prepared tiles contain complete repeated footprints; Overture MVT contains clipped fragments. The adapter must preserve or reassemble all fragments by string GERS identity. The existing whole-feature ID deduplication must not drop a neighbouring fragment. Tile clipping edges must not become false facade walls. Parts, parent outlines, courtyards and partial-height volumes require explicit handling.
 
-Keep source reads and decoded buffers bounded, with request cancellation and one scene build in flight. Use fixed tile/block coordinates for deterministic statistics; viewport size and camera order must not change a building's height. Reuse one height definition/selection specification between the fast resolver and the Python worker, tested with shared fixtures.
+Keep source reads and decoded buffers bounded, with request cancellation and one scene build in flight. The online service disables extract-dependent neighbourhood statistics; GHS and deterministic class/area fallback are independent of viewport order. Reuse one height definition/selection specification between the fast resolver and the Python worker, tested with shared fixtures.
 
 Start with the existing Node deployment plus one managed geospatial worker and a quota-limited persistent cache. CDN/object storage can be added for traffic growth; Cloudflare-specific infrastructure is not required for the first implementation. Setup belongs to the site's deployment, not to each visitor or city. A static-only site can use the same global tile service; any reduced-capability fallback must be documented explicitly.
 
 No monthly operating-cost or first-visit latency promise is established by the five-tile probe. Measure cold/warm full viewports, source downloads, decoded memory and cache growth before setting production budgets.
 
-## Migration and acceptance
+## Runtime and resource limits
 
-1. Replace the region-gated base selection in `src/three/tiles.js` with global building service access. Keep the existing generic road/environment feed. Add the PMTiles adapter and global resolver to the server; no manual manifest edits for new locations.
-2. Convert `scripts/buildings/` into reusable background jobs with a geographic source catalog and bounded shared queue. Reuse its raw-data audit and matching rules. Prepared regional files become cache/override inputs, not the only path to improved heights.
-3. Implement automated global height-context access. Validate provider attribution and sampling quality before activation. A manual local GeoTIFF option alone does not meet the product requirement.
-4. Integrate automatic enrichment refresh, source status, revision-aware caching and export freezing. Remove the private development-only coverage configuration as the normal product setup.
-5. Test unseen locations on multiple continents, including rural areas, without editing presets/configuration or running a regional build. Verify preserved actual 5 m values versus missing heights; automatic floor/context fallback; correct clipped borders/parts; source failures; cache reuse; release changes; both languages; desktop/mobile and exported frames.
+`server/buildings/` owns global range reads, fragment assembly, request coalescing, disk caches and two background job lanes. `scripts/buildings/enrich.py` applies global context first; a separate national lane performs geographic discovery and matching. Same-key requests share one job. The result and audit are written before their completed metadata becomes visible. Terminal results live on disk rather than accumulating decoded building arrays in memory.
 
-Completion means an ordinary visitor can choose any supported world-map coordinate and automatically receive the same pipeline. Three successful showcase builds, a changed source URL or passing source-download probes alone are not completion. More accurate national data will still be geographically uneven, and no tested source guarantees every building's real height.
+- Two tile assembly jobs at once; at most 32 waiting; eight upstream range requests; each range/source tile and each browser response bounded to 8 MiB.
+- Complete-footprint assembly follows at most 25 neighbouring tiles. Pathological geometry fails explicitly. Stable GERS strings are used instead of unsafe numeric MVT feature IDs.
+- Context and national lanes each run one process, queue at most 96 jobs, and stop a job after 120/300 seconds. Deferred work retries when the view refreshes. Partial failure backs off one hour; completed/no-data results expire after seven days. A pinned Overture release and resolver version namespace cache entries.
+- Persistent cache budgets: 512 MiB source MVT, 256 MiB results, 512 MiB inputs/audits, 2 GiB downloads/extracted rasters, with temporary active work additional. Pruning touches only generated filenames under owned cache directories. Direct downloads have 512 MiB per-job budgets; DuckDB range traffic is separate.
+- Background jobs accept only server-produced tile inputs. Fixed source hosts and redirect validation prevent arbitrary URL requests. HTTP accepts validated z14 tile coordinates, same-origin requests and bounded client concurrency/rates.
+- The browser retains its 4/2 request concurrency and 24/8 MiB encoded cache. Dictionary JSON removes repeated property keys; it does not erase source nulls. Pending views revalidate every 30 seconds while idle. Exports freeze geometry and attribution together.
+
+PLATEAU and EUBUCCO have automatic remote adapters. 3DBAG and other inputs currently require reviewed local adapters; Taiwan national data is not claimed as integrated. Global GHS/Overture processing remains available outside national coverage. Neither a source's global footprint coverage nor a completed background job proves a real height for every building.
+
+The runtime needs a Node 24 host, Python 3.12 and persistent cache space; the browser remains lightweight. `npm dev/start/preview` prepares the shared environment before listening. See [Hosting](HOSTING.md). No paid infrastructure, database or GPU is required by the implementation. Public upstream availability and production operating cost remain deployment concerns.
+
+## Validation
+
+Automated tests cover shared fast/background height fixtures, real 5 m versus missing values, compact tile round trips, courtyard preservation, multi-tile footprint assembly, source-host rejection, global coordinates, job coalescing, intermediate publication and persistent cache reuse. Live acceptance exercises locations without changing presets or preparing regional manifests, along with both interface languages, desktop/mobile browser views and exported images. These checks validate the pipeline and its resource limits, not the accuracy of every building in the world.
+
+Live checks on 2026-09-17 used the default service with no prepared regional manifests. Single-tile results after background processing:
+
+| Location | Source pieces | Regional GHS values | National values selected |
+| --- | ---: | ---: | ---: |
+| Kaohsiung, 85 Sky Tower tile | 803 | 783 | 0 |
+| Nairobi | 4,693 | 4,455 | 0 |
+| Accra | 13,000 | 9,576 | 0 |
+| Sao Paulo | 11,085 | 743 | 0 |
+| Kumamoto | 6,040 | 3,412 | 2,620 PLATEAU |
+| Paris | 5,016 | 346 | 3,222 EUBUCCO |
+| Rural Tasmania | 2 | 1 | 0 |
+| Pacific Ocean | 0 | 0 | 0 |
+
+Other values came from Overture or the marked fallback. These samples are not city-wide coverage rates. An unprepared Lima viewport first showed 14,303 fallback pieces; without navigation or manual reload, background GHS processing replaced them with regional estimates while 4,539 mapped values and 173 floor-derived values remained. Desktop/mobile bilingual views, PNG/GIF/video exports, capture cancellation and packaged Node-service requests were exercised separately.

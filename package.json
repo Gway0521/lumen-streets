@@ -23,7 +23,11 @@
     "dev:3d": "vite --host 127.0.0.1 --port 5183 --strictPort --open /three.html",
     "check:3d": "node --test tests/three.test.js",
     "check:3d:browser": "node scripts/check-3d-browser.mjs",
-    "check:3d:capture": "node scripts/check-3d-capture.mjs"
+    "check:3d:capture": "node scripts/check-3d-capture.mjs",
+    "setup:buildings": "node --env-file-if-exists=.env scripts/setup-buildings.mjs",
+    "predev": "npm run setup:buildings",
+    "prestart": "npm run setup:buildings",
+    "prepreview": "npm run setup:buildings"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
@@ -41,6 +45,8 @@
     "maplibre-gl": "6.9.1",
     "mediabunny": "1.56.1",
     "pbf": "5.1.2",
+    "pmtiles": "4.5.0",
+    "polygon-clipping": "0.15.7",
     "three": "0.186.0"
   }
 }

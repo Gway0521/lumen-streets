@@ -23,31 +23,50 @@ from model import candidate, normalize, number
 
 
 class Downloads:
-    def __init__(self, cache, budget=2 * 1024**3):
+    def __init__(self, cache, budget=2 * 1024**3, allowed_hosts=None):
         self.cache = Path(cache)
         self.cache.mkdir(parents=True, exist_ok=True)
         self.budget, self.used, self.receipts = budget, 0, []
+        self.allowed_hosts = allowed_hosts
+        self.disk_used = sum(p.stat().st_size for p in self.cache.iterdir() if p.is_file())
+
+    def validate_url(self, url):
+        parsed = urlparse(url)
+        if parsed.scheme != "https" or parsed.username or parsed.password or parsed.port not in (None, 443):
+            raise ValueError("Data downloads require public HTTPS URLs")
+        if self.allowed_hosts is not None and parsed.hostname not in self.allowed_hosts:
+            raise ValueError("Unapproved source host")
 
     def get(self, url, maximum=256 * 1024**2):
-        parsed = urlparse(url)
-        if parsed.scheme != "https" or parsed.username or parsed.password:
-            raise ValueError("Data downloads require public HTTPS URLs")
+        self.validate_url(url)
         key = hashlib.sha256(url.encode()).hexdigest()
         target = self.cache / key
         meta = target.with_suffix(".json")
-        if target.exists() and meta.exists():
+        dynamic = "/datacatalog/" in url or url.endswith("/tiles/")
+        fresh = True
+        if dynamic and meta.exists():
+            fresh = time.time() - json.loads(meta.read_text()).get("retrieved_at", 0) < 7*86400
+        if target.exists() and meta.exists() and fresh:
             receipt = json.loads(meta.read_text())
             with target.open("rb") as stream:
                 digest = hashlib.file_digest(stream, "sha256").hexdigest()
             if target.stat().st_size > maximum or digest != receipt["sha256"]:
                 raise ValueError("Cached source failed size/hash validation")
+            target.touch()
+            meta.touch()
             self.receipts.append(receipt)
             return target
         partial = target.with_suffix(".part")
         for attempt in range(3):
             try:
                 request = urllib.request.Request(url, headers={"User-Agent": "LumenStreets-building-preprocessor/1"})
-                with urllib.request.urlopen(request, timeout=60) as response, partial.open("wb") as output:
+                validate = self.validate_url
+                class Redirect(urllib.request.HTTPRedirectHandler):
+                    def redirect_request(self, req, fp, code, msg, headers, newurl):
+                        validate(newurl)
+                        return super().redirect_request(req, fp, code, msg, headers, newurl)
+                opener = urllib.request.build_opener(Redirect())
+                with opener.open(request, timeout=60) as response, partial.open("wb") as output:
                     if urlparse(response.url).scheme != "https":
                         raise ValueError("Insecure data redirect")
                     size = 0
@@ -56,9 +75,11 @@ class Downloads:
                         self.used += len(chunk)
                         if size > maximum or self.used > self.budget:
                             raise ValueError("Download budget exceeded; use smaller partitions")
+                        if self.allowed_hosts is not None and self.disk_used + self.used > 2*1024**3:
+                            raise ValueError("Persistent source cache budget exceeded")
                         output.write(chunk)
                     receipt = dict(url=url, bytes=size, etag=response.headers.get("ETag"),
-                                   last_modified=response.headers.get("Last-Modified"))
+                                   last_modified=response.headers.get("Last-Modified"), retrieved_at=time.time())
                 with partial.open("rb") as stream:
                     receipt["sha256"] = hashlib.file_digest(stream, "sha256").hexdigest()
                 partial.replace(target)

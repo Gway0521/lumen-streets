@@ -4,6 +4,7 @@ import { realpath, stat } from 'node:fs/promises';
 import { resolve, sep, extname } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { mapMiddleware } from './maps.mjs';
+import { buildingMiddleware } from './buildings/index.mjs';
 import { createGuard } from './guard.mjs';
 
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -11,7 +12,7 @@ const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; ch
   '.png': 'image/png', '.jpg': 'image/jpeg', '.gif': 'image/gif', '.mp4': 'video/mp4',
   '.webm': 'video/webm', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8' };
 
-export async function createSiteServer({ service, origin, trustProxy = false, proxyIpHeader = 'x-lumen-client-ip', dist = 'dist', guardOptions = {} }) {
+export async function createSiteServer({ service, buildings, origin, trustProxy = false, proxyIpHeader = 'x-lumen-client-ip', dist = 'dist', guardOptions = {} }) {
   const root = await realpath(resolve(dist));
   if (!(await stat(resolve(root, 'index.html'))).isFile()) throw Error('Build the website before starting');
   await service.ready;
@@ -19,10 +20,12 @@ export async function createSiteServer({ service, origin, trustProxy = false, pr
     authorize: createGuard({ ...guardOptions, origin, trustProxy, proxyIpHeader }),
     onError: error => console.warn(JSON.stringify({ event: 'map_request_failed', code: error.code || 'unavailable' })),
   });
+  const buildingApi = buildings && buildingMiddleware(buildings, { authorize: createGuard({ origin, trustProxy, proxyIpHeader, perMinute: 600, perClientActive: 8, maxActive: 32 }) });
   const server = createServer({ maxHeaderSize: 8192, requestTimeout: 10000, headersTimeout: 10000, keepAliveTimeout: 5000 }, async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-cache');
     if (req.headers.host !== new URL(origin).host) { res.writeHead(403, { Connection: 'close' }); res.end('Forbidden'); return; }
+    if (buildingApi && req.url.startsWith('/api/buildings/')) { await buildingApi(req, res, () => { res.writeHead(404); res.end(); }); return; }
     if (req.url.startsWith('/api/')) { await api(req, res, () => { res.writeHead(404); res.end(); }); return; }
     try {
       if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405, { Allow: 'GET, HEAD' }); res.end(); return; }
