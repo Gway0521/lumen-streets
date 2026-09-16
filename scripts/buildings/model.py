@@ -192,13 +192,14 @@ def conflate(base, supplements, bounds):
 def resolve(records, bounds, reference_year=2026):
     geometries = metric_geometries(records, bounds)
     chosen = [choose(r["candidates"], r["minimum"], reference_year) for r in records]
-    # Fixed metric cells + use/area strata; only observed heights seed statistics.
+    # Parts of one tower are correlated observations, not independent nearby
+    # buildings. Exclude parts and their hidden parent outlines from samples.
     groups = defaultdict(list)
     def group(r, g):
         c = g.centroid
         return (int(c.x // 2000), int(c.y // 2000), r["building"], int(math.log2(max(16, g.area)) // 2))
     for r, g, c in zip(records, geometries, chosen):
-        if c and c["method"] in ("mapped", "survey"):
+        if c and c["method"] in ("mapped", "survey") and not r["part"] and not r.get("hide_3d"):
             groups[group(r, g)].append(c["value"])
     for r, g, c in zip(records, geometries, chosen):
         if c is None:

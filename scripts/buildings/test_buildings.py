@@ -114,6 +114,21 @@ class Heights(unittest.TestCase):
             resolve([r], BOUNDS)
             self.assertEqual(r["resolved"]["value"], 12)
 
+    def test_tower_parts_do_not_seed_neighbourhood_statistics(self):
+        parts = [record(i, {"height": 190, "building:part": "yes", "building_id": "tower"}) for i in range(6)]
+        parent = record("tower", {"height": 378})
+        parent["hide_3d"] = True
+        observed = [record(20+i, {"height": 12}) for i in range(4)]
+        missing = record("missing")
+        resolve([*parts, parent, *observed, missing], BOUNDS)
+        self.assertEqual(missing["resolved"]["method"], "fallback")
+        self.assertEqual(parts[0]["resolved"]["value"], 190)
+        missing = record("missing")
+        resolve([*parts, parent, *observed, record(25, {"height": 18}), missing], BOUNDS)
+        self.assertEqual(missing["resolved"]["method"], "regional")
+        self.assertEqual(missing["resolved"]["sample_count"], 5)
+        self.assertEqual(missing["resolved"]["value"], 12)
+
     def test_citygml_axes_holes_and_raw_height(self):
         xml = '''<core:CityModel xmlns:core="http://www.opengis.net/citygml/2.0" xmlns:gml="http://www.opengis.net/gml" xmlns:bldg="http://www.opengis.net/citygml/building/2.0">
         <gml:boundedBy><gml:Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/6697"/></gml:boundedBy>
