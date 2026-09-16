@@ -844,3 +844,21 @@ html[lang="zh-TW"] .brand small {
   color: var(--gold);
   font-variant-numeric: tabular-nums;
 }
+.building-sources {
+  position: absolute;
+  right: 10px;
+  bottom: 34px;
+  z-index: 5;
+  max-width: min(400px, calc(100vw - 24px));
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #0b161ee8;
+  color: #b7c0bf;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.building-sources summary { cursor: pointer; }
+.building-sources p { margin: 6px 0 0; overflow-wrap: anywhere; }
+@media (max-width: 799px) {
+  .building-sources { left: 12px; right: auto; bottom: 104px; max-width: calc(100vw - 86px); }
+}

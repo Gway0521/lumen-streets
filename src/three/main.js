@@ -72,6 +72,7 @@ const githubIcon = svg(
 );
 $("app").innerHTML =
   `<main id="map" aria-label="Interactive city nightscape"></main>
+ <details id="building-sources" class="building-sources" hidden><summary data-i18n="buildingSources"></summary><p></p></details>
  <canvas id="composition-preview" hidden aria-hidden="true"></canvas><div id="frame-hint" hidden data-i18n="frameHint"></div><button id="finish-frame" hidden data-i18n="finishFrame"></button><div class="vignette"></div><header class="masthead chrome"><a class="brand" href="./"><img src="./favicon.svg" alt=""><span>Lumen Streets<small id="tagline"></small></span></a>
  <div class="header-actions"><a id="github" class="square" href="https://github.com/Gway0521/lumen-streets" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub">${githubIcon}</a><button id="language"></button><button id="focus" class="square" title="Hide controls">${focusIcon}</button></div></header>
  <button id="restore" class="restore" data-i18n="restore"></button>
@@ -445,6 +446,10 @@ try {
       mobile,
       status: setStatus,
       city: initial.city,
+      sources: (credits) => {
+        $("building-sources").hidden = !credits.length;
+        $("building-sources").querySelector("p").textContent = credits.join(" · ");
+      },
     });
     stream.schedule();
     $("glow").oninput({ target: $("glow") });

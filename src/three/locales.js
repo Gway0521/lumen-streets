@@ -1,6 +1,7 @@
 import { presets } from "./presets.js";
 export const messages = {
   en: {
+    buildingSources: "Building sources",
     tagline: "THE WORLD, AFTER DARK",
     explore: "Explore",
     light: "Settings",
@@ -125,6 +126,7 @@ export const messages = {
     sceneError: "This file is not a supported nightscape scene.",
   },
   "zh-TW": {
+    buildingSources: "建築資料來源",
     tagline: "世界入夜之後",
     explore: "探索城市",
     light: "設定",

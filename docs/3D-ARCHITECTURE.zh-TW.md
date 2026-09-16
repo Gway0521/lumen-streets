@@ -16,7 +16,7 @@ Lumen Streets 使用 MapLibre 與 Three.js 共用 WebGL 2 畫面及深度緩衝�
 
 去重也會檢查多個快照部件共同涵蓋的外殼，以及圖磚內輪廓與高度範圍相近的重複量體；裙樓、不同底部高度的部件和庭院分別保留。
 
-全球圖源缺少高度及樓層時會使用 5 公尺。圖磚中的 5 公尺無法區分實測矮房與預設值，因此保留來源高度；不會把整區任意拉高。[上游高度計算](https://github.com/openmaptiles/openmaptiles/blob/master/layers/building/building.sql)
+預設全球圖源缺少高度及樓層時會使用 5 公尺，此值標為來源不明的上游渲染值，不能當作原始 OSM 實測。可選用[建築高度管線](BUILDING-HEIGHTS.zh-TW.md)，在離線階段保留原始缺值、整合區域來源，再以 `VITE_LUMEN_BUILDING_MANIFEST_URL` 接入。新圖磚與底圖共用原有下載及快取預算，完整覆蓋範圍取代一般快照建築，保留車流與已審核地標；尚未內建全球整合資料集。[上游高度計算](https://github.com/openmaptiles/openmaptiles/blob/master/layers/building/building.sql)
 
 `VITE_LUMEN_TILEJSON_URL` 可指定相容的 OpenMapTiles 來源，預設為 OpenFreeMap。平移不會呼叫公共 Overpass 服務；搜尋經由專案的伺服器入口。城市快照也需要線上底圖。地圖服務失敗時，畫面提供重試。
 

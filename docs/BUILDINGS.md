@@ -1,5 +1,7 @@
 # Buildings and landmarks
 
+For the current 3D editor's prepared source system, see [Building height data](BUILDING-HEIGHTS.md). The fixed projection, six-profile pack and Canvas details below describe the retained legacy renderer; the 3D showcase has its own catalog.
+
 Aerial Gold combines mapped footprints with source heights and original parametric artwork. Six reviewed profiles cover Taipei 101, Sapporo TV Tower, Oriental Pearl Tower, Shanghai Tower, Shanghai World Financial Center and Jin Mao Tower. Ordinary buildings use extrusion; mapped lattice towers receive a neutral open frame. Amber and Blue retain their flat illustration styles.
 
 ## Runtime pipeline

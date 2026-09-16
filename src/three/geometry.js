@@ -1,5 +1,6 @@
 import earcut from "earcut";
 import { featureSeed, resolveHeight, metres } from "../buildings/heights.js";
+import { tileHeight } from "./building-heights.js";
 import { buildingArea, districtField, buildingCenter } from "../lighting.js";
 import { inside } from "../city.js";
 import { generateComponents } from "../buildings/components.js";
@@ -363,7 +364,7 @@ export function landmarkGeometry(profiles, origin, limit) {
 function ordinary(builder, f, convert, detail = true) {
   if (f.points.length > 2048 || buildingArea(f.points) < 8) return;
   const seed = featureSeed(f),
-    h = resolveHeight(f, buildingArea(f.points), (seed % 1000) / 1000),
+    h = f.resolvedHeight || resolveHeight(f, buildingArea(f.points), (seed % 1000) / 1000),
     rings = [f.points, ...(f.holes || [])].map((r) => r.map(convert));
   const type = facadeType(
     f.tags,
@@ -540,7 +541,7 @@ function boxFallback(boxes, f, convert) {
   const x = (x0 + x1) / 2,
     y = (y0 + y1) / 2,
     seed = featureSeed(f);
-  const h = resolveHeight(f, buildingArea(ring), (seed % 1000) / 1000);
+  const h = f.resolvedHeight || resolveHeight(f, buildingArea(ring), (seed % 1000) / 1000);
   const type = facadeType(
     f.tags,
     h.top - h.bottom,
@@ -575,13 +576,13 @@ export function vectorGeometry(features, center, limit, zoom = 15) {
           : [];
     for (const [i, rings] of polygons.entries()) {
       if (!rings.length) continue;
-      const h = Number(f.properties?.render_height),
-        min = Number(f.properties?.render_min_height);
+      const resolvedHeight = tileHeight(f.properties);
       const projected = rings.map((r) =>
         r.map((p) => localPoint(...p, center)),
       );
       const feature = {
-        sourceId: `tile/${f.id ?? "anonymous"}/${rings[0][0].map((n) => n.toFixed(7)).join("/")}`,
+        sourceId: f.properties?.source_id || `tile/${f.id ?? "anonymous"}/${rings[0][0].map((n) => n.toFixed(7)).join("/")}`,
+        resolvedHeight,
         tags: {
           ...Object.fromEntries(
             Object.entries(f.properties || {}).filter(([key]) =>
@@ -596,8 +597,6 @@ export function vectorGeometry(features, center, limit, zoom = 15) {
             ),
           ),
           building: f.properties?.building || f.properties?.subclass || "yes",
-          ...(h > 0 ? { height: String(h) } : {}),
-          ...(min > 0 ? { min_height: String(min) } : {}),
         },
         points: projected[0],
         holes: projected.slice(1),

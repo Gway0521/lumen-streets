@@ -64,6 +64,8 @@ Inspect actual output and independently decode animations. Verify dimensions, du
 
 ## Device and performance checks
 
+For prepared building heights, run `python -m unittest discover -s scripts/buildings -p test_buildings.py` in the preprocessing environment. Node tests cover nullable/unknown provenance, geometry heights, bounded downloads, tile deduplication, missing coverage and aborts. `node scripts/check-3d-heights.mjs` runs against a development server configured with a prepared manifest; `QA_HEIGHT_CENTER` selects a longitude/latitude within its coverage. It checks desktop/mobile layouts in both languages, real PNG capture, source credits, outside-coverage fallback and atlas disposal. Inspect the resulting images. See [building preparation](BUILDING-HEIGHTS.md).
+
 Test production builds on physical phones separately from desktop viewport tests. Reload the editor, visit the preset cities and a global location, rotate and zoom, try both languages, and export a PNG. Inspect the displayed image and browser errors. Android GPU regressions also need device GPU logs; a completed page load alone does not prove that the display rendered correctly.
 
 For performance comparisons, use the same browser, map snapshot, camera, seed, traffic density and output size. Measure atlas construction separately from animation frame work. Run one browser suite at a time. Record browser/device versions and distinguish diagnostic samples from repeated benchmarks.

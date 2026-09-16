@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "base": {
+    "id": "overture",
+    "adapter": "overture",
+    "release": "2026-08-19.0",
+    "license": "ODbL-1.0",
+    "attribution": "Overture Maps Foundation; OpenStreetMap contributors",
+    "reference": "https://docs.overturemaps.org/guides/buildings/"
+  },
+  "supplements": [
+    {
+      "id": "plateau",
+      "adapter": "plateau",
+      "enabled": true,
+      "bounds": [122, 20, 154, 46],
+      "license": "ODbL-1.0",
+      "attribution": "Project PLATEAU, Ministry of Land, Infrastructure, Transport and Tourism, Japan",
+      "reference": "https://docs.plateauview.mlit.go.jp/datasets/citygml/"
+    },
+    {
+      "id": "eubucco-v0.2",
+      "adapter": "eubucco",
+      "release": "v0.2",
+      "enabled": true,
+      "bounds": [-25, 34, 45, 72],
+      "license": "ODbL-1.0",
+      "attribution": "EUBUCCO v0.2 and its data providers",
+      "reference": "https://docs.eubucco.com/v0.2/"
+    }
+  ],
+  "rasters": []
+}

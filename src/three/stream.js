@@ -4,7 +4,7 @@ import { detailLevel, geometryKey } from "./geo.js";
 
 /** One geometry job in flight, one coalesced successor; no unbounded build queue. */
 export class CityStream {
-  constructor(map, layer, { mobile, status, city }) {
+  constructor(map, layer, { mobile, status, city, sources = () => {} }) {
     this.map = map;
     this.layer = layer;
     this.mobile = mobile;
@@ -36,6 +36,7 @@ export class CityStream {
           if (import.meta.env.DEV) console.error(data.error);
         } else {
           layer.replace(data);
+          sources(data.geometry.heightAttribution || []);
           map.setLayoutProperty("building-fallback", "visibility", "none");
           this.status(data.geometry.tileLimited ? "budget" : "ready");
           this.ready = true;
@@ -74,6 +75,7 @@ export class CityStream {
       if (detailLevel(sceneZoom(map)) === "map") {
         this.generation++;
         this.layer.clear();
+        sources([]);
         this.lastKey = "";
         this.worker.postMessage({ type: "clear" });
         this.status("map");
@@ -164,6 +166,8 @@ export class CityStream {
           "https://tiles.openfreemap.org/planet",
         location.href,
       ).href,
+      heightURL: import.meta.env.VITE_LUMEN_BUILDING_MANIFEST_URL ? new URL(
+        import.meta.env.VITE_LUMEN_BUILDING_MANIFEST_URL, location.href).href : null,
       mobile: this.mobile,
       zoom: sceneZoom(this.map),
       surfaceKey: this.layer.surfaceKey,

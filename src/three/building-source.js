@@ -1,5 +1,6 @@
 import { localPoint, snapshotPoint } from "./geo.js";
 import { inside } from "../city.js";
+import { renderedHeight } from "./building-heights.js";
 
 // Tiles group unrelated footprints with identical properties into MultiPolygons.
 // Ownership and snapshot coverage must therefore be decided per footprint.
@@ -77,8 +78,7 @@ export function uniqueBuildingShells(features) {
     cell = 128;
   const ordered = [...features].sort(
     (a, b) =>
-      (Number(b.properties.render_height) || 8) -
-      (Number(a.properties.render_height) || 8),
+      renderedHeight(b.properties) - renderedHeight(a.properties),
   );
   for (const f of ordered) {
     const rings = f.geometry.coordinates.map((r) =>
@@ -106,8 +106,8 @@ export function uniqueBuildingShells(features) {
       )
         keys.push(`${x}/${y}`);
     const candidates = new Set(keys.flatMap((k) => grid.get(k) || []));
-    const top = Number(f.properties.render_height) || 8,
-      bottom = Number(f.properties.render_min_height) || 0;
+    const top = renderedHeight(f.properties),
+      bottom = Number(f.properties.min_height_m ?? f.properties.render_min_height) || 0;
     const samples = boundarySamples(ring);
     const duplicate = [...candidates].some((c) => {
       if (

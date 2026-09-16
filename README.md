@@ -57,3 +57,5 @@ MapLibre and Three.js share the live 3D scene with captures and embeds. Geometry
 Code: [AGPL-3.0-only](LICENSE). Map data: [OpenStreetMap](https://www.openstreetmap.org/copyright), ODbL. Preserve visible map credit when sharing exports publicly; see [Attribution](ATTRIBUTION.md).
 
 Building heights combine mapped values and estimates. Lighting, vegetation placement and traffic are artistic simulations. Imported models stay local until their creator submits them for review. See the [landmark guide](docs/3D-LANDMARKS.md).
+
+Optional [building-height preprocessing](docs/BUILDING-HEIGHTS.md) combines Overture with regional sources, preserves missing values and provenance, and serves nearby building tiles. The tools are included; a hosted global enriched dataset is not bundled.

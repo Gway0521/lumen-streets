@@ -71,6 +71,7 @@ export class NightLayer {
     surfaceKey,
     environment,
   }) {
+    this.heightAttribution = geometry.heightAttribution || [];
     this.landmarks = [
       ...(geometry.landmarks || []),
       ...(geometry.placeLabels || []),
@@ -205,6 +206,9 @@ export class NightLayer {
       tiles: geometry.tileCount,
       tileLimited: geometry.tileLimited,
       tileCacheMiB: geometry.tileCacheMiB,
+      preparedTiles: geometry.preparedTileCount || 0,
+      heightSummary: geometry.heightSummary || {},
+      heightRevision: geometry.heightRevision || null,
       beacons: geometry.beacons.length / 4,
     };
     if (this.lamps) {
@@ -253,6 +257,7 @@ export class NightLayer {
     this.map.triggerRepaint();
   }
   clear() {
+    this.heightAttribution = [];
     this.bloom?.release();
     if (this.beacons) {
       this.scene.remove(this.beacons);

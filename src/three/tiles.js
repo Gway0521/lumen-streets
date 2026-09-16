@@ -1,6 +1,8 @@
 import { VectorTile } from "@mapbox/vector-tile";
 import { PbfReader } from "pbf";
 import { mercator } from "./geo.js";
+import { renderedHeight } from "./building-heights.js";
+import { boundedBytes, decodeHeightTile, heightRegion, validateManifest } from "./height-tiles.js";
 import {
   buildingPolygons,
   footprintCenter,
@@ -8,7 +10,7 @@ import {
 } from "./building-source.js";
 
 // Fixed source detail preserves individual buildings even when the atlas is zoomed out.
-// Only compressed buffers are cached; decoded tile objects are short-lived.
+// Only encoded buffers are cached; decoded tile objects are short-lived.
 export function coveringBuildings(bounds, maximum = 180) {
   const z = 14,
     n = 2 ** z;
@@ -41,66 +43,94 @@ export function coveringBuildings(bounds, maximum = 180) {
 export class BuildingTiles {
   cache = new Map();
   bytes = 0;
-  async load(bounds, url, mobile, signal, consume) {
-    if (url !== this.url) {
+  async buffer(key, endpoint, mobile, signal) {
+    let bytes = this.cache.get(key);
+    if (!bytes) {
+      bytes = await boundedBytes(await fetch(endpoint, { signal }), 8 * 1048576, signal);
+      signal?.throwIfAborted();
+      this.cache.set(key, bytes);
+      this.bytes += bytes.byteLength;
+    } else {
+      this.cache.delete(key);
+      this.cache.set(key, bytes);
+    }
+    while (this.bytes > (mobile ? 8 : 24) * 1048576) {
+      const oldest = this.cache.keys().next().value;
+      this.bytes -= this.cache.get(oldest).byteLength;
+      this.cache.delete(oldest);
+    }
+    return bytes;
+  }
+  async configure(url, heightURL, signal) {
+    heightURL = heightURL || null;
+    if (url !== this.url || heightURL !== this.heightURL) {
       this.url = url;
+      this.heightURL = heightURL;
       this.metadata = null;
+      this.heightMetadata = null;
       this.cache.clear();
       this.bytes = 0;
     }
     if (!this.metadata) {
       const response = await fetch(url, { signal });
       if (!response.ok) throw Error("Building tile source unavailable");
-      this.metadata = await response.json();
+      this.metadata = JSON.parse(new TextDecoder().decode(await boundedBytes(response, 2 * 1048576, signal)));
     }
+    if (heightURL && !this.heightMetadata) {
+      const response = await fetch(heightURL, { signal });
+      this.heightMetadata = validateManifest(JSON.parse(new TextDecoder().decode(
+        await boundedBytes(response, 2 * 1048576, signal))));
+    }
+  }
+  hasPreparedCoverage(bounds, mobile) {
+    return coveringBuildings(bounds, mobile ? 96 : 180).tiles.some(t => heightRegion(this.heightMetadata, t));
+  }
+  async load(bounds, url, mobile, signal, consume, heightURL = null) {
+    await this.configure(url, heightURL, signal);
     const template = this.metadata.tiles?.[0];
     if (!template) throw Error("Building TileJSON has no tiles");
     const selection = coveringBuildings(bounds, mobile ? 96 : 180);
     const concurrency = mobile ? 2 : 4;
+    const preparedTiles = new Set(), identities = new Set(), credits = new Set(), heights = {};
     for (
       let cursor = 0;
       cursor < selection.tiles.length;
       cursor += concurrency
     ) {
       const batch = selection.tiles.slice(cursor, cursor + concurrency);
-      const buffers = await Promise.all(
+      const results = await Promise.allSettled(
         batch.map(async (t) => {
           signal?.throwIfAborted();
           const key = `${t.z}/${t.x}/${t.y}`;
-          let bytes = this.cache.get(key);
-          if (!bytes) {
-            const endpoint = template
+          const endpoint = template
               .replace("{z}", t.z)
               .replace("{x}", t.x)
               .replace(
                 "{y}",
                 this.metadata.scheme === "tms" ? 2 ** t.z - 1 - t.y : t.y,
               );
-            const r = await fetch(new URL(endpoint, url), { signal });
-            if (!r.ok) throw Error(`Building tile unavailable (${r.status})`);
-            bytes = await r.arrayBuffer();
-            if (bytes.byteLength > 8 * 1048576)
-              throw Error("Building tile exceeds its size budget");
-            this.cache.set(key, bytes);
-            this.bytes += bytes.byteLength;
-          } else {
-            this.cache.delete(key);
-            this.cache.set(key, bytes);
+          // Sequential requests within each slot keep the existing 4/2 total
+          // concurrency and shared 24/8 MiB cache budgets, including enrichment.
+          const bytes = await this.buffer(key, new URL(endpoint, url), mobile, signal);
+          const region = heightRegion(this.heightMetadata, t);
+          let prepared = null;
+          if (region) {
+            const source = region.tiles.replace("{z}", t.z).replace("{x}", t.x).replace("{y}", t.y);
+            prepared = await this.buffer(`height/${key}`, new URL(source, heightURL), mobile, signal);
           }
-          while (this.bytes > (mobile ? 8 : 24) * 1048576) {
-            const oldest = this.cache.keys().next().value;
-            this.bytes -= this.cache.get(oldest).byteLength;
-            this.cache.delete(oldest);
-          }
-          return bytes;
+          return { bytes, prepared };
         }),
       );
+      const failed = results.find(r => r.status === "rejected");
+      if (failed) throw failed.reason;
+      const buffers = results.map(r => r.value);
       for (const [index, t] of batch.entries()) {
         signal?.throwIfAborted();
-        const decoded = new VectorTile(new PbfReader(buffers[index])).layers;
+        const decoded = new VectorTile(new PbfReader(buffers[index].bytes)).layers;
         const layer = decoded.building;
-        const features = [];
-        for (let i = 0; i < (layer?.length || 0); i++) {
+        let features = [];
+        const prepared = buffers[index].prepared;
+        for (let i = 0; !prepared && i < (layer?.length || 0); i++) {
           const f = layer.feature(i);
           for (const polygon of buildingPolygons([
             f.toGeoJSON(t.x, t.y, t.z),
@@ -114,10 +144,24 @@ export class BuildingTiles {
             features.push(polygon);
           }
         }
+        if (prepared) {
+          for (const credit of heightRegion(this.heightMetadata, t).attribution || this.heightMetadata.attribution)
+            credits.add(credit);
+          preparedTiles.add(`${t.x}/${t.y}`);
+          features = decodeHeightTile(prepared).filter(f => {
+            if (identities.has(f.id)) return false;
+            identities.add(f.id);
+            return true;
+          });
+          features = buildingPolygons(features);
+        }
+        for (const f of features) {
+          const method = prepared ? f.properties.height_method : "upstream-unknown";
+          heights[method] = (heights[method] || 0) + 1;
+        }
         features.sort(
           (a, b) =>
-            (Number(b.properties.render_height) || 8) -
-            (Number(a.properties.render_height) || 8),
+            renderedHeight(b.properties) - renderedHeight(a.properties),
         );
         const environment = {};
         for (const name of ["water", "park", "landcover", "transportation"]) {
@@ -126,7 +170,7 @@ export class BuildingTiles {
           for (let i = 0; i < (source?.length || 0); i++)
             environment[name].push(source.feature(i).toGeoJSON(t.x, t.y, t.z));
         }
-        consume(uniqueBuildingShells(features), environment);
+        consume(prepared ? features : uniqueBuildingShells(features), environment, { prepared: !!prepared });
       }
       // Let cancellation messages run even when all requested tiles are cached.
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -135,6 +179,10 @@ export class BuildingTiles {
       tileCount: selection.tiles.length,
       tileLimited: selection.limited,
       cacheMiB: this.bytes / 1048576,
+      preparedTiles,
+      heights,
+      attribution: [...credits],
+      heightRevision: preparedTiles.size ? this.heightMetadata.revision : null,
     };
   }
 }

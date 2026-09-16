@@ -1,0 +1,6 @@
+# Offline preprocessing only; no browser/runtime dependency.
+shapely==2.1.2
+pyproj==3.8.0
+duckdb==1.5.5
+rasterio==1.5.1
+defusedxml==0.7.1

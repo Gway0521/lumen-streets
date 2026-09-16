@@ -151,5 +151,26 @@ export function paintComposition(ctx, width, height, options = {}, layer) {
     );
   if (options.placeTitle?.text)
     paintPlaceTitle(ctx, width, height, options.placeTitle, height);
+  if (layer?.heightAttribution?.length) {
+    // Prepared datasets travel with every PNG/GIF/video frame, even when the
+    // host UI is not present. Source text is data, never HTML.
+    const size = Math.max(9, Math.min(width, height) / 100), gap = size * 1.35;
+    ctx.font = `${size}px sans-serif`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
+    const credits = layer.heightAttribution.some(s => /OpenStreetMap/.test(s)) ? layer.heightAttribution :
+      ["© OpenStreetMap contributors", ...layer.heightAttribution];
+    const lines = [], words = credits.join(" · ").split(/\s+/);
+    let line = "";
+    for (const word of words) {
+      if (line && ctx.measureText(`${line} ${word}`).width > width - 24) { lines.push(line); line = ""; }
+      line = line ? `${line} ${word}` : word;
+    }
+    if (line) lines.push(line);
+    ctx.fillStyle = "#081017cc";
+    ctx.fillRect(0, height - lines.length * gap - 10, width, lines.length * gap + 10);
+    ctx.fillStyle = "#b7c0bf";
+    lines.forEach((text, i) => ctx.fillText(text, 12, height - 5 - (lines.length - 1 - i) * gap));
+  }
   ctx.restore();
 }

@@ -19,6 +19,7 @@ import { groundSurface } from "./surface.js";
 import { compactVolumes } from "./volumes.js";
 import { EnvironmentBuilder } from "./environment.js";
 import { buildingPolygons, snapshotCoverage } from "./building-source.js";
+import { pointTile } from "./height-tiles.js";
 
 let cached = null;
 const tileSource = new BuildingTiles();
@@ -65,6 +66,7 @@ self.onmessage = async ({ data }) => {
       limit,
       bounds,
       tileURL,
+      heightURL,
       mobile,
       zoom,
     } = data;
@@ -93,29 +95,26 @@ self.onmessage = async ({ data }) => {
             : f.geometry.coordinates[0],
         regions[cityId].bbox,
       );
-    const local = active
-      ? snapshotGeometry(
-          active.city,
-          Math.floor(genericLimit * 0.55),
-          zoom,
-          (f) => replacement.snapshot(f, origin),
-          supplied,
-        )
-      : null;
-    // Decode and build one tile at a time. Never retain a viewport's full GeoJSON.
+    await tileSource.configure(tileURL, heightURL, signal);
+    const enriching = tileSource.hasPreparedCoverage(bounds, mobile);
+    const localBudget = active ? Math.floor(genericLimit * 0.55) : 0;
+    let local = active && !enriching ? snapshotGeometry(active.city, localBudget, zoom,
+      (f) => replacement.snapshot(f, origin), supplied) : null;
+    // Preserve the existing allocation/order outside prepared coverage. Inside,
+    // defer local geometry until streamed tile ownership is known.
     const parts = local ? [landmarks, local] : [landmarks];
-    let remaining = genericLimit - (local?.position.length || 0) / 3;
+    let remaining = genericLimit - (local ? local.position.length / 3 : localBudget);
     const loaded = await tileSource.load(
       bounds,
       tileURL,
       mobile,
       signal,
-      (buildings, environment) => {
+      (buildings, environment, { prepared }) => {
         landscape.consume(environment);
         for (const f of buildings) landscape.excludeBuilding(f);
         const part = vectorGeometry(
           buildingPolygons(buildings).filter(
-            (f) => !covered(f) && !replacement.vector(f),
+            (f) => (prepared || !covered(f)) && !replacement.vector(f),
           ),
           origin,
           Math.max(0, remaining),
@@ -124,7 +123,23 @@ self.onmessage = async ({ data }) => {
         remaining -= part.position.length / 3;
         parts.push(part);
       },
+      heightURL,
     );
+    const coveredByPrepared = (f) => {
+      // Same source-grid ownership for snapshots and prepared coverage. The
+      // snapshot remains immutable for saved legacy scenes and traffic.
+      const xs = f.points.map(p => p[0]), ys = f.points.map(p => p[1]);
+      const px = (Math.min(...xs) + Math.max(...xs)) / 2,
+        py = (Math.min(...ys) + Math.max(...ys)) / 2;
+      const point = [origin[0] + px / (111320 * Math.cos(origin[1] * Math.PI / 180)),
+        origin[1] - py / 111320];
+      return loaded.preparedTiles.has(pointTile(point));
+    };
+    if (active && enriching) {
+      local = snapshotGeometry(active.city, localBudget + Math.max(0, remaining), zoom,
+        (f) => replacement.snapshot(f, origin) || coveredByPrepared(f), supplied);
+      parts.push(local);
+    }
     signal.throwIfAborted();
     const geometry = {};
     for (const key of [
@@ -169,6 +184,10 @@ self.onmessage = async ({ data }) => {
     geometry.tileCount = loaded.tileCount;
     geometry.tileLimited = loaded.tileLimited;
     geometry.tileCacheMiB = loaded.cacheMiB;
+    geometry.heightAttribution = loaded.attribution;
+    geometry.heightRevision = loaded.heightRevision;
+    geometry.preparedTileCount = loaded.preparedTiles.size;
+    geometry.heightSummary = loaded.heights;
     const localRoads = active
       ? active.city.roads.map((r) => ({
           ...r,
