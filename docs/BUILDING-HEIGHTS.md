@@ -12,7 +12,7 @@ This provides globally automatic processing, not complete measured heights for e
 
 | Input | Implemented ingestion | Interpretation |
 | --- | --- | --- |
-| Overture Buildings + building parts | Pinned release, official STAC discovery, spatially filtered GeoParquet | Original nullable heights/floors and property-scoped `sources`; ML and unknown height origins stay estimates |
+| Overture Buildings + building parts | Pinned release; PMTiles range reads in the service, STAC/GeoParquet in offline analysis | Original nullable heights/floors and property-scoped `sources`; ML and unknown height origins stay estimates |
 | Japan PLATEAU | Automatic rectangle discovery and streamed CityGML parsing | Building-owned LoD0 footprint/roof edge, projected LoD1 fallback; `measuredHeight` and `storeysAboveGround`; CRS axes and units checked |
 | EUBUCCO v0.2 | Geographic boundary lookup and discovery of available Parquet partitions | Per-attribute `height_source`, floors, confidence interval and original provenance; predictions remain estimates |
 | Netherlands 3DBAG | Local normalized GeoJSON/GeoParquet adapter | Roof `b3_h_dak_70p` minus `b3_h_maaiveld`, including negative NAP elevations |
@@ -56,17 +56,11 @@ The output directory must be new or empty:
 - `audit.jsonl.gz`: raw properties, nullable input values, normalized candidates, matches, rejections and selected values. Keep this with the published derivative database.
 - `report.json`: input receipts, source configuration, selection counts, conflicts and output digest.
 
-To combine disjoint partitions, keep their directories together and generate a shared manifest:
-
-```sh
-python scripts/buildings/catalog.py .cache/building-tiles/tokyo-v1/manifest.json .cache/building-tiles/paris-v1/manifest.json --output .cache/building-tiles/manifest-v1.json
-```
-
-Overlapping partitions are rejected. Publish new immutable versions rather than overwriting a manifest's tile contents. A catalog supports up to 4096 regions; planet-scale orchestration and hierarchical catalogs are future work. GeoJSON was chosen for an inspectable first implementation; use HTTP gzip/Brotli. Production global coverage will also need measured storage/egress, scheduling, partition consolidation and potentially MVT/PMTiles encoding. Neither a planet-sized dataset nor an external service is created by installing this repository.
+These version 1 manifests are offline inventories, not browser inputs. The old regional catalog combiner has been removed. The website uses the global service below; hosting still needs measured cache and network capacity.
 
 ## Browser delivery
 
-The renderer always requests `/api/buildings/manifest.json` and `/api/buildings/14/x/y.json`. The global manifest covers the entire supported grid; `VITE_LUMEN_BUILDING_MANIFEST_URL` is no longer a browser configuration. Offline catalogs remain analysis artifacts.
+The renderer always requests `/api/buildings/manifest.json` and `/api/buildings/14/x/y.json`. The version 2 manifest requires `global: true` and a top-level `tiles` URL template for the entire supported grid. Regional manifests and missing service configuration are rejected; failed requests never substitute basemap buildings.
 
 The service reassembles clipped Overture fragments before rendering, including courtyards and parts. Whole-feature GERS identities deduplicate the complete footprints across the view. Requests that cannot stay within geometry/source budgets fail explicitly rather than presenting truncated facades as complete buildings.
 

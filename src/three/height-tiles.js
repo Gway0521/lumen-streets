@@ -1,5 +1,4 @@
 import { expandTile } from "../buildings/tile-wire.js";
-import { mercator } from "./geo.js";
 import { tileHeight } from "./building-heights.js";
 
 export async function boundedBytes(response, maximum, signal) {
@@ -30,28 +29,12 @@ export async function boundedBytes(response, maximum, signal) {
 export function validateManifest(data) {
   const credits = values => Array.isArray(values) && values.length <= 32 &&
     values.every(s => typeof s === "string" && s.length > 0 && s.length <= 500);
-  if (data?.version !== 1 || data.zoom !== 14 || !Array.isArray(data.regions) ||
-      data.regions.length > 4096 || !credits(data.attribution))
+  if (data?.version !== 2 || data.zoom !== 14 || data.global !== true ||
+      data.regions !== undefined || !credits(data.attribution) ||
+      typeof data.tiles !== "string" ||
+      !["{z}", "{x}", "{y}"].every(s => data.tiles.includes(s)))
     throw Error("Unsupported building height manifest");
-  for (const r of data.regions) {
-    const b = r.tile_bounds;
-    if (!Array.isArray(b) || b.length !== 4 || !b.every(n => Number.isInteger(n) && n >= 0 && n < 16384) ||
-        b[0] > b[2] || b[1] > b[3] || typeof r.tiles !== "string" ||
-        !["{z}", "{x}", "{y}"].every(s => r.tiles.includes(s)) ||
-        (r.attribution !== undefined && !credits(r.attribution)))
-      throw Error("Invalid prepared building coverage");
-  }
   return data;
-}
-
-export function heightRegion(metadata, tile) {
-  return metadata?.regions.find(r => tile.x >= r.tile_bounds[0] && tile.x <= r.tile_bounds[2] &&
-    tile.y >= r.tile_bounds[1] && tile.y <= r.tile_bounds[3]);
-}
-
-export function pointTile(point) {
-  const p = mercator(...point);
-  return `${((Math.floor(p[0] * 16384) % 16384) + 16384) % 16384}/${Math.max(0, Math.min(16383, Math.floor(p[1] * 16384)))}`;
 }
 
 export function decodeHeightTile(bytes) { return parseHeightTile(bytes).features; }

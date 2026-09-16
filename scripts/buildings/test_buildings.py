@@ -11,7 +11,6 @@ from rasterio.transform import from_origin
 from shapely.geometry import box, mapping
 
 from build import build, partition, tile_bounds
-from catalog import combine
 from model import candidate, choose, conflate, floors, normalize, number, resolve, tile_feature
 from providers import Downloads, read_citygml, raster_candidates, restricted_eubucco
 from ghsl import tile_names
@@ -179,21 +178,6 @@ class Heights(unittest.TestCase):
                 build(config, BOUNDS, root/"a", root/"cache")
         with self.assertRaises(ValueError):
             partition([-180,-80,180,80])
-
-    def test_catalog_scopes_credits_and_rejects_overlapping_revisions(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            for name, bounds in (("one",[1,1,1,1]),("two",[2,1,2,1])):
-                folder=root/name
-                folder.mkdir()
-                (folder/"manifest.json").write_text(json.dumps(dict(version=1,zoom=14,revision=name,
-                    regions=[dict(tile_bounds=bounds,tiles="tiles/{z}/{x}/{y}.json")],attribution=[name])))
-            catalog=combine([root/"one/manifest.json",root/"two/manifest.json"],root/"catalog.json")
-            self.assertEqual(catalog["attribution"],[])
-            self.assertEqual(catalog["regions"][1]["attribution"],["two"])
-            self.assertEqual(catalog["regions"][0]["tiles"],"one/tiles/{z}/{x}/{y}.json")
-            with self.assertRaises(ValueError):
-                combine([root/"one/manifest.json",root/"one/manifest.json"],root/"invalid.json")
 
 
 if __name__ == "__main__":

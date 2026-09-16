@@ -18,9 +18,9 @@
 
 ## 執行與目前界線
 
-主機使用 Node 24 和 Python 3.12；`npm dev`／`npm start`／`npm run preview` 會準備共用 Python 環境。部署與持久快取設定見[部署文件](HOSTING.zh-TW.md)。這是網站的一次性環境準備，與城市數量無關。
+主機使用 Node 24 和 Python 3.12；`npm run dev`／`npm start`／`npm run preview` 會準備共用 Python 環境。部署與持久快取設定見[部署文件](HOSTING.zh-TW.md)。這是網站的一次性環境準備，與城市數量無關。
 
-前端預設請求 `/api/buildings/manifest.json` 及固定網格的圖磚，不再使用 `VITE_LUMEN_BUILDING_MANIFEST_URL`。服務以 HTTP Range 讀取全球 PMTiles，把跨圖磚輪廓按 GERS ID 重組，保留孔洞與建築部件；過大而無法完整重組的輪廓會明確回報限制。瀏覽器沿用 4／2 個下載併發和 24／8 MiB 編碼資料快取，以精簡欄位字典避免密集城市重複傳送欄位名稱。
+前端固定請求 `/api/buildings/manifest.json` 及全球網格圖磚，第 2 版清單要求全球模式與單一網址模板；拒絕舊區域清單，失敗不會退回底圖建築。服務以 HTTP Range 讀取全球 PMTiles，把跨圖磚輪廓按 GERS ID 重組，保留孔洞與建築部件；過大而無法完整重組的輪廓會明確回報限制。瀏覽器沿用 4／2 個下載併發和 24／8 MiB 編碼資料快取，以精簡欄位字典避免密集城市重複傳送欄位名稱。
 
 GHS 與國家級資料分開排隊，避免大型 CityGML 下載阻擋其他國家的格網補值。閒置視野每 30 秒取得完成的資料，匯出期間鎖定幾何與來源；雙語來源說明及 PNG／GIF／影片署名也會更新。道路、環境、交通、地標與舊版唯讀播放器保留原有用途。
 

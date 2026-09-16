@@ -162,7 +162,7 @@ def build(config, bounds, output, cache, max_tiles=64, max_records=250000, refer
     report["tile_count"] = len(tiles)
     report["tile_bytes"] = sum(map(len, payloads.values()))
     (output / "report.json").write_bytes(encode(report))
-    # Write manifest last: incomplete builds are never advertised to browsers.
+    # Write the offline inventory last; the browser uses the global service v2 manifest.
     manifest = dict(version=VERSION, zoom=ZOOM, revision=digest.hexdigest(),
         regions=[dict(tile_bounds=tile_range, tiles="tiles/{z}/{x}/{y}.json")],
         attribution=[s["attribution"] for s in active],

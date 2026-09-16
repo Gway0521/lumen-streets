@@ -1,4 +1,3 @@
-import { VIEW } from "./view.js";
 // Shared with the light control so returning to 100% restores the art baseline.
 export const ROAD_LIGHT = Object.freeze({
   "road-halo": 0.045,
@@ -171,27 +170,6 @@ export function nightStyle(tileURL = "https://tiles.openfreemap.org/planet") {
           "line-color": "#536772",
           "line-width": zoom(12, 0.3, 16, 1.2),
           "line-opacity": 0.5,
-        },
-      },
-      {
-        id: "building-fallback",
-        type: "fill-extrusion",
-        source: "world",
-        "source-layer": "building",
-        minzoom: VIEW.atlas,
-        paint: {
-          "fill-extrusion-color": "#26343c",
-          "fill-extrusion-height": [
-            "interpolate",
-            ["linear"],
-            ["zoom"],
-            VIEW.atlas,
-            0,
-            VIEW.fullHeight,
-            ["coalesce", ["get", "render_height"], 8],
-          ],
-          "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0],
-          "fill-extrusion-opacity": 1,
         },
       },
     ],

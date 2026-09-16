@@ -4,6 +4,7 @@ import { tileHeight } from "../src/three/building-heights.js";
 import { boundedBytes, decodeHeightTile, validateManifest } from "../src/three/height-tiles.js";
 import { BuildingTiles } from "../src/three/tiles.js";
 import { vectorGeometry } from "../src/three/geometry.js";
+import { nightStyle } from "../src/three/style.js";
 
 const feature = () => ({type:"Feature",id:"overture/one",properties:{
   lumen_height_version:1,source_id:"overture/one",height_raw:null,floors_raw:null,
@@ -11,7 +12,11 @@ const feature = () => ({type:"Feature",id:"overture/one",properties:{
   height_method:"survey",height_definition:"ground_to_top",height_estimated:false,height_match:.91,
 },geometry:{type:"Polygon",coordinates:[[[0,.001],[.0002,.001],[.0002,.0012],[0,.0012],[0,.001]]]}});
 const encoded = features => new TextEncoder().encode(JSON.stringify({type:"FeatureCollection",features})).buffer;
-const manifest = () => ({version:1,zoom:14,revision:"test",regions:[{tile_bounds:[8192,8191,8193,8191],tiles:"tiles/{z}/{x}/{y}.json"}],attribution:["Project PLATEAU"]});
+const manifest = () => ({version:2,zoom:14,global:true,revision:"test",tiles:"tiles/{z}/{x}/{y}.json",attribution:["Project PLATEAU"]});
+
+test("the initial map never extrudes lossy basemap buildings while global data loads", () => {
+  assert.equal(nightStyle().layers.some(layer=>layer["source-layer"]==="building" && layer.type==="fill-extrusion"),false);
+});
 
 test("lossy 5 m is unknown; prepared missing values preserve provenance", () => {
   const old = tileHeight({render_height:5});
@@ -43,8 +48,10 @@ test("prepared tiles reject malformed geometry and unsupported manifests", () =>
   assert.equal(decodeHeightTile(encoded([feature()])).length,1);
   const f=feature(); f.geometry.coordinates[0][2][0]=Infinity;
   assert.throws(()=>decodeHeightTile(encoded([f])));
-  assert.throws(()=>validateManifest({...manifest(),version:2}));
-  assert.throws(()=>validateManifest({...manifest(),regions:[{tile_bounds:[0,0,1,1],tiles:"bad"}]}));
+  assert.throws(()=>validateManifest({...manifest(),version:1}));
+  assert.throws(()=>validateManifest({...manifest(),global:false}));
+  assert.throws(()=>validateManifest({...manifest(),tiles:"bad"}));
+  assert.throws(()=>validateManifest({...manifest(),regions:[{tile_bounds:[0,0,1,1],tiles:"tiles/{z}/{x}/{y}.json"}]}));
 });
 
 test("streaming size budget cancels the response before an oversized body is retained", async () => {
@@ -65,7 +72,7 @@ test("viewport loading deduplicates uncut footprints and shares a bounded cache"
   });
   const loader=new BuildingTiles(), seen=[];
   const result=await loader.load([0,.001,.03,.002],"https://example.org/base.json",true,new AbortController().signal,
-    (fs,env,context)=>{assert.equal(context.prepared,true);seen.push(...fs);},"https://example.org/heights/manifest.json");
+    fs=>seen.push(...fs),"https://example.org/heights/manifest.json");
   assert.equal(seen.length,1);
   assert.equal(result.preparedTiles.size,2);
   assert.deepEqual(result.attribution,["Project PLATEAU"]);
@@ -76,18 +83,27 @@ test("viewport loading deduplicates uncut footprints and shares a bounded cache"
   assert.ok(loader.bytes<=8*1048576);
 });
 
-test("coverage absence uses the basemap; an advertised missing tile reports failure", async t => {
+test("every location requires the global service; missing tiles never fall back to basemap buildings", async t => {
+  const requests=[];
+  let available=true;
   t.mock.method(globalThis,"fetch",async input=>{
     const url=String(input);
+    requests.push(url);
     if(url.endsWith("base.json"))return Response.json({tiles:["base/{z}/{x}/{y}.pbf"]});
     if(url.endsWith("manifest.json"))return Response.json(manifest());
     if(url.endsWith(".pbf"))return new Response(new Uint8Array());
-    return new Response("",{status:404});
+    return available ? new Response(encoded([feature()])) : new Response("",{status:404});
   });
   const loader=new BuildingTiles();
   const r=await loader.load([1,.001,1.001,.002],"https://example.org/base.json",false,new AbortController().signal,()=>{},"https://example.org/manifest.json");
-  assert.equal(r.preparedTiles.size,0);
-  await assert.rejects(loader.load([0,.001,.001,.002],"https://example.org/base.json",false,new AbortController().signal,()=>{},"https://example.org/manifest.json"),/404/);
+  assert.equal(r.preparedTiles.size,r.tileCount);
+  assert.ok(r.tileCount>0);
+  assert.ok(requests.some(url=>url.includes("/tiles/14/8237/8191.json")));
+  available=false;
+  let consumed=0;
+  await assert.rejects(loader.load([0,.001,.001,.002],"https://example.org/base.json",false,new AbortController().signal,()=>consumed++,"https://example.org/manifest.json"),/404/);
+  assert.equal(consumed,0);
+  await assert.rejects(loader.load([0,.001,.001,.002],"https://example.org/base.json",false,new AbortController().signal,()=>consumed++),/service is required/);
   const c=new AbortController();c.abort();
   await assert.rejects(loader.load([0,.001,.001,.002],"https://example.org/base.json",false,c.signal,()=>{},"https://example.org/manifest.json"),{name:"AbortError"});
 });

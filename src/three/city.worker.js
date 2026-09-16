@@ -18,8 +18,7 @@ import { BuildingTiles } from "./tiles.js";
 import { groundSurface } from "./surface.js";
 import { compactVolumes } from "./volumes.js";
 import { EnvironmentBuilder } from "./environment.js";
-import { buildingPolygons, snapshotCoverage } from "./building-source.js";
-import { pointTile } from "./height-tiles.js";
+import { buildingPolygons } from "./building-source.js";
 
 let cached = null;
 const tileSource = new BuildingTiles();
@@ -86,7 +85,6 @@ self.onmessage = async ({ data }) => {
     );
     const genericLimit = limit - landmarks.position.length / 3;
     const landscape = new EnvironmentBuilder(origin, bounds, mobile);
-    const covered = snapshotCoverage(active?.city);
     const outside = (f) =>
       !active ||
       !inside(
@@ -97,26 +95,19 @@ self.onmessage = async ({ data }) => {
             : f.geometry.coordinates[0],
         regions[cityId].bbox,
       );
-    await tileSource.configure(tileURL, heightURL, signal);
-    const enriching = tileSource.hasPreparedCoverage(bounds, mobile);
-    const localBudget = active && !tileSource.heightMetadata?.global ? Math.floor(genericLimit * 0.55) : 0;
-    let local = active && !enriching ? snapshotGeometry(active.city, localBudget, zoom,
-      (f) => replacement.snapshot(f, origin), supplied) : null;
-    // Preserve the existing allocation/order outside prepared coverage. Inside,
-    // defer local geometry until streamed tile ownership is known.
-    const parts = local ? [landmarks, local] : [landmarks];
-    let remaining = genericLimit - (local ? local.position.length / 3 : localBudget);
+    const parts = [landmarks];
+    let remaining = genericLimit;
     const loaded = await tileSource.load(
       bounds,
       tileURL,
       mobile,
       signal,
-      (buildings, environment, { prepared }) => {
+      (buildings, environment) => {
         landscape.consume(environment);
         for (const f of buildings) landscape.excludeBuilding(f);
         const part = vectorGeometry(
           buildingPolygons(buildings).filter(
-            (f) => (prepared || !covered(f)) && !replacement.vector(f),
+            (f) => !replacement.vector(f),
           ),
           origin,
           Math.max(0, remaining),
@@ -127,21 +118,11 @@ self.onmessage = async ({ data }) => {
       },
       heightURL,
     );
-    const coveredByPrepared = (f) => {
-      // Same source-grid ownership for snapshots and prepared coverage. The
-      // snapshot remains immutable for saved legacy scenes and traffic.
-      const xs = f.points.map(p => p[0]), ys = f.points.map(p => p[1]);
-      const px = (Math.min(...xs) + Math.max(...xs)) / 2,
-        py = (Math.min(...ys) + Math.max(...ys)) / 2;
-      const point = [origin[0] + px / (111320 * Math.cos(origin[1] * Math.PI / 180)),
-        origin[1] - py / 111320];
-      return loaded.preparedTiles.has(pointTile(point));
-    };
-    if (active && enriching) {
-      local = snapshotGeometry(active.city, localBudget + Math.max(0, remaining), zoom,
-        (f) => tileSource.heightMetadata?.global || replacement.snapshot(f, origin) || coveredByPrepared(f), supplied);
-      parts.push(local);
-    }
+    // Snapshots supply place labels and remaining reviewed models only.
+    // Ordinary buildings always come from the global service, including presets.
+    const local = active ? snapshotGeometry(active.city, Math.max(0, remaining), zoom,
+      () => true, supplied) : null;
+    if (local) parts.push(local);
     signal.throwIfAborted();
     const geometry = {};
     for (const key of [

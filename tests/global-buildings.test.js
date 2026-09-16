@@ -158,10 +158,10 @@ test("global endpoint is available outside any preset and retains estimates when
       close() {},
     },
   });
-  assert.deepEqual(
-    service.manifest.regions[0].tile_bounds,
-    [0, 0, 16383, 16383],
-  );
+  assert.equal(service.manifest.version, 2);
+  assert.equal(service.manifest.global, true);
+  assert.equal(service.manifest.tiles, "./{z}/{x}/{y}.json");
+  assert.equal(service.manifest.regions, undefined);
   for (const [x, y] of [
     [9867, 8250],
     [100, 100],

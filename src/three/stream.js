@@ -39,7 +39,6 @@ export class CityStream {
           sources(data.geometry.heightAttribution || [], data.geometry.heightStatus);
           clearTimeout(this.refreshTimer);
           if (data.geometry.heightPending || data.geometry.heightStatus?.includes("partial")) this.refreshTimer = setTimeout(() => { this.lastKey = ""; this.refresh = true; this.schedule(); }, data.geometry.heightPending ? 30000 : 3600000);
-          map.setLayoutProperty("building-fallback", "visibility", "none");
           this.status(data.geometry.tileLimited ? "budget" : "ready");
           this.ready = true;
         }

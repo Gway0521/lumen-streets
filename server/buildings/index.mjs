@@ -32,14 +32,12 @@ export function createBuildingService({
   const revision = `${source.release || GLOBAL_RELEASE}/${RESOLVER_VERSION}/${digest(registry).slice(0, 12)}`;
   return {
     manifest: {
-      version: 1,
+      version: 2,
       zoom: 14,
       global: true,
       revision,
       attribution: [OVERTURE_CREDIT],
-      regions: [
-        { tile_bounds: [0, 0, 16383, 16383], tiles: "./{z}/{x}/{y}.json" },
-      ],
+      tiles: "./{z}/{x}/{y}.json",
     },
     async tile(z, x, y) {
       validateTile(z, x, y);
