@@ -19,7 +19,7 @@ Run `node scripts/measure-showcase.mjs [report.json]` to reproduce geometry coun
 
 The catalog, generators and selection/replacement module total about **179 KiB source / 24 KiB gzip**, excluding existing legacy definitions. These are source measurements, not the site's transfer size. There are no per-building GLB or texture downloads. Each view reserves up to **90,000 landmark vertices**, within the existing total facade budget. Complete assemblies are admitted atomically; an omitted model leaves its ordinary map building intact. Models share the existing facade mesh and draw call.
 
-The current average suggests about **30 simultaneous assemblies**, or **2–5 intricate lattice structures**, within that geometry allocation. For geographically distributed content, **500–1,000 comparable assemblies** extrapolate to roughly **1.7–3.4 MiB source / 0.23–0.46 MiB gzip**. Only 51 have been validated: add regional lazy loading and a spatial index before expanding to hundreds, and measure on physical phones. Textured GLBs do not fit this estimate. Vertex figures exclude map resources, generic buildings, CPU temporary allocations, browser overhead and export targets; they are not total memory or frame-rate guarantees.
+The current average suggests about 30 simultaneous assemblies, or 2–5 intricate lattice structures, within the geometry allocation. Larger catalogs need regional downloads and a spatial index before device testing. Only these 51 assemblies have been validated. Vertex figures exclude map resources, ordinary buildings, temporary CPU allocations and capture targets.
 
 ## Viewer and compatibility
 
