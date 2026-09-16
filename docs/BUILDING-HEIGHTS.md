@@ -2,6 +2,8 @@
 
 [繁體中文](BUILDING-HEIGHTS.zh-TW.md)
 
+The regional implementation below does not yet satisfy automatic worldwide enrichment. The [global building service design](GLOBAL-BUILDING-SERVICE.md) describes the proposed replacement and its live source-access evidence; that runtime migration is not implemented yet.
+
 The 3D renderer can consume independently prepared building tiles. Preparation preserves original heights, floors, identities and provenance; selects compatible measurements; then fills remaining gaps with estimates. The browser downloads nearby tiles and builds its existing lightweight facade mesh. The legacy scene renderer keeps its original normalization.
 
 This repository supplies a regional preprocessing tool and a runtime contract, **not a hosted global enriched dataset**. OpenFreeMap remains the default until a deployment configures prepared tiles. A 5 m `render_height` in the old OpenMapTiles feed remains an upstream value with unknown provenance: it cannot be recovered as either a measured height or a missing value. It is never relabeled as raw OSM height.
