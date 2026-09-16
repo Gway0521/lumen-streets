@@ -33,6 +33,14 @@ test('site packaging removes staging files after success and import failure', as
     assert.equal(members.status, 0, members.stderr);
     assert(members.stdout.includes('lumen-streets/server/start.mjs'));
     assert(!members.stdout.includes('node_modules'));
+    for (const guide of ['HOSTING.md', 'HOSTING.zh-TW.md', 'PROVIDERS.md']) {
+      const text = spawnSync('tar', ['-xOzf', archive, `lumen-streets/${guide}`], { encoding: 'utf8' });
+      assert.equal(text.status, 0, text.stderr);
+      for (const [, target] of text.stdout.matchAll(/\]\(([^\s)]+)\)/g)) {
+        if (/^(?:[a-z][a-z\d+.-]*:|#)/i.test(target)) continue;
+        assert(members.stdout.split(/\r?\n/).includes(`lumen-streets/${target}`), `Broken packaged guide link: ${guide}: ${target}`);
+      }
+    }
     assert(!(await readdir(join(work, 'artifacts'))).some(name => name.startsWith('site-')));
 
     // A missing transitive server import fails after staging has been allocated.

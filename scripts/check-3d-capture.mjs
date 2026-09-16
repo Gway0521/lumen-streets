@@ -15,7 +15,7 @@ const ready = () =>
 const report = {};
 try {
   await page.goto(
-    (process.env.QA_URL || "http://127.0.0.1:5183/") +
+    (process.env.QA_URL || "http://127.0.0.1:5180/") +
       "?city=shanghai&lng=121.500&lat=31.240&zoom=15.5&bearing=-24&pitch=50&lang=zh-TW",
   );
   await ready();

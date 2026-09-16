@@ -1,6 +1,6 @@
 # 建築立面與景觀照明
 
-[English](3D-FACADES.md) · [3D 架構](3D-ARCHITECTURE.zh-TW.md)
+[English](3D-FACADES.md) · [3D 架構](ARCHITECTURE.zh-TW.md)
 
 夜景分成室內活動、外牆材質與建築景觀照明三層：住宅保持較安靜，商業樓層呈現成組活動，少數冠部與輪廓成為天際線焦點。來源高度與建築輪廓不變。這是程序美術設計，不是實地窗戶調查或即時燈光資料。
 
@@ -24,9 +24,9 @@
 
 部分高樓屋頂角落和地標實際尖端加入紅色航空警示燈。選擇規則是美術推估，不代表當地法規或實際設置。部分常亮、部分以兩秒模擬週期明滅，同棟共用相位；暫停與匯出沿用場景時間。全視野最多 4,096 個有深度遮擋的燈點。
 
-## 研究如何落實
+## 參考
 
-參考 [ERCO 立面照明教學](https://www.erco.com/en_us/designing-with-light/public/correctly-illuminating-facades-7226/) 的洗牆、掠射與重點照明分工，讓光停留在局部材質上。金茂的退台、樂天世界塔的流線、Comcast 的燈籠式冠部、外灘的白光石材與 Bank of America 的冠部照明，分別提供不同的安排方式。所有一手來源、觀察與採用方式列在[英文研究表](3D-FACADES.md)。沒有下載或複製參考照片作為作品貼圖，也沒有宣稱重建每棟實際照明。
+[ERCO 立面照明](https://www.erco.com/en_us/designing-with-light/public/correctly-illuminating-facades-7226/)、[SOM 立面設計](https://www.som.com/expertise/facade-design/)與[金茂大廈](https://www.som.com/projects/jin-mao-tower/)提供室內窗光、實牆及局部外部照明的設計參考。
 
 ## 成本與限制
 

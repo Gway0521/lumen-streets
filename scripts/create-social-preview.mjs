@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 // Render the same cover for the README animation and repository social preview.
 // Requires Playwright, Chromium and FFmpeg; run against the built website.
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE
-  ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : 'playwright');
+  ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : '@playwright/test');
 const out = resolve(process.env.QA_OUTPUT || 'artifacts/social-preview');
 const base = (process.env.QA_URL || 'http://127.0.0.1:5180/').replace(/\/?$/, '/');
 const sourcePath = resolve(process.env.SOCIAL_VIDEO || 'public/gallery/sapporo.mp4');
@@ -40,7 +40,7 @@ main { position: relative; width: 1280px; height: 640px; overflow: hidden; }
 .eyebrow { font: 11px system-ui; letter-spacing: 3px; color: #d1b67d; margin: 24px 0 20px; }
 h1 { font: 500 100px/.9 'Cormorant Garamond', serif; letter-spacing: -1px; margin: 0 0 26px; }
 p { font: 21px/1.5 system-ui; color: #c0c9c6; margin: 0; max-width: 370px; }
-.credit { position: absolute; bottom: 24px; right: 28px; font: 13px system-ui; color: #c2c7c1; }
+.credit { position: absolute; bottom: 24px; right: 28px; font: 11px/1.5 system-ui; color: #c2c7c1; text-align: right; }
 .credit a { color: inherit; text-decoration: none; }
 .place { position: absolute; left: 78px; bottom: 30px; font: 11px system-ui; letter-spacing: 2px; color: #a4b5b6; }
 </style></head><body><main>
@@ -48,7 +48,7 @@ p { font: 21px/1.5 system-ui; color: #c0c9c6; margin: 0; max-width: 370px; }
 <div class="veil"></div><div class="identity">
 <img class="icon" src="${base}favicon.svg"><div class="eyebrow">OPEN-SOURCE NIGHTSCAPES</div>
 <h1>Lumen<br>Streets</h1><p>Turn real streets into<br>living nightscapes.</p></div>
-<div class="place">SAPPORO, JAPAN</div><div class="credit">Map data © OpenStreetMap contributors · <a href="https://www.openstreetmap.org/copyright">ODbL</a></div>
+<div class="place">SAPPORO, JAPAN</div><div class="credit">© OpenStreetMap contributors · Overture Maps Foundation<br>European Commission JRC · GHS-BUILT-H R2023A · CC BY 4.0<br>Pesaresi &amp; Politis (2023); Pesaresi et al. (2024) · sampled regional estimates<br>Project PLATEAU · Ministry of Land, Infrastructure, Transport and Tourism, Japan</div>
 </main></body></html>`;
   await page.route('**/cover-source/*.png', async r => {
     const name = new URL(r.request().url()).pathname.split('/').at(-1);

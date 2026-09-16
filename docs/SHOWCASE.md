@@ -1,14 +1,13 @@
 # Showcase locations and landmarks
 
-[繁體中文：完整清單與容量評估](SHOWCASE.zh-TW.md) · [Architecture](3D-ARCHITECTURE.md)
+[繁體中文：完整清單與容量評估](SHOWCASE.zh-TW.md) · [Architecture](ARCHITECTURE.md)
 
-The development showcase contains two locations in each of four groups: Shanghai and Guangzhou; Taipei Xinyi and Kaohsiung; Sapporo and Yokohama; Seattle and Lower Manhattan. Each pair includes an urban waterfront. Shanghai, Xinyi and Sapporo remain; Seattle moves from South Lake Union to Elliott Bay. Guangzhou, Kaohsiung, Yokohama and New York replace Beijing, Gongguan, Shinjuku and Washington in Explore.
+The showcase contains Shanghai and Guangzhou; Taipei Xinyi and Kaohsiung; Sapporo and Yokohama; Seattle and Lower Manhattan. Each pair includes an urban waterfront.
 
-The selection combines actual renderer review with references from [Guangzhou](https://www.gz.gov.cn/guangzhouinternational/home/citynews/content/post_8558363.html), [Yokohama tourism](https://www.yokohamajapan.com/article/yokohama-skyline/) and [Visit Seattle](https://visitseattle.org/neighborhoods/waterfront/). Chicago was also compared; Lower Manhattan provides a denser, more distinctive skyline for this set. Kaohsiung has sparser ordinary building data and more open water. Missing neighbourhood detail is not invented.
 
 ## Scope and accuracy
 
-There are **51 landmark assemblies: 45 additions and 6 retained models**. The reviewed inventory covers major structures in the initial views and roughly 2–3 km around them, not every named attraction or historic building. Towers, cultural buildings, wheels and bridges receive original low-polygon silhouettes. Parks and ordinary streets remain map geometry. The Statue of Liberty lies beyond this inventory's radius.
+There are **51 landmark assemblies**. The reviewed inventory covers major structures in the initial views and roughly 2–3 km around them, not every named attraction or historic building. Towers, cultural buildings, wheels and bridges receive original low-polygon silhouettes. Parks and ordinary streets remain map geometry. The Statue of Liberty lies beyond this inventory's radius.
 
 [The catalog](../src/three/showcase-landmarks.json) records bilingual names, OSM identities, anchors, source heights, display heights, retrieval dates and replacement footprints. Attribution is © OpenStreetMap contributors, [ODbL](https://www.openstreetmap.org/copyright). No reference photos or third-party meshes are bundled. Height bases distinguish existing reviewed references, OSM tags and approximate display values. Shapes, facade details, freeform surfaces, bridge structures and lighting remain artistic approximations rather than survey models.
 

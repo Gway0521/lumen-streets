@@ -50,7 +50,7 @@ const browser = await chromium.launch({ channel: "msedge", headless: true }),
   errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 try {
-  await page.goto("http://127.0.0.1:5183/three.html?city=sapporo");
+  await page.goto("http://127.0.0.1:5180/three.html?city=sapporo");
   await page.waitForFunction(() => window.__lumen3d?.stream?.ready);
   await page.locator("#tab-models").click();
   await page.locator("#model-file").setInputFiles(`${out}/prism.glb`);

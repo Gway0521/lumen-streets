@@ -1,7 +1,7 @@
 import { chromium } from "@playwright/test";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
-const base = process.env.QA_URL || "http://127.0.0.1:5183/";
+const base = process.env.QA_URL || "http://127.0.0.1:5180/";
 const out = process.env.QA_OUTPUT || "artifacts/3d-landscape";
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ channel: "msedge", headless: true });

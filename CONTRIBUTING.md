@@ -4,7 +4,7 @@ Bug fixes, translations and maps that expose rendering problems are welcome. For
 
 ## Run and check
 
-Use Node.js 24. Run `npm ci` and `npm run dev`, then open http://127.0.0.1:5180/.
+Use Node.js 24 and Python 3.12 with pip and venv. Run `npm ci` and `npm run dev`, then open http://127.0.0.1:5180/.
 
 Before submitting a change:
 
@@ -27,7 +27,7 @@ Add tests for behaviour and regressions. Explain the need, license and bundle co
 
 ## Reporting a problem
 
-Include the city, palette, browser/OS, viewport or device, steps to reproduce, and what you expected. For exports, include format, size and duration. A screenshot helps; a scene file can help too, but it contains the selected location and settings.
+Include the location, browser/OS, viewport or device, steps to reproduce, and what you expected. For exports, include format, size and duration. A screenshot helps; a scene file can help too, but it contains the selected location and settings.
 
 Map corrections generally belong in OpenStreetMap. For contributed snapshots, retain source metadata and licensing; see [Map data and services](docs/PROVIDERS.md). Do not contribute proprietary maps or unbounded datasets.
 

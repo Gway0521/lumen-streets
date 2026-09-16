@@ -1,60 +1,139 @@
 {
-  "source": "Actual application downloads; mapped streets and source heights with original parametric landmark artwork and lighting.",
-  "credit": "© OpenStreetMap contributors · ODbL",
+  "applicationVersion": "0.3.0",
+  "rendererVersion": "three",
+  "source": "Application exports with map data, estimated building heights and original landmark artwork.",
+  "credit": "© OpenStreetMap contributors · Overture Maps · height-source credits appear in each export",
   "license": "https://www.openstreetmap.org/copyright",
   "images": [
-    {
-      "id": "sapporo",
-      "file": "sapporo.png",
-      "width": 1280,
-      "height": 800,
-      "palette": "aerial",
-      "density": 80,
-      "simulationTime": 8,
-      "sha256": "88f8620de36b5fc1f305a220f028ac5ae4c515c8389bc5848c891fb169041cce"
-    },
-    {
-      "id": "tokyo",
-      "file": "tokyo.png",
-      "width": 1280,
-      "height": 800,
-      "palette": "aerial",
-      "density": 80,
-      "simulationTime": 8,
-      "sha256": "be26b0c86c26c49696a96276e4e52e8dfd7e16b62c3399ca9691a71d77ddbe0f"
-    },
     {
       "id": "shanghai",
       "file": "shanghai.png",
       "width": 1280,
-      "height": 800,
-      "palette": "aerial",
-      "density": 80,
-      "simulationTime": 8,
-      "sha256": "ce64c585674634e5ecfb07afb69cd4580f45035900b23fa0e239e8ce7cfbf8f6"
+      "height": 720,
+      "camera": {
+        "center": [
+          121.495,
+          31.239
+        ],
+        "zoom": 14.7,
+        "bearing": -14,
+        "pitch": 45
+      },
+      "sha256": "d577610f3301d1e12a781948c0d2251e0b69a491e01c8c668c702f321bdc68d3"
     },
     {
-      "id": "seattle",
-      "file": "seattle.png",
+      "id": "guangzhou",
+      "file": "guangzhou.png",
       "width": 1280,
-      "height": 800,
-      "palette": "aerial",
-      "density": 80,
-      "simulationTime": 8,
-      "sha256": "3d6c17fb34b2c595eb155c129cfc4c6d4a932e02401ea541ec187199214b0132"
+      "height": 720,
+      "camera": {
+        "center": [
+          113.32,
+          23.115
+        ],
+        "zoom": 14.75,
+        "bearing": -16,
+        "pitch": 45
+      },
+      "sha256": "4cc1db5307d4578a740a536317decb4708fd51336993a5384f7b5ed078ccbd33"
     },
     {
       "id": "xinyi",
       "file": "xinyi.png",
       "width": 1280,
-      "height": 800,
-      "palette": "aerial",
-      "density": 80,
-      "simulationTime": 8,
-      "sha256": "7a97c13a96550674b6b27635c5987278a8bdac2a1f714b458bb486134a543042"
+      "height": 720,
+      "camera": {
+        "center": [
+          121.5638,
+          25.0368
+        ],
+        "zoom": 14.6,
+        "bearing": -10,
+        "pitch": 45
+      },
+      "sha256": "71cd357850f950086a284d41a6f6b00650a36f4410fb88ac5c78121df4e851fd"
+    },
+    {
+      "id": "kaohsiung",
+      "file": "kaohsiung.png",
+      "width": 1280,
+      "height": 720,
+      "camera": {
+        "center": [
+          120.296,
+          22.614
+        ],
+        "zoom": 14.85,
+        "bearing": -20,
+        "pitch": 45
+      },
+      "sha256": "8f7e0ae53931090fa12ad90695e83dc744727134a236d1ad240e1b4a8b36d5f4"
+    },
+    {
+      "id": "sapporo",
+      "file": "sapporo.png",
+      "width": 1280,
+      "height": 720,
+      "camera": {
+        "center": [
+          141.3545,
+          43.063
+        ],
+        "zoom": 14.8,
+        "bearing": 0,
+        "pitch": 45
+      },
+      "sha256": "325d8ed007d31e643fb54249d445f4e6de78fbad0aefdd1a8ce40aa319fddc03"
+    },
+    {
+      "id": "yokohama",
+      "file": "yokohama.png",
+      "width": 1280,
+      "height": 720,
+      "camera": {
+        "center": [
+          139.6365,
+          35.454
+        ],
+        "zoom": 14.75,
+        "bearing": -24,
+        "pitch": 45
+      },
+      "sha256": "3d865f4e0a371b3682c561677d96f4c952042a7680e58a72f2338258e5c78b98"
+    },
+    {
+      "id": "seattle",
+      "file": "seattle.png",
+      "width": 1280,
+      "height": 720,
+      "camera": {
+        "center": [
+          -122.34,
+          47.612
+        ],
+        "zoom": 14.4,
+        "bearing": 20,
+        "pitch": 45
+      },
+      "sha256": "7bea4611be5eabc5dfa342424a21e1f416cdd871a681a214ccbcc5e05291bb66"
+    },
+    {
+      "id": "newyork",
+      "file": "newyork.png",
+      "width": 1280,
+      "height": 720,
+      "camera": {
+        "center": [
+          -74.008,
+          40.709
+        ],
+        "zoom": 14.65,
+        "bearing": 15,
+        "pitch": 45
+      },
+      "sha256": "ef1752ddb421ff95c82bc61c5b20b5eec0b2cf33372f3a960bce9bbc40eb55a3"
     }
   ],
-  "rendererVersion": "aerial-8",
   "recording": {
     "file": "sapporo.mp4",
     "seconds": 12,
@@ -62,46 +141,39 @@
     "width": 1280,
     "height": 720,
     "codec": "H.264",
-    "source": "First 12 seconds of a 30-second application MP4 export; resized to 1280×720 and compressed with FFmpeg at CRF 21.",
-    "sourceSha256": "f765ddb87b1fe1b51ddc402c612b361f7780321ba697fb9605d37ea77b507c04",
-    "sha256": "fd6ce5a073868df2c894fe2305cde3296f3fce81840a554d6e2e62c0a52c3542"
+    "source": "First 12 seconds of a 30-second application export, resized and compressed with FFmpeg.",
+    "sourceSha256": "19e9d5dc1d9138c34a381552d11c8cddb8257b69e36a55a9e56190272d31dec8",
+    "sha256": "408b467b6041ef0db427e9ff8fab6b30ca06bb0eafdb951ad7d0f1c9202e1431"
+  },
+  "poster": {
+    "file": "video-poster.png",
+    "width": 1280,
+    "height": 720,
+    "source": "First decoded video frame.",
+    "sha256": "4f440e2d5f25c71a15e341de0e6703019a99822f06bddd75b0b3f897b158a5e3"
   },
   "readmePreview": {
-    "file": "docs/images/social-cover.gif",
     "source": "Actual Sapporo application video with the shared logo, title and fixed gradient overlay. Six-second excerpt; repeats with a cut.",
-    "sourceSha256": "fd6ce5a073868df2c894fe2305cde3296f3fce81840a554d6e2e62c0a52c3542",
+    "sourceSha256": "408b467b6041ef0db427e9ff8fab6b30ca06bb0eafdb951ad7d0f1c9202e1431",
     "frames": 60,
     "seconds": 6,
     "width": 960,
     "height": 480,
-    "sha256": "26e2b1e2ad4b899f368f562d6bf622689ac66307c47b4e3b0624a07c9beb60c4"
+    "sha256": "60bc24d205124af7411fce57fbe55978f190c603fabedee01456dddd1a68acda",
+    "file": "docs/images/social-cover.gif"
   },
   "socialPreview": {
     "file": "docs/images/social-left.jpg",
-    "source": "First frame of the same social cover, before GIF downscaling and quantization.",
+    "source": "First frame of the same social cover, before GIF downscaling.",
     "width": 1280,
     "height": 640,
-    "sha256": "53332d24ef62a37352ba7d927f1e632da4d33867657b9e23b5e11298603932d9"
+    "sha256": "d4b60b0e34a91b9d60bb034bdcc92a6c40c701a72db16148a73371a6b167b0a3"
   },
   "websitePreview": {
     "file": "public/social-preview.jpg",
-    "source": "Byte-identical copy of docs/images/social-left.jpg for website Open Graph and Twitter cards.",
+    "source": "Copy of the repository social preview.",
     "width": 1280,
     "height": 640,
-    "sha256": "53332d24ef62a37352ba7d927f1e632da4d33867657b9e23b5e11298603932d9"
-  },
-  "poster": {
-    "file": "video-poster.png",
-    "source": "First decoded frame of sapporo.mp4.",
-    "width": 1280,
-    "height": 720,
-    "sha256": "0ca65c8e38cd8e7a0ad5a6108806e890ab9c7ce1448876fc9897e4d719533696"
-  },
-  "landmarkPack": "landmarks-2",
-  "applicationVersion": "0.2.0",
-  "camera": {
-    "projection": "orthographic",
-    "elevation": 70,
-    "azimuth": 0
+    "sha256": "d4b60b0e34a91b9d60bb034bdcc92a6c40c701a72db16148a73371a6b167b0a3"
   }
 }

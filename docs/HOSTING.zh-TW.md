@@ -6,7 +6,7 @@ Lumen Streets 用一個 Node.js 24 程序提供網站、搜尋與全球建築圖
 
 3D 繪圖也會在瀏覽器載入線上向量圖磚與字型，預設地點亦需連網。更換相容圖磚來源時，請在建置端設定公開的 `VITE_LUMEN_TILEJSON_URL` 並重新建置；VITE 變數不可放憑證。詳見[地圖服務](PROVIDERS.md)。
 
-主機需先安裝 Python 3.12（含 venv 與 pip）。`npm dev`、`npm start`、`npm run preview` 會在啟動前自動準備共用的獨立環境；首次需要連網，訪客不用安裝軟體或手動建置城市。systemd 部署請先以服務帳號執行 `npm run setup:buildings`，再啟動 unit。
+主機需先安裝 Python 3.12（含 venv 與 pip）。`npm run dev`、`npm start`、`npm run preview` 會在啟動前自動準備共用的獨立環境；首次需要連網，訪客不用安裝軟體或手動建置城市。systemd 部署請先以服務帳號執行 `npm run setup:buildings`，再啟動 unit。
 
 `LUMEN_BUILDINGS_CACHE_DIR` 指向 `dist/` 以外可寫入的持久快取，預設 `.cache/global-buildings`；systemd 範例使用 `/var/lib/lumen-streets/buildings`。`LUMEN_BUILDINGS_PYTHON` 可指定已準備的直譯器。快取保留預算約 3.25 GiB，另需環境及執行中下載空間；DuckDB 的 1 GiB 查詢記憶體上限不包含 Node 與柵格處理。部署包已包含 Node 服務相依程式及 Python 原始碼／依賴清單。純靜態網站需要把 `/api/buildings/*` 轉送至此服務。
 
@@ -52,7 +52,7 @@ npm start
 
 使用 [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/get-started/create-remote-tunnel/) 時，在 Node 主機執行 `cloudflared`，把公開網域指向 `http://127.0.0.1:5180`，並設 `LUMEN_PROXY_IP_HEADER=cf-connecting-ip`。若設定 HTTP Host Header 覆寫，請填公開網域。對外 HTTPS 由 Tunnel 提供。
 
-HTML 採短期快取，`/api/*` 遵守伺服器的 `no-store`。搜尋端點與用量設定請看[地圖服務](PROVIDERS.md)。
+HTML 採短期快取，`/api/*` 遵守伺服器回傳的快取標頭。搜尋端點與用量設定請看[地圖服務](PROVIDERS.md)。
 
 ## 持續運行與更新
 
@@ -64,7 +64,7 @@ HTML 採短期快取，`/api/*` 遵守伺服器的 `no-store`。搜尋端點與�
 
 ## 純靜態部署
 
-將 `dist/` 的內容放到 HTTPS 靜態主機，即可使用 3D 編輯器、匯出和場景檔；預設地點也需要線上向量圖磚。沒有 API 時搜尋會隱藏。相對資源路徑支援子目錄，不需要 SPA fallback。
+靜態前端必須將 `/api/buildings/*` 代理到 Node 建築服務；另代理 `/api/search` 與 `/api/capabilities` 可啟用搜尋。前端仍需要線上向量圖磚。相對資源支援子目錄，API 路徑則位於網域根目錄。
 
 ## 原始碼與授權
 

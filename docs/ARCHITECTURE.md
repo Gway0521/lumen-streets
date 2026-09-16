@@ -1,17 +1,61 @@
 # Architecture
 
-Lumen Streets now opens the MapLibre/Three.js editor at `index.html`; `three.html` remains an alias entry for existing 3D links. See [3D architecture](3D-ARCHITECTURE.md) ([繁體中文](3D-ARCHITECTURE.zh-TW.md)) for rendering, tile budgets, capture ownership and source limitations.
+[繁體中文](ARCHITECTURE.zh-TW.md)
 
-## Shared foundations
+MapLibre GL JS and Three.js share a WebGL2 context and depth buffer. MapLibre handles the map, camera and base tiles; Three.js renders buildings, landmarks, vegetation and moving lights. The editor, captures and embeds use the same rendering path.
 
-The 3D engine reuses the OSM parser, attributed preset snapshots, traffic simulation, reviewed landmark packs and geometry generators. `src/three/` owns the WebGL layers, streaming worker, composition, model imports and current scene format. Captures and embeds use this renderer.
+## Data flow
 
-The Node server in `server/` serves built files and a guarded search/map API. Search remains behind bounded provider adapters. Continuous panning loads road/environment vector tiles directly from the configured provider. Buildings use the same-origin global tile service, Overture range reads and automatic geographic background enrichment; no Overpass area queries or per-city preparation are needed. See [Global buildings](GLOBAL-BUILDING-SERVICE.md).
+1. The camera selects zoom-14 tiles around the view.
+2. The Node building service reads Overture PMTiles using HTTP ranges. Python workers add geographically matched height data in the background.
+3. A browser worker builds facade geometry, landmark silhouettes, terrain masks and traffic graphs.
+4. The renderer replaces the active scene and disposes previous GPU resources. Capture freezes building revisions and traffic state, then restores the live scene afterward.
 
-## Legacy compatibility
+OpenFreeMap supplies roads, water, landcover and the flat basemap. Attributed snapshots add road and railway topology in their coverage areas. Building data and attribution come from the [height service](BUILDING-HEIGHTS.md). Search uses the [server gateway](PROVIDERS.md).
 
-`player.html` and `src/player/` retain read-only playback for existing 2D scene files and links. Their Canvas engine, immutable scene data, versioned recipes and import validation remain in `src/engine/` and `src/scene/`. The old editor source is retained for reference and shared imports, but is not a built editor entry point.
+## Rendering
 
-The two scene formats are separate; the 3D editor does not migrate old Canvas recipes. See [Scenes](SCENES.md). The existing gallery and social images remain attributed v0.2.0 artwork until a reviewed 3D artwork refresh.
+Buildings use a batched facade mesh with nine procedural architectural families. Window occupancy, material tone and decorative lighting use stable seeds. More distant buildings use instanced volumes, which simplify footprints and courtyards. The 51 reviewed [landmark assemblies](SHOWCASE.md) replace their owned footprints and share the facade mesh.
 
-See [Testing](TESTING.md), [Hosting](HOSTING.md), [map services](PROVIDERS.md) and [building source data](BUILDINGS.md).
+Trees use instancing. Water reflections sample road and inferred shoreline lights within mapped water. Bloom uses one full-size RGBA8 copy and two quarter-size passes. See [art direction](ART_DIRECTION.md) and [facades](3D-FACADES.md).
+
+Traffic follows seeded demand, one-way roads, signals and turning rules. Snapshot railway coverage supports simulated trains. The simulation clock drives animation and export timestamps.
+
+## Resource budgets
+
+| Resource | Desktop | Mobile profile |
+| --- | ---: | ---: |
+| Adaptive pixel-ratio ceiling | 1.75 | 1.25 |
+| Detailed facade vertices | 700,000 | 280,000 |
+| Landmark reservation within that budget | 90,000 | 90,000 |
+| Building tiles per view | 180 | 96 |
+| Encoded building cache | 24 MiB | 8 MiB |
+| Concurrent building requests | 4 | 2 |
+| Distant-volume aggregation target | 90,000 | 45,000 |
+| Water / vegetation vertices, each | 70,000 | 30,000 |
+| Trees | 6,000 | 2,000 |
+| Default vehicles, subject to road capacity | 700 | 400 |
+
+These figures exclude browser, MapLibre, worker and driver overhead. Wide views may reach the outer tile limit, which is reported in the interface. Landmark assemblies are admitted whole. The distant-volume target is approximate because tall and broad buildings remain separate.
+
+CityStream keeps one geometry job in flight and one coalesced follow-up. Generation checks reject stale responses; cancelled bitmaps and replaced textures are closed. Encoded tile buffers are cached, while decoded features are temporary. Atlas views release detailed city resources. Hidden tabs stop traffic paints; paused scenes repaint for interactions.
+
+## Module map
+
+| Module | Responsibility |
+| --- | --- |
+| src/three/main.js, locales.js, style.css | Editor and bilingual controls |
+| src/three/stream.js, city.worker.js, tiles.js | Tile loading, cancellation and geometry jobs |
+| src/three/geometry.js, building-source.js | Meshes, footprints, parts and holes |
+| src/three/layer.js, materials.js, volumes.js | GPU scene and materials |
+| src/three/environment.js, surface.js, bloom.js | Terrain, vegetation, reflections and bloom |
+| src/three/export.js, video.js, composition.js | Capture, encoding, framing and titles |
+| src/three/model-import.js, contribution.js | GLB validation and contribution packages |
+| server/buildings/ and scripts/buildings/ | Global building delivery and enrichment |
+| src/player/, src/engine/, src/scene/ | Read-only compatibility for earlier scene files |
+
+## Boundaries
+
+The renderer needs online tiles, including for presets. Building measurements and Overture footprint coverage vary geographically. Road tiles omit some original OSM topology; traffic is not persistent across every tile/snapshot seam. Global trains and fully offline scenes remain on the [roadmap](ROADMAP.md).
+
+The Canvas player retains versioned geometry and scene contracts for earlier files. See [Scenes](SCENES.md) and [Testing](TESTING.md).

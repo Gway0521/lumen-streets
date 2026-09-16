@@ -13,7 +13,7 @@ page.on("console", (e) => {
 });
 try {
   await page.goto(
-    "http://127.0.0.1:5183/three.html?city=sapporo&lng=141.3566&lat=43.0591&zoom=16.5&bearing=0&pitch=40&embed=1",
+    "http://127.0.0.1:5180/three.html?city=sapporo&lng=141.3566&lat=43.0591&zoom=16.5&bearing=0&pitch=40&embed=1",
   );
   await page.waitForFunction(
     () => window.__lumen3d?.stream?.ready && !window.__lumen3d.stream.busy,

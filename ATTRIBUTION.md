@@ -23,7 +23,7 @@ Base snapshots include selected roads, buildings, parks, land and water, plus re
 
 ## Images and simulated content
 
-Gallery images and recordings are actual Canvas exports. No external photograph is bundled or used as a texture. Scene pixels are drawn from map geometry and artistic rules.
+Gallery images and recordings are application exports. No external photograph is bundled or used as a texture. Scene pixels are drawn from map geometry and artistic rules.
 
 Light intensity and colors approximate an artistic district character from building density, tags and station proximity. Vehicles, signals, train movement, dwell times and directions are simulated, with no live traffic or timetable data. Buildings are not asserted to be illuminated or open in reality.
 
@@ -31,11 +31,11 @@ Light intensity and colors approximate an artistic district character from build
 
 The original parametric Taipei 101 and Sapporo TV Tower artwork is covered by the project license. No external model meshes, photographs, textures or document images are shipped. Mapped footprints/identities retain their OSM attribution. Height facts, conflicting candidates, review dates and Wikidata revisions are recorded in [landmark sources](data/landmarks/sources-v1.json); intermediate model dimensions are artistic approximations. Wikidata structured entity data is supplied under [CC0](https://www.wikidata.org/wiki/Wikidata:Licensing). Source references are for provenance, not an endorsement by the landmark operators.
 
-Publicly shared map images and animations must carry readable OSM attribution in or alongside their presentation as appropriate to the medium. The 3D map displays attribution in the viewer. Its exported pixels have no source-credit option; provide visible credit alongside publicly shared images and videos. Metadata or a detached file alone is not a blanket substitute for visible attribution in public uses. See the [OSMF attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines). Embedded scenes also require attribution. Database redistribution and adaptation remain subject to ODbL; the AGPL program license does not replace the map license.
+Publicly shared map images and animations must carry readable OSM attribution in or alongside their presentation as appropriate to the medium. The 3D map displays attribution in the viewer. Exports include the building-source credits for the captured scene. Metadata or a detached file alone is not a blanket substitute for visible attribution in public uses. See the [OSMF attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines). Embedded scenes also require attribution. Database redistribution and adaptation remain subject to ODbL; the AGPL program license does not replace the map license.
 
 ## Software
 
-Lumen Streets is licensed under [AGPL-3.0-only](LICENSE). [NOTICE](NOTICE) retains the current and preceding project copyright notices. Vite is MIT-licensed build tooling. Canvas 2D is a browser API. Leaflet 1.9.4 (BSD-2-Clause) supplies the optional area map; gifenc 1.0.3 (MIT) encodes GIF previews. Unmodified Mediabunny 1.56.1 (MPL-2.0) supplies video encoding/container integration. Its source is available in the [exact source package](https://registry.npmjs.org/mediabunny/-/mediabunny-1.56.1.tgz), including the src directory; its MPL license is included in [mediabunny-license.txt](public/mediabunny-license.txt). Mediabunny remains available under MPL-2.0; the combined application is distributed under AGPL-3.0-only. Software notices are included in [third-party-notices.txt](public/third-party-notices.txt), which is also copied into the static build. No remote fonts are used.
+Lumen Streets is licensed under [AGPL-3.0-only](LICENSE). [NOTICE](NOTICE) retains the current and preceding project copyright notices. Vite is MIT-licensed build tooling. Canvas 2D is a browser API. gifenc 1.0.3 (MIT) encodes GIF previews. Unmodified Mediabunny 1.56.1 (MPL-2.0) supplies video encoding/container integration. Its source is available in the [exact source package](https://registry.npmjs.org/mediabunny/-/mediabunny-1.56.1.tgz), including the src directory; its MPL license is included in [mediabunny-license.txt](public/mediabunny-license.txt). Mediabunny remains available under MPL-2.0; the combined application is distributed under AGPL-3.0-only. Software notices are included in [third-party-notices.txt](public/third-party-notices.txt), which is also copied into the static build. No remote fonts are used.
 
 ## Fonts
 

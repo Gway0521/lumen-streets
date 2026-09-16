@@ -1,6 +1,6 @@
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { basename, dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve, posix } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import './check-release.mjs';
@@ -33,12 +33,18 @@ try {
     engines: pkg.engines, scripts: { start: pkg.scripts.start, prestart: pkg.scripts.prestart, 'setup:buildings': pkg.scripts['setup:buildings'] },
   }, null, 2) + '\n');
   await cp('.env.example', join(bundle, '.env.example'));
-  await cp('docs/HOSTING.md', join(bundle, 'HOSTING.md'));
-  await cp('docs/HOSTING.zh-TW.md', join(bundle, 'HOSTING.zh-TW.md'));
-  const providerGuide = (await readFile('docs/PROVIDERS.md', 'utf8'))
-    .replaceAll('(BUILDINGS.md)', `(https://github.com/Gway0521/lumen-streets/blob/v${pkg.version}/docs/BUILDINGS.md)`)
-    .replaceAll('(../ATTRIBUTION.md)', `(https://github.com/Gway0521/lumen-streets/blob/v${pkg.version}/ATTRIBUTION.md)`);
-  await writeFile(join(bundle, 'PROVIDERS.md'), providerGuide);
+  const guides = ['HOSTING.md', 'HOSTING.zh-TW.md', 'PROVIDERS.md'];
+  for (const name of guides) {
+    const guide = (await readFile(join('docs', name), 'utf8')).replace(
+      /\]\(([^\s)]+)\)/g,
+      (match, target) => {
+        if (/^(?:[a-z][a-z\d+.-]*:|#)/i.test(target) || guides.includes(target)) return match;
+        const sourcePath = posix.normalize(posix.join('docs', target));
+        return `](https://github.com/Gway0521/lumen-streets/blob/v${pkg.version}/${sourcePath})`;
+      },
+    );
+    await writeFile(join(bundle, name), guide);
+  }
   await cp('LICENSE', join(bundle, 'LICENSE'));
   await cp('NOTICE', join(bundle, 'NOTICE'));
   // Resolve the packaged backend's imports before producing a release archive.

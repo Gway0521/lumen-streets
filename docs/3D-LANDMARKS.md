@@ -1,6 +1,6 @@
 # Contribute a landmark
 
-[繁體中文](3D-LANDMARKS.zh-TW.md) · [Architecture](3D-ARCHITECTURE.md)
+[繁體中文](3D-LANDMARKS.zh-TW.md) · [Architecture](ARCHITECTURE.md)
 
 Bring a building from your city to Lumen Streets. Place a local GLB, check its silhouette, then download a contribution ZIP for GitHub review.
 

@@ -4,7 +4,7 @@ The main editor requires WebGL2 and online vector tiles. Use a current desktop b
 
 The automated 3D browser suites target installed Microsoft Edge and include desktop and touch/mobile viewport checks, real exports, scene restoration and import rejection. Mobile emulation uses the host GPU and does not establish physical-phone performance.
 
-Earlier v0.2.0 validation covered Windows Edge, a WebKit test build and a user-tested Android device. Those results describe the Canvas renderer and are not evidence that the new WebGL renderer works equally on the same devices. Broader physical Android, iPhone/Safari and sustained long-video coverage remains open.
+Physical Android, iPhone/Safari and sustained long-video coverage remain open. Viewport emulation uses the host GPU.
 
 ## Known limits
 
@@ -16,4 +16,4 @@ Earlier v0.2.0 validation covered Windows Edge, a WebKit test build and a user-t
 - Global trains and persistent traffic across snapshot/tile seams are not implemented.
 - Imported GLBs remain local and are separate from shared scenes.
 
-See [Exports](EXPORTS.md), [Testing](TESTING.md) and [3D resource budgets](3D-ARCHITECTURE.md).
+See [Exports](EXPORTS.md), [Testing](TESTING.md) and [3D resource budgets](ARCHITECTURE.md).

@@ -6,7 +6,7 @@ Lumen Streets runs as one Node.js 24 process serving the website, search API and
 
 The 3D renderer also loads online vector tiles and glyphs in the browser, even for presets. Set the public build-time `VITE_LUMEN_TILEJSON_URL` to change the compatible tile provider; rebuild afterward. See [Map services](PROVIDERS.md). Do not put credentials in VITE variables.
 
-Install Python 3.12 (including `venv` and pip) on the host. `npm dev`, `npm start` and `npm run preview` automatically prepare a shared isolated environment before listening. The first setup needs network access; visitors never install Python or prepare cities. For systemd, run `npm run setup:buildings` once as the service user before starting the unit. The deployment archive bundles the Node tile-service dependencies and Python source/requirements.
+Install Python 3.12 (including `venv` and pip) on the host. `npm run dev`, `npm start` and `npm run preview` automatically prepare a shared isolated environment before listening. The first setup needs network access; visitors never install Python or prepare cities. For systemd, run `npm run setup:buildings` once as the service user before starting the unit. The deployment archive bundles the Node tile-service dependencies and Python source/requirements.
 
 Keep the building cache outside `dist/`, writable by the service user. `LUMEN_BUILDINGS_CACHE_DIR` defaults to `.cache/global-buildings`; the supplied systemd environment uses `/var/lib/lumen-streets/buildings`. `LUMEN_BUILDINGS_PYTHON` can select an existing interpreter. The example systemd service protects the application directory, so prepare its Python environment before enabling that protection. Allow space for about 3.25 GiB of retained tile/results/source/audit caches plus bounded active downloads and the Python environment. The 1 GiB DuckDB query limit is additional to Node and raster processing memory; size and monitor the host accordingly. Static-only hosting must proxy `/api/buildings/*` to this service.
 
@@ -52,7 +52,7 @@ The proxy must overwrite the selected IP header with the verified visitor addres
 
 For [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/get-started/create-remote-tunnel/), run `cloudflared` on the Node host and route the public hostname to `http://127.0.0.1:5180`. Set `LUMEN_PROXY_IP_HEADER=cf-connecting-ip`; if you set an HTTP Host Header override, use your public hostname. The tunnel provides public HTTPS.
 
-Keep HTML cache lifetimes short and respect `no-store` on `/api/*`. Search endpoints and request budgets are described in [Map services](PROVIDERS.md).
+Keep HTML cache lifetimes short and respect the cache headers on `/api/*`. Search endpoints and request budgets are described in [Map services](PROVIDERS.md).
 
 ## Keep it running
 
@@ -60,11 +60,11 @@ Use your process manager to restart the app after reboot or failure. Linux users
 
 To update, replace the application files, keep the environment and cache, and restart the process. Retaining the previous build allows rollback.
 
-Check the public URL from another device: load a preset, search for a place, import a small area, download a PNG/video, and open a player link. A 403 usually indicates a Host, origin or proxy-header mismatch; 429 indicates a request allowance or provider cooldown.
+Check the public URL from another device: load a preset, search for a place, pan to another city, download a PNG/video, and open a shared view. A 403 usually indicates a Host, origin or proxy-header mismatch; 429 indicates a request allowance or provider cooldown.
 
 ## Static-only hosting
 
-Serve the contents of `dist/` on any HTTPS static host to use the 3D editor, exports and scene files with online vector tiles. Search is hidden without the API. Relative assets support a subdirectory; no SPA fallback is required.
+A static frontend must proxy `/api/buildings/*` to the Node building service. Proxy `/api/search` and `/api/capabilities` as well to enable search. The frontend still loads online vector tiles. Relative assets support a subdirectory; API routes use the origin root.
 
 ## Source and license
 

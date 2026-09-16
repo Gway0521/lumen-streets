@@ -1,6 +1,6 @@
 # Facades and architectural light
 
-[繁體中文](3D-FACADES.zh-TW.md) · [3D architecture](3D-ARCHITECTURE.md)
+[繁體中文](3D-FACADES.zh-TW.md) · [3D architecture](ARCHITECTURE.md)
 
 The nightscape separates interior occupancy, facade material and exterior architectural light. The aim is a recognisable skyline with quiet residential districts, active commercial floors and a small number of luminous crowns. Source building heights and footprints remain unchanged. These are procedural art treatments, not surveyed windows or live lighting data.
 
@@ -24,24 +24,9 @@ Exterior light includes crown bands, selected vertical edges, upper fins, curved
 
 Red obstruction lights sit at selected roof corners and actual landmark tips. The height/seed rule is an artistic heuristic, not a jurisdiction-specific aviation assessment. Some lights are steady and others pulse on a two-second simulation cycle; lights on one building share their phase. Pause and export use the existing simulation clock. At most 4,096 points are uploaded in one depth-tested draw.
 
-## References and interpretation
+## References
 
-The following primary sources informed the design; the implementation does not copy project imagery or claim to reconstruct their exact facades.
-
-| Source | Observation used in this renderer |
-| --- | --- |
-| [ERCO: lighting facades](https://www.erco.com/en_us/designing-with-light/public/correctly-illuminating-facades-7226/) | Separate general illumination, grazing light and accents; use local falloff and light colour appropriate to the material. |
-| [ERCO: looking in and looking out](https://www.erco.com/en_us/designing-with-light/lighting-knowledge/design-examples-indoor/looking-in-and-looking-out-7614/) | Interior brightness contributes to the facade; lighting need not be an exterior outline everywhere. |
-| [SOM: facade design](https://www.som.com/expertise/facade-design/) | Curtain-wall construction supplies a different visual rhythm from solid walls with punched openings. |
-| [SOM: Jinmao Tower](https://www.som.com/projects/jin-mao-tower/) | Setbacks form a recognisable ascending rhythm; warm accents follow the existing component tiers. |
-| [KPF: Lotte World Tower](https://www.kpf.com/project/lotte-world-tower) | Fluid form and a continuous seam suggest selective contour lines, rather than illuminating every edge. |
-| [Speirs Major: 30 St Mary's Axe](https://www.speirsandmajor.com/projects/410/30-st-mary-s-axe) | Light and dark glazing should preserve a building's overall composition at night. |
-| [Tillotson: Comcast Technology Center](https://www.tillotsondesign.com/corporate/comcast-innovation-and-technology-center) | A diffused illuminated lantern can give a tower identity without a uniformly bright body. |
-| [Color Kinetics: the Bund](https://www.colorkinetics.com/global/showcase/bund) | White facade lighting can express stone and classical surfaces without saturated colour. |
-| [Color Kinetics: Endeavour](https://www.colorkinetics.com/global/showcase/endeavour) | A lit central core and crown provide different placements from an all-over facade grid. |
-| [Focus Lighting: Bank of America Corporate Center](https://www.focuslighting.com/bank-of-america-corporate-center) | Crown lighting can emphasise a skyline silhouette. |
-| [MVRDV: Valley](https://mvrdv.com/projects/233/valley) | Material contrast and varied apartment geometry inform paired/staggered openings; this renderer does not add its balconies or vegetation. |
-| [FAA: tall-structure warning lights](https://www.faa.gov/faq/what-are-requirements-aircraft-warning-lights-tall-structures) | Obstruction lighting is location dependent; the renderer's visual selection is not a compliance model. |
+[ERCO facade lighting](https://www.erco.com/en_us/designing-with-light/public/correctly-illuminating-facades-7226/), [SOM facade design](https://www.som.com/expertise/facade-design/) and [Jin Mao Tower](https://www.som.com/projects/jin-mao-tower/) inform the distinction between occupied interiors, solid walls and selective exterior accents.
 
 ## Implementation and review
 

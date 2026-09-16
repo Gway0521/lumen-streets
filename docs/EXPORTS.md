@@ -16,10 +16,10 @@ Ratios include current view, screen, 16:9, 16:10, ultrawide, square, tablet, pho
 
 Wallpaper options share adjustable edge shading, brightness and area across all formats. Place titles support editable text, four corners and three sizes; landmark labels are optional. Fonts load from bundled Cormorant Garamond and Noto Serif TC files. Text and shading are off by default and are saved in [scene files](SCENES.md).
 
-The current capture interface has no on-image source-credit switch or detached credit download. When publishing an export, provide visible map credit and the [OpenStreetMap license link](https://www.openstreetmap.org/copyright) alongside it; see [Attribution](../ATTRIBUTION.md).
+Exports include the building-data attribution used by the current scene. Keep these credits visible when publishing; see [Attribution](../ATTRIBUTION.md).
 
 ## Export recovery
 
 Try PNG or a smaller size if video encoding is unavailable. Longer or larger videos require browser temporary-file storage. Encoded output is capped at 1.5 GB, with a 250 MB in-memory fallback. Keep the page open during capture; Cancel restores the view. Temporary downloads are released after a short delay or when the page closes.
 
-The old 2D editor's study PNG, manual MP4/WebM selection and 15-second/custom-duration controls are not part of the 3D interface. See [wallpaper setup](../public/wallpapers.html) and [compatibility](COMPATIBILITY.md).
+See [wallpaper setup](../public/wallpapers.html) and [compatibility](COMPATIBILITY.md).

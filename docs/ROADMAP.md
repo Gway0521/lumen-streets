@@ -1,7 +1,10 @@
 # Roadmap
 
-Version 0.3.0 is in development. The 3D architecture is integrated as its main update; `0.3.0-dev.0` is not a final release.
+Current release: [v0.3.0](releases/v0.3.0.md). These are areas for future work, without committed dates.
 
-The current editor provides continuous map navigation, six landmark models, architectural lighting, wallpaper captures, scene files and local GLB contribution packages. Remaining work includes release polish, refreshed public artwork, broader device testing and other changes scheduled for v0.3.0.
-
-See the [3D roadmap](3D-ROADMAP.md) ([繁體中文](3D-ROADMAP.zh-TW.md)) for source detail, streaming, wallpapers and community landmarks. The public model-hosting service remains future work.
+- **Building detail:** broader measured-height coverage, richer roof and part data, and better close-range silhouettes.
+- **Streaming:** reusable spatial chunks, smoother geometry uploads and traffic continuity across tile boundaries.
+- **Devices:** more physical Android and iPhone coverage, context recovery and sustained video-export testing.
+- **Wallpapers:** camera paths, playlists, durable scene packages and seamless-loop experiments.
+- **Landmarks:** a larger reviewed catalog, regional downloads and distance-based detail. Start with the [model guide](3D-LANDMARKS.md).
+- **Offline use:** cached ground maps and explicit source revisions for portable scenes.

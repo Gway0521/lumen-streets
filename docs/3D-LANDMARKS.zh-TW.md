@@ -1,6 +1,6 @@
 # 投稿城市地標
 
-[English](3D-LANDMARKS.md) · [架構](3D-ARCHITECTURE.zh-TW.md)
+[English](3D-LANDMARKS.md) · [架構](ARCHITECTURE.zh-TW.md)
 
 把你所在城市的建築帶進 Lumen Streets。放置本機 GLB、確認外觀，再下載投稿包交由 GitHub 審核。
 

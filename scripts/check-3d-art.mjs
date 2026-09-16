@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 
 // Run against Vite development server: the capture checks import the live module.
-const base = process.env.QA_URL || "http://127.0.0.1:5183/";
+const base = process.env.QA_URL || "http://127.0.0.1:5180/";
 const out = process.env.QA_OUTPUT || "artifacts/3d-art";
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ channel: "msedge", headless: true });

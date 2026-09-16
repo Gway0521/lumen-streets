@@ -27,6 +27,7 @@ for (const name of ['index.html', 'player.html']) {
 }
 const preview = await readFile(path.join(root, 'social-preview.jpg'));
 const provenance = JSON.parse(await readFile('public/gallery/credits.json', 'utf8'));
+if (!pkg.version.includes('-')) assert.equal(provenance.applicationVersion, pkg.version, 'Refresh release artwork before packaging');
 assert.equal(createHash('sha256').update(preview).digest('hex'), provenance.websitePreview.sha256, 'Social preview differs from its provenance');
 // Check every public illustration, including files used only by the README.
 for (const entry of [...provenance.images, provenance.recording, provenance.poster,
@@ -43,7 +44,7 @@ assert.equal(archive.status,0,archive.stderr);
 const members=archive.stdout.trim().split(/\r?\n/).map(f=>f.replace(/\/$/,''));
 assert(members.every(f=>f==='lumen-streets'||f.startsWith('lumen-streets/')), 'Source archive root');
 assert(!members.some(f=>/(^|\/)(\.\.|\.git|\.local|\.cache|AGENTS\.md|node_modules|dist|artifacts)(\/|$)/i.test(f)||/(^|\/)\.env(?!\.example(?:\/|$))/.test(f)), 'Private content in source archive');
-for(const name of ['LICENSE','NOTICE','package.json','package-lock.json','vite.config.js','scripts/package-source.mjs','server/start.mjs','src/main.js','src/three/main.js','src/three/city.worker.js','src/three/scene-recipe.js','three.html','README.md'])assert(members.includes('lumen-streets/'+name),`Missing source ${name}`);
+for(const name of ['LICENSE','NOTICE','package.json','package-lock.json','vite.config.js','scripts/package-source.mjs','server/start.mjs','src/three/main.js','src/three/city.worker.js','src/three/scene-recipe.js','three.html','README.md'])assert(members.includes('lumen-streets/'+name),`Missing source ${name}`);
 const sourcePackage = spawnSync('tar', ['-xOzf', path.join(root, 'lumen-streets-source.tar.gz'), 'lumen-streets/package.json'], { encoding: 'utf8' });
 if (sourcePackage.error) throw sourcePackage.error;
 assert.equal(sourcePackage.status, 0, sourcePackage.stderr);

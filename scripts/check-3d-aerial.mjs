@@ -42,7 +42,7 @@ const state = (p) =>
     };
   });
 try {
-  await page.goto("http://127.0.0.1:5183/three.html?debug=1");
+  await page.goto("http://127.0.0.1:5180/three.html?debug=1");
   await ready();
   report.views.push({ name: "default", ...(await state(page)) });
   await page.screenshot({ path: `${out}/default.png` });
@@ -118,7 +118,7 @@ try {
     hasTouch: true,
   });
   phone.on("pageerror", (e) => report.errors.push(e.stack));
-  await phone.goto("http://127.0.0.1:5183/three.html?lang=zh-TW");
+  await phone.goto("http://127.0.0.1:5180/three.html?lang=zh-TW");
   await ready(phone);
   report.mobile = await state(phone);
   await phone.screenshot({ path: `${out}/mobile.png` });

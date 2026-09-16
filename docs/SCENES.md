@@ -16,10 +16,10 @@ Copy the interface's embed code into a website. Embeds use the 3D page with `emb
 
 The JSON envelope uses `format: "lumen-streets-view"`, `version: 1`. It contains `view`, `name`, `time`, `playing`, `aspect`, `composition`, optional `viewLabels` (boolean, defaults to false) and optional `traffic`. Imports are limited to 1.5 million bytes and 1600 cars, with bounded coordinates, camera values, text and composition. Imported models must be loaded separately.
 
-See [3D architecture](3D-ARCHITECTURE.md), [landmark contributions](3D-LANDMARKS.md) and the [in-app guide](../public/scenes.html).
+See [3D architecture](ARCHITECTURE.md), [landmark contributions](3D-LANDMARKS.md) and the [in-app guide](../public/scenes.html).
 
 ## Earlier 2D scenes
 
-Existing `.lumen.json` files with `format: "lumen-streets-scene"` and `player.html#scene=…` links still open in the legacy read-only player. Hosted same-origin scene paths also remain supported there. The 3D editor cannot import or convert these files, and there is no 2D editor entry point.
+Existing `.lumen.json` files with `format: "lumen-streets-scene"` and `player.html#scene=…` links still open in the legacy read-only player. Hosted same-origin scene paths also remain supported there. The 3D editor cannot import or convert these files.
 
-The legacy player retains the Canvas engine and its versioned building profiles so saved artwork can still be read. Its files embed attributed source snapshots and have a separate 40-million-byte limit. Do not rename a legacy file to claim conversion. Keep the original file when moving to a new 3D composition.
+The legacy player retains the Canvas engine and its versioned building profiles so saved artwork can still be read. Its files embed attributed source snapshots and have a separate 40-million-byte limit. Keep the original file when moving to a new 3D composition.

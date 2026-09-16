@@ -1,54 +1,30 @@
 # Art direction
 
-The main editor now uses MapLibre/Three.js. Its accepted lighting direction is dark asphalt, thin muted champagne shoulders, sparse warm lamps, restrained ivory/cool windows, subdued blue-grey roofs and dark vegetation. See [3D facade design](3D-FACADES.md) and [3D architecture](3D-ARCHITECTURE.md). The fixed-projection Canvas details below describe the legacy renderer and archived v0.2.0 gallery, not the current camera or rendering implementation.
+Lumen Streets presents a city after dark, with familiar geography and enough quiet space to enjoy it as a wallpaper.
 
-Lumen Streets is an artistic aerial view of a city at night. Street structure should make each place recognizable, and the light should be comfortable to watch.
+Fine champagne shoulders and sparse lamps follow dark asphalt. Major roads connect the composition; smaller streets stay subdued. Warm windows contrast with cool grey roofs. Commercial blocks can be active while residential districts, parks and open water remain quieter.
 
-## Light and movement
+Buildings retain source heights or marked estimates. Nine procedural facade families vary windows, materials and occupied floors. Landmark silhouettes emphasise rooflines, setbacks and openings that read from above. Bloom is reserved for bright points; decorative edges appear selectively. See [facades](3D-FACADES.md) and [landmarks](SHOWCASE.md).
 
-- **Connected streets.** Major roads form continuous warm ribbons, with gentle changes through amber, gold and pale yellow. Thin luminous shoulders frame darker asphalt; staggered lamps have small halos. Side streets and paths are fainter.
-- **Distinct districts.** Stations and commercial areas can be bright; residential areas are quieter. Water and parks hold large dark areas.
-- **Restrained highlights.** Intersections retain road detail. A few mapped landmarks add ivory, pale blue or pale green accents.
-- **Readable motion.** White headlights, red tail lights and trains remain visible at wallpaper size. The underground overlay uses dashed tracks.
-- **Shared rules.** Map geometry and tags determine the scene across all cities. Lighting is an artistic interpretation of those features.
+Trees form restrained groups within landcover masks. Water keeps a dark centre with sparse warm reflections. Headlights and tail lights remain distinct, using the simulation clock for short exposure and obstruction-light pulses.
 
-## Aerial depth
+## Composition
 
-Aerial Gold uses a high-angle orthographic camera for new scenes. Ground and buildings share foreshortening; roofs rise straight towards the top of the image, revealing shaded facades, irregularly occupied floors and warm shopfronts. Recessed roof decks, parapets and small equipment align with the footprint. Cool, subdued roofs keep the warm streets dominant; quiet districts also have darker roof surfaces.
+The city fills the view. Controls stay compact on desktop and narrow screens. Captures start with titles and edge shading off. Optional Cormorant Garamond and Noto Serif TC titles use warm ivory, safe margins and a soft local shade. Edge shading leaves room for desktop icons. Keep source credit readable at the final output size.
 
-Credible heights retain their proportions under one fixed projection scale. Reviewed landmark heights take priority, followed by mapped heights, floor estimates and conservative type/footprint defaults. District lighting does not change building height. Taipei 101 has a low podium and segmented tower; Sapporo has an open frame. Shanghai adds Oriental Pearl's spheres and open columns, Shanghai Tower's taper and twist, the World Financial Center's sky portal and Jin Mao's setbacks. Steel, glass and enclosed platforms receive different shading. These original silhouettes prioritize wallpaper-scale recognition over complete architectural detail. See [Buildings](BUILDINGS.md).
+Compare the same location, camera, traffic state and dimensions when changing artwork. Review Shanghai's river, Sapporo's grid, Taipei's towers and a waterfront scene in landscape and portrait. Inspect real exports as well as the live view.
 
-Ground geography and traffic routes retain their original coordinates. Projected roofs, facades and rods occlude moving lights; courtyards and frame openings retain transparency. Static face ordering compares elevations where silhouettes overlap, with a deterministic fallback for intersecting structures. It is not a general 3D depth buffer.
-
-Mapped vegetation receives subdued canopy texture. Water carries sparse ripples and short reflections from nearby street lamps, leaving the open river dark. Avoid uniform illumination, fully luminous building outlines and detail that competes with the street hierarchy. Amber and Blue retain their existing flat illustration styles.
-
-Landmark labels use names already present in the map, preferring the selected language and falling back to the source name. Labels avoid each other and the editor controls.
-
-## Composition and interface
-
-The city fills the view. Controls stay compact, with keyboard access, reduced-motion support and layouts for narrow screens. English and Traditional Chinese receive the same functionality.
-
-Wallpapers start with text and edge dimming off. Optional place titles use Cormorant Garamond and Noto Serif TC, warm ivory text and a soft local shade. Titles wrap within safe margins and remain clear of source credit. **Room for icons** softly darkens one edge while preserving the streets beneath it.
-
-## Visual identity
+## Identity
 
 <img src="../public/favicon.svg" width="96" height="96" alt="Lumen Streets street monogram">
 
-Use `public/favicon.svg` as the master mark, preserving its proportions and negative space. Pair it with **Lumen Streets** when the project name is not otherwise visible. Leave at least one quarter of the mark's width around it.
+Use public/favicon.svg as the master mark and preserve its proportions. Leave at least one quarter of its width around it.
 
 | Colour | Value |
 | --- | --- |
-| Midnight | `#0b161e` |
-| Muted gold | `#d6b77d` |
-| Blue grey | `#859d9f` |
-| Ivory | `#f2dfb3` |
+| Midnight | #0b161e |
+| Muted gold | #d6b77d |
+| Blue grey | #859d9f |
+| Ivory | #f2dfb3 |
 
-The mark is project artwork covered by the [project license](../LICENSE). Map and font licenses are listed in [Attribution](../ATTRIBUTION.md).
-
-## Reviewing artwork
-
-Use the [gallery](../public/gallery/sapporo.png) as a reference. Compare the same map, camera, palette, density, seed, simulation time and output size before and after a change. The full-area study export uses 1600×1600 pixels, seed 29, 880 cars and 40 simulated seconds.
-
-Check Tokyo's density, Sapporo's grid and park, Shanghai's river, Beijing's courtyards, Seattle's angled roads and Washington's radial avenues. Include Taipei for landmark changes, and inspect landscape and portrait crops. Look for continuous roads, distinct districts, restrained bloom and legible moving lights.
-
-See [Testing](TESTING.md) for export checks and rebuilding the public artwork.
+The mark is covered by the [project license](../LICENSE). See [Attribution](../ATTRIBUTION.md) for data and fonts.

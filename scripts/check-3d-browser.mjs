@@ -20,7 +20,7 @@ page.on("requestfailed", (r) =>
 );
 try {
   await page.goto(
-    (process.env.QA_URL || "http://127.0.0.1:5183/") + "three.html?debug=1",
+    (process.env.QA_URL || "http://127.0.0.1:5180/") + "three.html?debug=1",
   );
   await page.waitForFunction(
     () => window.__lumen3d?.stream?.ready && window.__lumen3d?.layer.mesh,
@@ -152,7 +152,7 @@ try {
   });
   phone.on("pageerror", (e) => report.errors.push(e.stack));
   await phone.goto(
-    (process.env.QA_URL || "http://127.0.0.1:5183/") + "three.html?lang=zh-TW",
+    (process.env.QA_URL || "http://127.0.0.1:5180/") + "three.html?lang=zh-TW",
   );
   await phone.waitForFunction(() => window.__lumen3d?.stream?.ready, null, {
     timeout: 45000,

@@ -4,9 +4,13 @@
 
 Lumen Streets 將 OpenStreetMap 的街道與建築轉為可以平移、旋轉與俯瞰的 3D 夜景。選擇地點、調整光線、構圖，再匯出桌布。
 
-[**公開展示**](https://lumenstreets.feifeihome.com/) · [English](README.md) · [架構](docs/3D-ARCHITECTURE.zh-TW.md) · [地標貢獻](docs/3D-LANDMARKS.zh-TW.md)
+[**公開展示**](https://lumenstreets.feifeihome.com/) · [English](README.md) · [架構](docs/ARCHITECTURE.zh-TW.md) · [地標貢獻](docs/3D-LANDMARKS.zh-TW.md)
 
-**目前為開發版本 0.3.0-dev.0，尚未正式發布 v0.3.0。** 此份原始碼已以 3D 編輯器為主；[v0.3.0 更新說明](docs/releases/v0.3.0.md)仍在整理，公開展示站可能使用不同版本。
+![Lumen Streets 中的札幌夜景](docs/images/social-cover.gif)
+
+*由 Lumen Streets 渲染。地圖資料 © OpenStreetMap contributors、Overture Maps；高度來源見[來源與授權](ATTRIBUTION.md)。*
+
+閱讀 [v0.3.0 更新說明](docs/releases/v0.3.0.md)。
 
 ## 做一幅自己的夜景
 
@@ -18,7 +22,7 @@ Lumen Streets 將 OpenStreetMap 的街道與建築轉為可以平移、旋轉與
 
 ## 本機執行
 
-安裝 Node.js 24，執行：
+安裝 **Node.js 24**、**Python 3.12**（含 pip 與 venv），執行：
 
 ```sh
 npm ci
@@ -27,13 +31,13 @@ npm run dev
 
 開啟 **http://127.0.0.1:5180/**，使用探索、設定、匯出面板。拖曳平移、右鍵拖曳旋轉與傾斜、滾輪縮放；介面支援英文與繁體中文。
 
-3D 繪圖需要 WebGL2 與線上向量圖磚，預設地點也需要連網。搜尋使用隨附的 Node 服務。詳見[相容性](docs/COMPATIBILITY.md)與[地圖服務](docs/PROVIDERS.md)。
+首次啟動會在獨立 Python 環境安裝建築資料處理套件。3D 繪圖需要 WebGL2 與線上向量圖磚，預設地點也需要連網。搜尋使用隨附的 Node 服務。詳見[相容性](docs/COMPATIBILITY.md)與[地圖服務](docs/PROVIDERS.md)。
 
-## 匯出與舊版差異
+## 桌布與分享
 
 PNG 為靜態桌布。影片優先採 MP4/AVC，不支援時嘗試 WebM/VP9；可選 30 秒至五分鐘。GIF 為六秒預覽，影片結尾以切換方式重播，並非無縫循環。詳見[匯出](docs/EXPORTS.md)及[場景與分享](docs/SCENES.md)。
 
-3D 使用新的場景格式。舊 2D 場景檔與播放器連結仍可由舊播放器讀取，但不會自動轉成 3D；不再提供 2D 編輯器入口。舊版琥珀／藍調色盤、全區研究圖匯出與離線預設地圖不屬於新版編輯器功能。
+舊場景檔仍可由相容播放器讀取，格式說明見[場景與分享](docs/SCENES.md)。
 
 ## 自行部署
 
@@ -42,15 +46,9 @@ npm run build
 npm start
 ```
 
-先停止開發伺服器，再以 port 5180 啟動正式建置。Node 程序同時提供網站與搜尋；純靜態部署可使用線上圖磚繪圖與匯出，但沒有搜尋服務。詳見[部署說明](docs/HOSTING.zh-TW.md)。
+先停止開發伺服器，再以 port 5180 啟動正式建置。Node 提供網頁、搜尋及建築圖磚，Python 在背景補充高度。HTTPS、快取容量及部署包的用法見[部署說明](docs/HOSTING.zh-TW.md)。
 
-MapLibre 與 Three.js 共用即時 3D 場景、匯出與嵌入繪圖；背景 worker 處理幾何，圖磚快取與 GPU 資源具有明確的預算與釋放流程。後續工作見[路線圖](docs/3D-ROADMAP.zh-TW.md)。
-
-## 舊版作品
-
-![v0.2.0 札幌夜景](docs/images/social-cover.gif)
-
-*此圖為 v0.2.0 Canvas 版本的歷史匯出，並非目前 3D 繪圖。地圖資料 © [OpenStreetMap 貢獻者](https://www.openstreetmap.org/copyright)，ODbL。既有[圖庫](public/gallery.html)與社群預覽圖也仍為 v0.2.0 作品。*
+MapLibre 與 Three.js 共用即時 3D 場景、匯出與嵌入繪圖；背景 worker 處理幾何，圖磚快取與 GPU 資源具有明確的預算與釋放流程。後續工作見[路線圖](docs/ROADMAP.md)。
 
 ## 授權
 

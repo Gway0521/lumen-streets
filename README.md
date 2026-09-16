@@ -6,7 +6,11 @@ Lumen Streets turns OpenStreetMap streets and buildings into a navigable 3D nigh
 
 [**Public demo**](https://lumenstreets.feifeihome.com/) · [繁體中文](README.zh-TW.md) · [Wallpapers](docs/EXPORTS.md) · [Contributing](CONTRIBUTING.md)
 
-**Development version: 0.3.0-dev.0.** The 3D editor is the main experience in this checkout. The [v0.3.0 notes](docs/releases/v0.3.0.md) describe work in progress; the public demo may run a different version.
+![Sapporo in Lumen Streets](docs/images/social-cover.gif)
+
+*Rendered in Lumen Streets. Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) and [Overture Maps](https://docs.overturemaps.org/attribution/); height-source credits are listed in [Attribution](ATTRIBUTION.md).*
+
+Read the [v0.3.0 release notes](docs/releases/v0.3.0.md).
 
 ## Make it your night
 
@@ -18,7 +22,7 @@ Lumen Streets turns OpenStreetMap streets and buildings into a navigable 3D nigh
 
 ## Run locally
 
-Install Node.js 24, then:
+Install **Node.js 24** and **Python 3.12** with pip and venv, then:
 
 ```sh
 npm ci
@@ -27,13 +31,13 @@ npm run dev
 
 Open **http://127.0.0.1:5180/**. Use **Explore**, **Settings** and **Capture**. Drag to pan, right-drag to rotate and tilt, and scroll to zoom. English and Traditional Chinese are supported.
 
-The 3D renderer requires WebGL2 and online vector tiles, including at preset locations. Search uses the included Node gateway. See [browser compatibility](docs/COMPATIBILITY.md) and [map services](docs/PROVIDERS.md).
+The first start installs the building-data worker's dependencies into a local Python environment. Visitors only need a browser with WebGL2 and online map access. See [browser compatibility](docs/COMPATIBILITY.md) and [map services](docs/PROVIDERS.md).
 
 ## Wallpapers and sharing
 
 PNG creates a still wallpaper. Video selects MP4/AVC when supported and WebM/VP9 otherwise; choose 30 seconds to five minutes. GIF creates a six-second preview. Videos repeat with a cut. See [exports](docs/EXPORTS.md) and [scene files and embeds](docs/SCENES.md).
 
-The 3D editor uses a new scene format. Existing 2D files and player links remain readable through the legacy player; they do not migrate into 3D. The 2D editor is no longer an entry point. Amber/Blue hour palettes, the old study export and offline preset rendering are not features of the new editor.
+Earlier scene files remain readable through the legacy player. See [Scenes](docs/SCENES.md) for file compatibility.
 
 ## Self-hosting
 
@@ -42,15 +46,9 @@ npm run build
 npm start
 ```
 
-Stop the development server before starting production on port 5180. The Node server serves the site and search together. Static hosting supports rendering and exports with online tiles but no search gateway. See [Hosting](docs/HOSTING.md).
+Stop the development server before starting production on port 5180. Node serves the website, search and global building tiles; Python workers improve heights in the background. See [Hosting](docs/HOSTING.md) for HTTPS, cache sizing and deployment archives.
 
 MapLibre and Three.js share the live 3D scene with captures and embeds. Geometry runs in a worker with bounded tile caches and explicit GPU resource disposal. See [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md) and [Testing](docs/TESTING.md).
-
-## Earlier artwork
-
-![v0.2.0 Sapporo nightscape](docs/images/social-cover.gif)
-
-*Archived v0.2.0 Canvas artwork, not the current 3D renderer. Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), ODbL. The existing [gallery](public/gallery.html) and social preview also show v0.2.0 exports.*
 
 ## License
 
@@ -58,4 +56,4 @@ Code: [AGPL-3.0-only](LICENSE). Map data: [OpenStreetMap](https://www.openstreet
 
 Building heights combine mapped values and estimates. Lighting, vegetation placement and traffic are artistic simulations. Imported models stay local until their creator submits them for review. See the [landmark guide](docs/3D-LANDMARKS.md).
 
-The [global building service](docs/GLOBAL-BUILDING-SERVICE.md) automatically streams Overture footprints, preserves raw missing heights, and fills gaps using GHS regional estimates. PLATEAU and EUBUCCO are matched geographically in background jobs. Every location uses this pipeline; measurement coverage still varies. Hosting requires Node 24 and Python 3.12; visitors need only their browser.
+The [building service](docs/BUILDING-HEIGHTS.md) combines Overture footprints, GHS regional estimates and geographically matched PLATEAU/EUBUCCO data. Measurement coverage varies by location.
