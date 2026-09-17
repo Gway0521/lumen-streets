@@ -1,4 +1,4 @@
-import { inside } from "../city.js";
+import { inside } from "../shared/geometry.js";
 
 // Tiles group unrelated footprints with identical properties into MultiPolygons.
 // Split them before landmark replacement and facade generation.

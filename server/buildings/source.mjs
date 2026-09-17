@@ -155,7 +155,7 @@ export function createOvertureSource({
     }
   }
   const features = (x, y) => assembleFeatures(tile, x, y);
-  return { features, release, url };
+  return { features, release, url, stats: () => ({ cache: { ...disk.metrics }, lane: lane.stats() }) };
 }
 
 /** Follow the same GERS through neighbours until the footprint is complete.

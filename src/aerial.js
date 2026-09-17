@@ -1,4 +1,5 @@
-import { random, roadWidth } from './city.js';
+import { random } from "./shared/random.js";
+import { roadWidth } from "./shared/roads.js";
 import { districtField, streetVariation, roadEmission } from './lighting.js';
 import { streetColorField, tintStreet } from './street-colors.js';
 import { prepareBuildings, paintBuildings, paintBuildingShadows } from './building-depth.js';

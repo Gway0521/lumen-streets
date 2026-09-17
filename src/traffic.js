@@ -1,4 +1,4 @@
-import { roadWidth } from "./city.js";
+import { roadWidth } from "./shared/roads.js";
 const drivable = new Set([
   "motorway",
   "motorway_link",

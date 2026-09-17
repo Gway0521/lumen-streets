@@ -1,4 +1,5 @@
-import { parseCity, regions } from "../city.js";
+import { parseCity } from "../shared/city-data.js";
+import { regions } from "../shared/regions.js";
 import { parseRail, buildRailRoutes } from "../rail.js";
 
 export type PresetId = keyof typeof regions;

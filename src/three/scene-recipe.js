@@ -1,6 +1,8 @@
+// @ts-check
 import { viewRecipe } from "./geo.js";
 
 const edgeKey = (e) => `${e.from.id}|${e.to.id}`;
+/** @returns {import("./contracts.ts").TrafficRecipe | null} */
 export function trafficRecipe(traffic) {
   if (!traffic) return null;
   const snapshot = traffic.snapshot();
@@ -13,6 +15,7 @@ export function trafficRecipe(traffic) {
     })),
   };
 }
+/** @param {import("./contracts.ts").TrafficRecipe | null} recipe */
 export function restoreTraffic(traffic, recipe) {
   if (!traffic || !recipe) return false;
   const edges = new Map(traffic.graph.edges.map((e) => [edgeKey(e), e]));
@@ -28,6 +31,7 @@ export function restoreTraffic(traffic, recipe) {
   traffic.restore({ ...recipe, cars });
   return cars.length === recipe.cars.length;
 }
+/** @returns {import("./contracts.ts").SceneRecipe} */
 export function validateScene(value) {
   const fail = () => {
     throw Error("Invalid Lumen Streets scene");

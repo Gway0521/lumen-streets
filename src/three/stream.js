@@ -1,10 +1,11 @@
+// @ts-check
 import { sceneZoom } from "./view.js";
-import { regions } from "../city.js";
+import { regions } from "../shared/regions.js";
 import { detailLevel, geometryKey } from "./geo.js";
 
 /** One geometry job in flight, one coalesced successor; no unbounded build queue. */
 export class CityStream {
-  constructor(map, layer, { mobile, status, city, sources = () => {} }) {
+  constructor(map, layer, { mobile, status, city, sources = (..._args) => {} }) {
     this.map = map;
     this.layer = layer;
     this.mobile = mobile;
@@ -13,28 +14,32 @@ export class CityStream {
     this.generation = 0;
     this.busy = false;
     this.pending = false;
+    this.metrics = { builds: 0, completed: 0, failed: 0, cancelled: 0, lastBuildMs: 0 };
     this.locked = false;
     this.lastKey = "";
     this.worker = new Worker(new URL("./city.worker.js", import.meta.url), {
       type: "module",
     });
+    /** @param {MessageEvent<import("./contracts.ts").WorkerResult>} event */
     this.worker.onmessage = ({ data }) => {
       this.busy = false;
+      this.metrics.lastBuildMs = performance.now() - (this.started || performance.now());
       if (
         data.generation === this.generation &&
         !this.locked &&
         detailLevel(sceneZoom(map)) !== "map"
       ) {
         if (data.cancelled) {
-          data.surface?.bitmap.close();
-          data.environment?.light.close();
+          this.metrics.cancelled++;
           this.lastKey = "";
-        } else if (data.error) {
+        } else if (data.error !== undefined) {
+          this.metrics.failed++;
           this.lastError = data.error;
           this.status("geometryError");
           this.lastKey = "";
-          if (import.meta.env.DEV) console.error(data.error);
         } else {
+          this.metrics.completed++;
+          this.lastError = null;
           layer.replace(data);
           sources(data.geometry.heightAttribution || [], data.geometry.heightStatus);
           clearTimeout(this.refreshTimer);
@@ -43,6 +48,7 @@ export class CityStream {
           this.ready = true;
         }
       } else {
+        this.metrics.cancelled++;
         data.surface?.bitmap.close();
         data.environment?.light.close();
         // A discarded job never fulfilled its key. Identical camera events
@@ -89,11 +95,21 @@ export class CityStream {
     clearTimeout(this.timer);
     this.timer = setTimeout(() => this.build(), 450);
   }
+  retry() {
+    if (this.locked) return;
+    clearTimeout(this.refreshTimer);
+    this.lastError = null;
+    this.lastKey = "";
+    this.generation++;
+    if (this.busy) {
+      this.pending = true;
+      this.worker.postMessage({ type: "cancel" });
+    }
+    this.schedule();
+  }
   setCity(id) {
     this.city = id;
-    this.generation++;
-    this.lastKey = "";
-    this.schedule();
+    this.retry();
   }
   build() {
     if (this.locked || detailLevel(sceneZoom(this.map)) === "map") return;
@@ -144,6 +160,7 @@ export class CityStream {
       regions[this.city] && within(regions[this.city].center)
         ? this.city
         : null;
+    /** @type {import("./contracts.ts").Bounds} */
     const viewport = [
       bounds.getWest(),
       bounds.getSouth(),
@@ -152,11 +169,15 @@ export class CityStream {
     ];
     const key = `${city}:${viewport.map((n) => n.toFixed(3))}:${Math.floor(sceneZoom(this.map) * 4)}:${roads.length}:${roads.at(-1)?.id}`;
     if (this.lastKey === key) return;
+    clearTimeout(this.refreshTimer);
     this.lastKey = key;
     this.busy = true;
+    this.started = performance.now();
+    this.metrics.builds++;
     this.ready = false;
     this.status("loading");
-    this.worker.postMessage({
+    /** @type {import("./contracts.ts").BuildRequest} */
+    const request = {
       type: "build",
       generation: this.generation,
       city,
@@ -175,7 +196,8 @@ export class CityStream {
       surfaceKey: this.layer.surfaceKey,
       base: new URL(import.meta.env.BASE_URL, location.href).href,
       limit: this.mobile ? 280000 : 700000,
-    });
+    };
+    this.worker.postMessage(request);
     this.refresh = false;
   }
   dispose() {

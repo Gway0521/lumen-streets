@@ -2,7 +2,7 @@ import earcut from "earcut";
 import { featureSeed, resolveHeight, metres } from "../buildings/heights.js";
 import { tileHeight } from "./building-heights.js";
 import { buildingArea, districtField, buildingCenter } from "../lighting.js";
-import { inside } from "../city.js";
+import { inside } from "../shared/geometry.js";
 import { generateComponents } from "../buildings/components.js";
 import { generateStructure, genericTower } from "../buildings/generators.js";
 import { resolveRenderPlan } from "../buildings/plan.js";
@@ -163,6 +163,7 @@ export class MeshBuilder {
       );
     this.buildings++;
   }
+  /** @returns {Omit<import("./contracts.ts").GeometryBuffers, "boxes"> & { buildings: number, truncated: boolean }} */
   finish() {
     const data = {};
     for (const key of [

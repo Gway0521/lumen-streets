@@ -2,7 +2,7 @@ import catalog from "./showcase-landmarks.json" with { type: "json" };
 import { LANDMARK_PACK } from "../buildings/catalog.js";
 import { showcaseProfile } from "./showcase-shapes.js";
 import { localPoint } from "./geo.js";
-import { inside } from "../city.js";
+import { inside } from "../shared/geometry.js";
 import { nearRing, footprintCenter } from "./building-source.js";
 
 export const showcaseLandmarks = catalog.landmarks;

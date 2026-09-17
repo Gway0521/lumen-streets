@@ -1,4 +1,4 @@
-import { random } from './city.js';
+import { random } from "./shared/random.js";
 
 export function terrainKind(tags) {
   if (tags.natural === 'water' || tags.waterway || tags.landuse === 'reservoir') return 'water';

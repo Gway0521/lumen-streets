@@ -1,6 +1,6 @@
 import { projectVertex } from './generators.js';
 import { featureSeed } from './heights.js';
-import { random } from '../city.js';
+import { random } from "../shared/random.js";
 import earcut from 'earcut';
 
 const sub=(a,b)=>a.map((v,i)=>v-b[i]);

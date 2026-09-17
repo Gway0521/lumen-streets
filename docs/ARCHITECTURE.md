@@ -40,6 +40,10 @@ These figures exclude browser, MapLibre, worker and driver overhead. Wide views 
 
 CityStream keeps one geometry job in flight and one coalesced follow-up. Generation checks reject stale responses; cancelled bitmaps and replaced textures are closed. Encoded tile buffers are cached, while decoded features are temporary. Atlas views release detailed city resources. Hidden tabs stop traffic paints; paused scenes repaint for interactions.
 
+Building and snapshot requests have a 15-second deadline, including body reads. Transient network/HTTP failures retry at most twice with bounded backoff; cancellation stops requests and retry waits. Exhausted failures expose a Retry control for the current view. Invalid data and permanent HTTP failures are not retried automatically.
+
+Shared geometry, seeded randomness, road parameters, regions and snapshot parsing live in src/shared/. A dependency check prevents import cycles. Worker messages, height tiles, 3D scene recipes and capture checkpoints have checked contracts; external data still passes runtime validation. See [Testing](TESTING.md) for browser checks and performance counters.
+
 ## Module map
 
 | Module | Responsibility |

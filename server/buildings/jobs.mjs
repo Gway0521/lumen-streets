@@ -310,6 +310,11 @@ export function createJobs({
       void pump("context");
       return entry.value;
     },
+    stats() {
+      return { cache: { ...cache.metrics }, entries: entries.size,
+        context: { active: Number(active.context), queued: queues.context.length },
+        national: { active: Number(active.national), queued: queues.national.length } };
+    },
     close() {
       closed = true;
       queues.context.length = 0;

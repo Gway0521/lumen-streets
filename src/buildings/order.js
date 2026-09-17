@@ -1,4 +1,4 @@
-import { inside } from '../city.js';
+import { inside } from "../shared/geometry.js";
 import { projectVertex } from './generators.js';
 import { trianglePrimitive } from './components.js';
 

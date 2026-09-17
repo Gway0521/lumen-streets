@@ -17,6 +17,7 @@ export class DiskCache {
     this.budget = budget;
     this.ready = mkdir(directory, { recursive: true });
     this.lastPrune = 0;
+    this.metrics = { hits: 0, misses: 0, writes: 0, evictions: 0, bytesRead: 0 };
   }
   path(key) {
     return join(this.directory, digest(key) + ".bin");
@@ -26,10 +27,12 @@ export class DiskCache {
     try {
       const p = this.path(key),
         s = await stat(p);
-      if (s.size > maximum) return null;
-      return await readFile(p);
+      if (s.size > maximum) { this.metrics.misses++; return null; }
+      const data = await readFile(p);
+      this.metrics.hits++; this.metrics.bytesRead += data.length;
+      return data;
     } catch (e) {
-      if (e.code === "ENOENT") return null;
+      if (e.code === "ENOENT") { this.metrics.misses++; return null; }
       throw e;
     }
   }
@@ -39,6 +42,7 @@ export class DiskCache {
       temp = p + "." + randomUUID() + ".tmp";
     await writeFile(temp, data);
     await rename(temp, p);
+    this.metrics.writes++;
     await this.prune();
   }
   async prune() {
@@ -59,6 +63,7 @@ export class DiskCache {
       if (total <= this.budget) break;
       await unlink(e.p).catch(() => {});
       total -= e.size;
+      this.metrics.evictions++;
     }
   }
 }
@@ -68,15 +73,27 @@ export class Lane {
   constructor(limit = 4, maximum = 128) {
     this.limit = limit;
     this.maximum = maximum;
+    this.metrics = { completed: 0, failed: 0, rejected: 0, highWater: 0, waitMs: 0, maxWaitMs: 0 };
   }
+  stats() { return { ...this.metrics, active: this.active, queued: this.queue.length }; }
   async run(fn) {
+    const queuedAt = performance.now();
     if (this.active >= this.limit) {
-      if (this.queue.length >= this.maximum)
+      if (this.queue.length >= this.maximum) {
+        this.metrics.rejected++;
         throw Object.assign(Error("Building service busy"), { status: 503 });
-      await new Promise((resolve) => this.queue.push(resolve));
+      }
+      await new Promise((resolve) => { this.queue.push(resolve); this.metrics.highWater = Math.max(this.metrics.highWater, this.queue.length); });
     } else this.active++;
+    const waited = performance.now() - queuedAt;
+    this.metrics.waitMs += waited; this.metrics.maxWaitMs = Math.max(this.metrics.maxWaitMs, waited);
     try {
-      return await fn();
+      const result = await fn();
+      this.metrics.completed++;
+      return result;
+    } catch (error) {
+      this.metrics.failed++;
+      throw error;
     } finally {
       const next = this.queue.shift();
       if (next) next();

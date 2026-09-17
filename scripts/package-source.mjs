@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 // Use the working files that produced the build, without repository history or local state.
 const roots = ['.editorconfig', '.env.example', '.gitattributes', '.gitignore', '.nvmrc',
   'ATTRIBUTION.md', 'CONTRIBUTING.md', 'LICENSE', 'NOTICE', 'README.md', 'README.zh-TW.md',
-  'index.html', 'player.html', 'three.html', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.js'];
+  'index.html', 'player.html', 'three.html', 'package.json', 'package-lock.json', 'tsconfig.json', 'tsconfig.three.json', 'playwright.config.js', 'vite.config.js'];
 const directories = ['src', 'server', 'public', 'data', 'scripts', 'tests', 'docs', 'deploy', '.github'];
 async function collect(dir) {
   if (!(await lstat(dir)).isDirectory()) throw Error(`Not a source directory: ${dir}`);

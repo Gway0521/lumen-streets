@@ -1,7 +1,7 @@
-import { buildingProfile, ROOF_DIRECTION } from '../building-depth.js';
+import { buildingProfile, ROOF_DIRECTION } from '../shared/building-profile.js';
 import { buildingCenter, buildingArea } from '../lighting.js';
 import { featureSeed, resolveHeight } from './heights.js';
-import { random } from '../city.js';
+import { random } from "../shared/random.js";
 
 export const projectVertex = ([x,y,z], direction = ROOF_DIRECTION) => [x + direction[0] * z, y + direction[1] * z];
 

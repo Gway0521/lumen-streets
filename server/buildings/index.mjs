@@ -20,6 +20,7 @@ export function createBuildingService({
   source,
   jobs,
   python,
+  metricsInterval = Number(process.env.LUMEN_BUILDINGS_METRICS_INTERVAL_MS || 0),
 } = {}) {
   const registry = readFileSync(resolve("data/building-sources.json"), "utf8");
   source ||= createOvertureSource({
@@ -30,7 +31,14 @@ export function createBuildingService({
   const lane = new Lane(2, 32),
     inflight = new Map();
   const revision = `${source.release || GLOBAL_RELEASE}/${RESOLVER_VERSION}/${digest(registry).slice(0, 12)}`;
+  const metrics = { requests: 0, coalesced: 0 };
+  const stats = () => ({ ...metrics, inflight: inflight.size, lane: lane.stats(),
+    source: source.stats?.(), jobs: jobs.stats?.(), rssMiB: process.memoryUsage().rss / 1048576 });
+  const metricsTimer = Number.isFinite(metricsInterval) && metricsInterval >= 1000 && metricsInterval <= 2147483647
+    ? setInterval(() => console.log(JSON.stringify({ event: "building_metrics", ...stats() })), metricsInterval) : null;
+  metricsTimer?.unref();
   return {
+    stats,
     manifest: {
       version: 2,
       zoom: 14,
@@ -42,7 +50,8 @@ export function createBuildingService({
     async tile(z, x, y) {
       validateTile(z, x, y);
       const key = `${revision}/${z}/${x}/${y}`;
-      if (inflight.has(key)) return inflight.get(key);
+      metrics.requests++;
+      if (inflight.has(key)) { metrics.coalesced++; return inflight.get(key); }
       const task = lane.run(async () => {
         const features = await source.features(x, y);
         const enrichment = features.length
@@ -81,6 +90,7 @@ export function createBuildingService({
       }
     },
     close() {
+      clearInterval(metricsTimer);
       jobs.close();
     },
   };

@@ -1,6 +1,6 @@
 import { createSceneData, sceneOriginals, loadSceneData, type SceneData, type SceneRegion, type PresetId } from "./data.ts";
 import { validateRecipe, type SceneRecipe } from "./recipe.ts";
-import { regions } from "../city.js";
+import { regions } from "../shared/regions.js";
 import { validateMap } from "../search/validate.js";
 import { LANDMARK_PACK } from '../buildings/catalog.js';
 import landmarkManifest from '../../data/landmarks/manifest-v2.json' with { type: 'json' };

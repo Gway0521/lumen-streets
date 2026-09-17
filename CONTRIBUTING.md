@@ -10,12 +10,15 @@ Before submitting a change:
 
 ```sh
 npm test
+npm run check:dependencies
 npm run check:presets
 npm run build
 npm run check:release
+npx playwright install chromium
+npm run test:browser
 ```
 
-For visual changes, compare actual exports in both languages on desktop and a narrow viewport. Check that the editor keeps its view and playback state while exporting. The optional browser suites are described in [Testing](docs/TESTING.md).
+For visual changes, compare actual exports in both languages on desktop and a narrow viewport. Check that the editor keeps its view and playback state while exporting. CI runs the core browser suite; additional live-provider checks and performance measurements are described in [Testing](docs/TESTING.md).
 
 ## Keep changes focused
 

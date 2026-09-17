@@ -1,6 +1,6 @@
 import pack from './landmarks-v1.json' with { type: 'json' };
 import modernPack from './landmarks-v2.json' with { type: 'json' };
-import { project } from '../city.js';
+import { project } from "../shared/geometry.js";
 import { buildingCenter, buildingArea } from '../lighting.js';
 
 const freeze = v => { if (v && typeof v === 'object') { Object.values(v).forEach(freeze); Object.freeze(v); } return v; };

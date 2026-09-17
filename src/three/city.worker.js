@@ -1,4 +1,7 @@
-import { parseCity, regions } from "../city.js";
+// @ts-check
+import { requestBytes, DataHTTPError } from "./request.js";
+import { parseCity } from "../shared/city-data.js";
+import { regions } from "../shared/regions.js";
 import {
   snapshotGeometry,
   vectorGeometry,
@@ -25,21 +28,24 @@ const tileSource = new BuildingTiles();
 let controller;
 const inside = (p, b) =>
   p[0] >= b[1] && p[0] <= b[3] && p[1] >= b[0] && p[1] <= b[2];
-async function snapshot(id, base) {
+async function snapshot(id, base, signal) {
   if (cached?.id === id) return cached;
-  const r = await fetch(`${base}data/${id}.json`);
-  if (!r.ok) throw Error("Snapshot unavailable");
-  const city = parseCity(await r.json(), id);
+  const json = async (url) => JSON.parse(new TextDecoder().decode(
+    await requestBytes(url, { signal, maximum: 32 * 1048576 })));
+  const city = parseCity(await json(`${base}data/${id}.json`), id);
   let routes = [];
-  const rail = await fetch(`${base}data/${id}-rail.json`);
-  if (rail.ok)
-    routes = buildRailRoutes(
-      parseRail(await rail.json(), city.center),
-      city.bounds,
-    );
+  try {
+    routes = buildRailRoutes(parseRail(await json(`${base}data/${id}-rail.json`), city.center), city.bounds);
+  } catch (error) {
+    if (!(error instanceof DataHTTPError && error.status === 404)) throw error;
+  }
+  signal.throwIfAborted();
   cached = { id, city, routes };
   return cached;
 }
+/** @param {import("./contracts.ts").WorkerResult} data @param {Transferable[]} [transfer] */
+const post = (data, transfer = []) => self.postMessage(data, { transfer });
+/** @param {MessageEvent<import("./contracts.ts").WorkerRequest>} event */
 self.onmessage = async ({ data }) => {
   if (data.type === "cancel") {
     controller?.abort();
@@ -71,8 +77,8 @@ self.onmessage = async ({ data }) => {
       zoom,
     } = data;
     if (data.refreshHeights) tileSource.clearHeights();
-    const active = cityId ? await snapshot(cityId, base) : null;
-    const origin = active ? regions[cityId].center : center;
+    const active = cityId ? await snapshot(cityId, base, signal) : null;
+    const origin = active && cityId ? regions[cityId].center : center;
     const candidates = nearbyLandmarks(bounds, center);
     const landmarks = landmarkGeometry(
       candidates.map(profileForLandmark),
@@ -93,8 +99,9 @@ self.onmessage = async ({ data }) => {
           : f.geometry.type === "MultiPolygon"
             ? f.geometry.coordinates[0][0][0]
             : f.geometry.coordinates[0],
-        regions[cityId].bbox,
+        regions[cityId || ""].bbox,
       );
+    /** @type {Array<import("./contracts.ts").GeometryBuffers & { buildings: number, truncated: boolean }>} */
     const parts = [landmarks];
     let remaining = genericLimit;
     const loaded = await tileSource.load(
@@ -124,7 +131,8 @@ self.onmessage = async ({ data }) => {
       () => true, supplied) : null;
     if (local) parts.push(local);
     signal.throwIfAborted();
-    const geometry = {};
+    /** @type {import("./contracts.ts").GeometryBuffers} */
+    const geometry = /** @type {import("./contracts.ts").GeometryBuffers} */ ({});
     for (const key of [
       "position",
       "normal",
@@ -144,35 +152,27 @@ self.onmessage = async ({ data }) => {
         offset += p[key].length;
       }
     }
-    geometry.buildings = parts.reduce((n, p) => n + p.buildings, 0);
     geometry.beacons = geometry.beacons.slice(0, 4096 * 4);
-    geometry.landmarks = [...landmarks.landmarks, ...(local?.landmarks || [])];
-    geometry.placeLabels = (local?.placeLabels || []).filter(
-      (p) =>
-        !candidates.some(
-          (m) =>
-            supplied.has(m.id) &&
-            (m.osm.includes(p.id) ||
-              Math.hypot(...localPoint(...p.anchor, m.anchor)) < 25),
-        ),
-    );
-    geometry.landmarkVertices = landmarks.position.length / 3;
-    geometry.landmarkCount = landmarks.landmarks.length;
-    geometry.landmarkOmitted = landmarks.omitted;
-    geometry.truncated = parts.some((p) => p.truncated);
-    geometry.buildings += geometry.boxes.length / 12;
     const before = geometry.boxes.length / 12;
-    geometry.boxes = compactVolumes(geometry.boxes, mobile ? 45000 : 90000);
-    geometry.aggregated = before - geometry.boxes.length / 12;
-    geometry.tileCount = loaded.tileCount;
-    geometry.tileLimited = loaded.tileLimited;
-    geometry.tileCacheMiB = loaded.cacheMiB;
-    geometry.heightAttribution = loaded.attribution;
-    geometry.heightRevision = loaded.heightRevision;
-    geometry.preparedTileCount = loaded.preparedTiles.size;
-    geometry.heightSummary = loaded.heights;
-    geometry.heightPending = loaded.heightPending;
-    geometry.heightStatus = loaded.heightStatus;
+    const resultGeometry = {
+      ...geometry,
+      boxes: compactVolumes(geometry.boxes, mobile ? 45000 : 90000),
+      buildings: parts.reduce((n, p) => n + p.buildings, 0) + before,
+      landmarks: [...landmarks.landmarks, ...(local?.landmarks || [])],
+      placeLabels: (local?.placeLabels || []).filter(p => !candidates.some(m => supplied.has(m.id) &&
+        (m.osm.includes(p.id) || Math.hypot(...localPoint(...p.anchor, m.anchor)) < 25))),
+      landmarkVertices: landmarks.position.length / 3,
+      landmarkCount: landmarks.landmarks.length,
+      landmarkOmitted: landmarks.omitted,
+      truncated: parts.some(p => p.truncated),
+      aggregated: 0,
+      tileCount: loaded.tileCount, tileLimited: loaded.tileLimited, tileCacheMiB: loaded.cacheMiB,
+      tileMetrics: loaded.metrics,
+      heightAttribution: loaded.attribution, heightRevision: loaded.heightRevision,
+      preparedTileCount: loaded.preparedTiles.size, heightSummary: loaded.heights,
+      heightPending: loaded.heightPending, heightStatus: loaded.heightStatus,
+    };
+    resultGeometry.aggregated = before - resultGeometry.boxes.length / 12;
     const localRoads = active
       ? active.city.roads.map((r) => ({
           ...r,
@@ -230,11 +230,11 @@ self.onmessage = async ({ data }) => {
     if (signal.aborted) surface?.bitmap.close();
     signal.throwIfAborted();
     const environment = landscape.finish();
-    self.postMessage(
+    post(
       {
         generation,
         origin,
-        geometry,
+        geometry: resultGeometry,
         graph: packGraph(graph),
         routes,
         surface,
@@ -242,7 +242,7 @@ self.onmessage = async ({ data }) => {
         environment,
       },
       [
-        ...Object.values(geometry)
+        ...Object.values(resultGeometry)
           .filter((v) => v instanceof Float32Array)
           .map((v) => v.buffer),
         ...(surface ? [surface.bitmap] : []),
@@ -257,10 +257,10 @@ self.onmessage = async ({ data }) => {
   } catch (error) {
     const cancelled = signal.aborted;
     controller.abort();
-    self.postMessage({
+    post({
       generation: data.generation,
       cancelled,
-      error: import.meta.env.DEV ? error.stack : error.message,
+      error: error instanceof Error ? (import.meta.env.DEV ? error.stack || error.message : error.message) : String(error),
     });
   }
 };

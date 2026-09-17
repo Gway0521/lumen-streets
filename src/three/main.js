@@ -116,6 +116,7 @@ $("app").innerHTML =
    )
    .join("")}</nav>
  <div class="bottom-note chrome"><span id="gesture"></span><div><a href="./source.html" data-i18n="source"></a></div></div>
+ <div id="building-network" class="network" role="status" hidden><span data-i18n="geometryError"></span><button id="retry-buildings" data-i18n="retry"></button></div>
  <div id="toast" role="status" hidden></div><div id="network" class="network" hidden><span data-i18n="network"></span><button id="retry" data-i18n="retry"></button></div>
  <div id="export-progress" class="export-progress" hidden><p data-i18n="captureBusy"></p><progress max="1" value="0"></progress><output id="export-percent">0%</output><button id="cancel-export" data-i18n="cancel"></button></div>`;
 function notify(message) {
@@ -282,6 +283,7 @@ window.addEventListener("resize", () => {
 });
 function setStatus(key) {
   statusKey = key;
+  $("building-network").hidden = key !== "geometryError";
   if (
     ["ready", "budget"].includes(key) &&
     (activePanel === "capture" ||
@@ -583,6 +585,11 @@ $("retry").onclick = () => {
   $("network").hidden = true;
   map.getSource("world")?.reload();
   stream?.schedule();
+};
+$("retry-buildings").onclick = () => {
+  if (capturing) return;
+  if (!$("network").hidden) map?.getSource("world")?.reload();
+  stream?.retry();
 };
 let searchController;
 $("search-form").onsubmit = async (e) => {

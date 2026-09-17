@@ -1,10 +1,13 @@
+// @ts-check
 import { expandTile } from "../buildings/tile-wire.js";
 import { tileHeight } from "./building-heights.js";
 
+/** @param {Response} response @param {number} maximum @param {AbortSignal} [signal] @returns {Promise<ArrayBuffer>} */
 export async function boundedBytes(response, maximum, signal) {
   if (!response.ok) throw Error(`Building data unavailable (${response.status})`);
   if (Number(response.headers.get("content-length")) > maximum)
     throw Error("Building data exceeds its size budget");
+  if (!response.body) throw Error("Building data has no response body");
   const reader = response.body.getReader(), chunks = [];
   let size = 0;
   try {
@@ -26,6 +29,7 @@ export async function boundedBytes(response, maximum, signal) {
   return bytes.buffer;
 }
 
+/** @returns {import("./contracts.ts").HeightManifest} */
 export function validateManifest(data) {
   const credits = values => Array.isArray(values) && values.length <= 32 &&
     values.every(s => typeof s === "string" && s.length > 0 && s.length <= 500);
@@ -38,6 +42,7 @@ export function validateManifest(data) {
 }
 
 export function decodeHeightTile(bytes) { return parseHeightTile(bytes).features; }
+/** @param {ArrayBuffer} bytes @returns {import("./contracts.ts").HeightTile} */
 export function parseHeightTile(bytes) {
   const data = expandTile(JSON.parse(new TextDecoder().decode(bytes)));
   if (data?.type !== "FeatureCollection" || !Array.isArray(data.features) || data.features.length > 30000)

@@ -1,4 +1,4 @@
-import { area, inside } from '../city.js';
+import { area, inside } from "../shared/geometry.js";
 
 export const isPart = f => !!f.tags['building:part'] && f.tags['building:part'] !== 'no';
 export const isStructure = f => (f.tags.building && f.tags.building !== 'no') || isPart(f) ||

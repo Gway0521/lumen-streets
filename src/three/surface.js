@@ -1,4 +1,4 @@
-import { roadWidth } from "../city.js";
+import { roadWidth } from "../shared/roads.js";
 import { snapshotPoint } from "./geo.js";
 import { resolveHeight, featureSeed } from "../buildings/heights.js";
 import { buildingArea } from "../lighting.js";

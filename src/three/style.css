@@ -862,3 +862,7 @@ html[lang="zh-TW"] .brand small {
 @media (max-width: 799px) {
   .building-sources { left: 12px; right: auto; bottom: 104px; max-width: calc(100vw - 86px); }
 }
+
+#building-network:not([hidden]) ~ #network {
+  display: none;
+}

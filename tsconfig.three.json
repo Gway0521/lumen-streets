@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "lib": [
+      "ES2023",
+      "DOM",
+      "WebWorker",
+      "ESNext.Disposable"
+    ]
+  },
+  "include": [
+    "src/three/contracts.ts",
+    "src/three/capture-session.ts",
+    "src/three/request.js",
+    "src/three/height-tiles.js",
+    "src/three/scene-recipe.js",
+    "src/three/tiles.js",
+    "src/three/stream.js",
+    "src/three/city.worker.js",
+    "tests/types/*.ts"
+  ]
+}

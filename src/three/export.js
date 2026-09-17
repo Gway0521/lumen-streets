@@ -1,3 +1,4 @@
+import { CaptureSession } from "./capture-session.ts";
 import { VIEW, sceneZoom } from "./view.js";
 import { captureSize, paintComposition, labelFontText } from "./composition.js";
 import { ensureTitleFonts } from "../export/title-fonts.ts";
@@ -47,11 +48,8 @@ export async function exportNight({
 }) {
   if (!layer.mesh && sceneZoom(map) >= VIEW.atlas)
     throw Error("Wait for the city to finish loading.");
-  const ratio = map.getPixelRatio(),
-    snapshot = layer.traffic?.snapshot(),
-    time = layer.time,
-    accumulator = layer.accumulator,
-    playing = layer.playing;
+  const ratio = map.getPixelRatio();
+  const session = new CaptureSession(layer, stream);
   const canvas = map.getCanvas(),
     cssWidth = canvas.clientWidth,
     cssHeight = canvas.clientHeight;
@@ -66,10 +64,7 @@ export async function exportNight({
   output.height = height;
   const ctx = output.getContext("2d", { willReadFrequently: format === "gif" });
   let worker, wakeLock;
-  stream.locked = true;
-  stream.generation++;
-  layer.capturing = true;
-  layer.playing = false;
+  session.begin();
   const handlers = [
     "dragPan",
     "scrollZoom",
@@ -172,16 +167,11 @@ export async function exportNight({
   } finally {
     await wakeLock?.release().catch(() => {});
     worker?.terminate();
-    if (snapshot) layer.traffic?.restore(snapshot);
-    layer.time = time;
-    layer.accumulator = accumulator;
-    layer.playing = playing;
-    layer.capturing = false;
+    session.restore();
     layer.last = performance.now();
     layer.updatePoints();
     map.setPixelRatio(ratio);
     enabled.forEach((k) => map[k].enable());
-    stream.locked = false;
     stream.schedule();
     map.triggerRepaint();
     output.width = output.height = 1;
