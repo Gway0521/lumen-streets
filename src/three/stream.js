@@ -14,6 +14,8 @@ export class CityStream {
     this.generation = 0;
     this.busy = false;
     this.pending = false;
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    this.timer = undefined;
     this.metrics = { builds: 0, completed: 0, failed: 0, cancelled: 0, lastBuildMs: 0 };
     this.locked = false;
     this.lastKey = "";
@@ -93,7 +95,14 @@ export class CityStream {
   }
   schedule() {
     clearTimeout(this.timer);
-    this.timer = setTimeout(() => this.build(), 450);
+    this.timer = setTimeout(() => {
+      this.timer = undefined;
+      this.build();
+    }, 450);
+  }
+  // ready describes the last build; a debounced rebuild may still be queued.
+  get settled() {
+    return !!this.ready && !this.busy && !this.pending && this.timer === undefined;
   }
   retry() {
     if (this.locked) return;
@@ -203,6 +212,7 @@ export class CityStream {
   dispose() {
     clearTimeout(this.refreshTimer);
     clearTimeout(this.timer);
+    this.timer = undefined;
     this.worker.terminate();
     this.map.off("moveend", this.moved);
     this.map.off("sourcedata", this.changed);

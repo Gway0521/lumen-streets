@@ -1,12 +1,15 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
-const ready = (page) => page.waitForFunction(() => window.__lumen3d?.stream?.ready && !window.__lumen3d.stream.busy);
+const ready = (page) => page.waitForFunction(() => {
+  const app = window.__lumen3d;
+  return app?.stream?.settled && app.map.areTilesLoaded() && !app.map.isMoving();
+});
 const checkpoint = (page) => page.evaluate(() => ({
   time: __lumen3d.layer.time, traffic: JSON.stringify(__lumen3d.layer.traffic.snapshot()),
   ratio: __lumen3d.map.getPixelRatio(), center: __lumen3d.map.getCenter().toArray(),
 }));
-let failures;
+let failures = [];
 test.beforeEach(async ({ context, request }) => {
   failures = [];
   await request.post("/fixtures/control", { data: {} });
@@ -27,9 +30,18 @@ test("scene, PNG, restoration and cancellation", async ({ page }, testInfo) => {
   await page.locator("#tab-light").click();
   await page.locator("#play").click();
   await page.locator("#tab-capture").click(); await ready(page);
+  // A camera/source event can queue a rebuild while ready is still true.
+  const completed = await page.evaluate(() => {
+    const stream = __lumen3d.stream, completed = stream.metrics.completed;
+    stream.retry();
+    return completed;
+  });
+  await ready(page);
+  expect(await page.evaluate(() => __lumen3d.stream.metrics.completed)).toBeGreaterThan(completed);
   const state = await checkpoint(page);
   const takePNG = async () => {
     await page.locator("#format").selectOption("png");
+    await ready(page);
     const downloading = page.waitForEvent("download");
     await page.locator("#save").click();
     const download = await downloading;
@@ -66,6 +78,10 @@ test("scene, PNG, restoration and cancellation", async ({ page }, testInfo) => {
   const restored = await checkpoint(page);
   expect(restored.time).toBe(scene.time);
   await page.locator("#format").selectOption("gif");
+  await ready(page);
+  const unexpectedDownloads = [];
+  const onDownload = download => unexpectedDownloads.push(download.suggestedFilename());
+  page.on("download", onDownload);
   await page.locator("#save").click();
   await expect(page.locator("#export-progress")).toBeVisible();
   await page.waitForFunction(() => __lumen3d.layer.capturing);
@@ -73,6 +89,8 @@ test("scene, PNG, restoration and cancellation", async ({ page }, testInfo) => {
   await expect(page.locator("#export-progress")).toBeHidden();
   expect(await checkpoint(page)).toEqual(restored);
   expect(await page.evaluate(() => __lumen3d.stream.locked || __lumen3d.layer.capturing)).toBe(false);
+  page.off("download", onDownload);
+  expect(unexpectedDownloads).toEqual([]);
   await takePNG();
 });
 
