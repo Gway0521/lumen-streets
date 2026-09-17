@@ -71,13 +71,13 @@ Physical Android and iPhone runs should record loading, panning, rotation, PNG/c
 
 ## Public artwork
 
-With the app running and Chromium or Edge and FFmpeg installed:
+With the development server running and Chromium or Edge and FFmpeg installed:
 
 ```sh
 node scripts/create-showcase.mjs
 node scripts/create-social-preview.mjs
 ```
 
-BROWSER_CHANNEL=msedge selects Edge. QA_URL and QA_OUTPUT select the server and output directory. The showcase script exports eight PNGs and a 30-second video, then creates a 12-second gallery clip and poster. Review and copy the selected files to public/gallery/ before generating the cover from that clip.
+BROWSER_CHANNEL=msedge selects Edge. QA_URL and QA_OUTPUT select the server and output directory (default artifacts/showcase-hq). The showcase script selects high quality, waits for geometry and queued height enrichment, and exports eight 3840×2160 PNG masters. Lossless WebP files retain their pixels; 1280×720 previews serve the gallery grid, with the full images available on click. It also exports a Shanghai wallpaper and two 30-second, 2560×1440 videos. The Sapporo gallery clip keeps the first 12 seconds without re-encoding. Review any partial height-source status in manifest.json before publishing. SHOWCASE_ONLY accepts comma-separated city IDs, wallpaper, sapporo-video or shanghai-video for individual captures.
 
-The social script produces a six-second README GIF and 1280×640 still. Copy the still to docs/images/social-left.jpg and public/social-preview.jpg, and the GIF to docs/images/social-cover.gif. Update public/gallery/credits.json with provenance and hashes, rebuild, and run npm run check:release. Source downloads and temporary frames stay in ignored artifacts/.
+The social script uses artifacts/showcase-hq/shanghai-source.mp4 (override with SOCIAL_VIDEO) for a six-second, 1280×640 README GIF and still. The camera is fixed at 121.491646, 31.242127, zoom 15.139, pitch 55°, bearing 0°. Copy the still to docs/images/social-left.jpg and public/social-preview.jpg, and the GIF to docs/images/social-cover.gif. Keep the map and height-source attribution next to the README cover. Copy the gallery WebP files, wallpaper PNG, video and poster to public/gallery/, and the wallpaper JPEG to docs/images/. Update public/gallery/credits.json with provenance and hashes, rebuild, and run npm run check:release. PNG masters, source videos and temporary frames stay in ignored artifacts/.

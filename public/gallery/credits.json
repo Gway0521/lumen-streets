@@ -7,173 +7,328 @@
   "images": [
     {
       "id": "shanghai",
-      "file": "shanghai.png",
-      "width": 1280,
-      "height": 720,
+      "file": "shanghai.webp",
+      "width": 3840,
+      "height": 2160,
+      "quality": "high",
+      "encoding": "lossless WebP",
       "camera": {
+        "group": "china",
+        "names": [
+          "Shanghai · Huangpu",
+          "上海・黃浦江"
+        ],
         "center": [
           121.495,
           31.239
         ],
         "zoom": 14.7,
         "bearing": -14,
-        "pitch": 45
+        "waterfront": true
       },
-      "sha256": "d577610f3301d1e12a781948c0d2251e0b69a491e01c8c668c702f321bdc68d3"
+      "sha256": "4fdd1d306685449fe2c8f2ba94bc5449f0351563ed8d06cb71925c2c34fb6eb8",
+      "preview": {
+        "file": "shanghai-preview.webp",
+        "width": 1280,
+        "height": 720,
+        "sha256": "c5bd029262631444580a2b2e5688ac7c93bb839b4d92b4b0abf370e58b97e054"
+      },
+      "heightStatus": [
+        "complete"
+      ]
     },
     {
       "id": "guangzhou",
-      "file": "guangzhou.png",
-      "width": 1280,
-      "height": 720,
+      "file": "guangzhou.webp",
+      "width": 3840,
+      "height": 2160,
+      "quality": "high",
+      "encoding": "lossless WebP",
       "camera": {
+        "group": "china",
+        "names": [
+          "Guangzhou · Pearl River",
+          "廣州・珠江新城"
+        ],
         "center": [
           113.32,
           23.115
         ],
         "zoom": 14.75,
         "bearing": -16,
-        "pitch": 45
+        "waterfront": true
       },
-      "sha256": "4cc1db5307d4578a740a536317decb4708fd51336993a5384f7b5ed078ccbd33"
+      "sha256": "33e780b9d45d69b1897daf7381d1b21573e6a8c87797d65f47d261ffff48daf3",
+      "preview": {
+        "file": "guangzhou-preview.webp",
+        "width": 1280,
+        "height": 720,
+        "sha256": "2e88259e1a800d26c9da766af07d73cd697a6fb3f78189da9818a971296d4f8e"
+      },
+      "heightStatus": [
+        "complete"
+      ]
     },
     {
       "id": "xinyi",
-      "file": "xinyi.png",
-      "width": 1280,
-      "height": 720,
+      "file": "xinyi.webp",
+      "width": 3840,
+      "height": 2160,
+      "quality": "high",
+      "encoding": "lossless WebP",
       "camera": {
+        "group": "taiwan",
+        "names": [
+          "Taipei · Xinyi",
+          "台北・信義"
+        ],
         "center": [
           121.5638,
           25.0368
         ],
         "zoom": 14.6,
         "bearing": -10,
-        "pitch": 45
+        "waterfront": false
       },
-      "sha256": "71cd357850f950086a284d41a6f6b00650a36f4410fb88ac5c78121df4e851fd"
+      "sha256": "a76a675a81cf0f5ead587d159bdabd10a16a9192d59ba44930fd56b659e822f0",
+      "preview": {
+        "file": "xinyi-preview.webp",
+        "width": 1280,
+        "height": 720,
+        "sha256": "008c1c71dd3094e731290745209c94c94807a0c1cf22acfe2c97dde1135900af"
+      },
+      "heightStatus": [
+        "complete"
+      ]
     },
     {
       "id": "kaohsiung",
-      "file": "kaohsiung.png",
-      "width": 1280,
-      "height": 720,
+      "file": "kaohsiung.webp",
+      "width": 3840,
+      "height": 2160,
+      "quality": "high",
+      "encoding": "lossless WebP",
       "camera": {
+        "group": "taiwan",
+        "names": [
+          "Kaohsiung · Love River Bay",
+          "高雄・愛河灣"
+        ],
         "center": [
           120.296,
           22.614
         ],
         "zoom": 14.85,
         "bearing": -20,
-        "pitch": 45
+        "waterfront": true
       },
-      "sha256": "8f7e0ae53931090fa12ad90695e83dc744727134a236d1ad240e1b4a8b36d5f4"
+      "sha256": "8aff0e26f015a5c9533de6a27cc502730f85c97b82e15c36676e9f06af344ffb",
+      "preview": {
+        "file": "kaohsiung-preview.webp",
+        "width": 1280,
+        "height": 720,
+        "sha256": "27dc8f0351e49c0b35ac8609a51fa3c7bd6583d5d3e6fb6a56d3d274d759bcca"
+      },
+      "heightStatus": [
+        "complete"
+      ]
     },
     {
       "id": "sapporo",
-      "file": "sapporo.png",
-      "width": 1280,
-      "height": 720,
+      "file": "sapporo.webp",
+      "width": 3840,
+      "height": 2160,
+      "quality": "high",
+      "encoding": "lossless WebP",
       "camera": {
+        "group": "japan",
+        "names": [
+          "Sapporo · Odori",
+          "札幌・大通"
+        ],
         "center": [
           141.3545,
           43.063
         ],
         "zoom": 14.8,
         "bearing": 0,
-        "pitch": 45
+        "waterfront": false
       },
-      "sha256": "325d8ed007d31e643fb54249d445f4e6de78fbad0aefdd1a8ce40aa319fddc03"
+      "sha256": "529c2a82dc7ec4e8bf4ebc645cfb484f83d1f4584cecd59cfcc3525fee9dfd56",
+      "preview": {
+        "file": "sapporo-preview.webp",
+        "width": 1280,
+        "height": 720,
+        "sha256": "7b8b59a915ba296028d0628010d28691064056b0fce461d2ae9b7df5e0bcd2e3"
+      },
+      "heightStatus": [
+        "complete",
+        "partial"
+      ]
     },
     {
       "id": "yokohama",
-      "file": "yokohama.png",
-      "width": 1280,
-      "height": 720,
+      "file": "yokohama.webp",
+      "width": 3840,
+      "height": 2160,
+      "quality": "high",
+      "encoding": "lossless WebP",
       "camera": {
+        "group": "japan",
+        "names": [
+          "Yokohama · Minato Mirai",
+          "橫濱・港未來"
+        ],
         "center": [
           139.6365,
           35.454
         ],
         "zoom": 14.75,
         "bearing": -24,
-        "pitch": 45
+        "waterfront": true
       },
-      "sha256": "3d865f4e0a371b3682c561677d96f4c952042a7680e58a72f2338258e5c78b98"
+      "sha256": "7eaedc67c377d97e733a5d8de301f4f5cbcf91ac7e2e43961e88279d40055baa",
+      "preview": {
+        "file": "yokohama-preview.webp",
+        "width": 1280,
+        "height": 720,
+        "sha256": "08330afa5ae1a2d25333b69ea1931e97299a23bba54ad17b59e8dee3aeaa9a48"
+      },
+      "heightStatus": [
+        "partial"
+      ]
     },
     {
       "id": "seattle",
-      "file": "seattle.png",
-      "width": 1280,
-      "height": 720,
+      "file": "seattle.webp",
+      "width": 3840,
+      "height": 2160,
+      "quality": "high",
+      "encoding": "lossless WebP",
       "camera": {
+        "group": "usa",
+        "names": [
+          "Seattle · Elliott Bay",
+          "西雅圖・艾略特灣"
+        ],
         "center": [
           -122.34,
           47.612
         ],
         "zoom": 14.4,
         "bearing": 20,
-        "pitch": 45
+        "waterfront": true
       },
-      "sha256": "7bea4611be5eabc5dfa342424a21e1f416cdd871a681a214ccbcc5e05291bb66"
+      "sha256": "7edac104e4970713262292f2ccea8047f13ddca52be7303093544d22d282b0a7",
+      "preview": {
+        "file": "seattle-preview.webp",
+        "width": 1280,
+        "height": 720,
+        "sha256": "9293ae5295e5da5853b54a5a6f6e9d8c045f0b30317774089b999bc856581e3d"
+      },
+      "heightStatus": [
+        "complete",
+        "partial"
+      ]
     },
     {
       "id": "newyork",
-      "file": "newyork.png",
-      "width": 1280,
-      "height": 720,
+      "file": "newyork.webp",
+      "width": 3840,
+      "height": 2160,
+      "quality": "high",
+      "encoding": "lossless WebP",
       "camera": {
+        "group": "usa",
+        "names": [
+          "New York · Lower Manhattan",
+          "紐約・下曼哈頓"
+        ],
         "center": [
           -74.008,
           40.709
         ],
         "zoom": 14.65,
         "bearing": 15,
-        "pitch": 45
+        "waterfront": true
       },
-      "sha256": "ef1752ddb421ff95c82bc61c5b20b5eec0b2cf33372f3a960bce9bbc40eb55a3"
+      "sha256": "2806a91ac7bda2af520cd322e1b753d1ba6ba8508c0c5cc761c4c5ed1142055b",
+      "preview": {
+        "file": "newyork-preview.webp",
+        "width": 1280,
+        "height": 720,
+        "sha256": "295b9483977e71978a1824206c7cf5818167ff12df9f08094079ad98afc5d4ac"
+      },
+      "heightStatus": [
+        "complete"
+      ]
     }
   ],
+  "wallpaper": {
+    "file": "shanghai-wallpaper.png",
+    "width": 3840,
+    "height": 2160,
+    "quality": "high",
+    "cameraQuery": "city=shanghai&lng=121.491646&lat=31.242127&zoom=15.139&pitch=55.00&bearing=0.00&glow=1&density=700&viewLabels=1",
+    "sha256": "42eeb8b30a70b424f6948398f0457fe5a94d080cf39d239f1e8fb3499bdc8367"
+  },
   "recording": {
     "file": "sapporo.mp4",
     "seconds": 12,
     "frames": 360,
-    "width": 1280,
-    "height": 720,
+    "width": 2560,
+    "height": 1440,
+    "quality": "high",
     "codec": "H.264",
-    "source": "First 12 seconds of a 30-second application export, resized and compressed with FFmpeg.",
-    "sourceSha256": "19e9d5dc1d9138c34a381552d11c8cddb8257b69e36a55a9e56190272d31dec8",
-    "sha256": "408b467b6041ef0db427e9ff8fab6b30ca06bb0eafdb951ad7d0f1c9202e1431"
+    "source": "First 12 seconds of a 30-second application export, trimmed without re-encoding.",
+    "sourceSha256": "cd1139b809afb127dcc61d2e6fadc511c7c7ab0f434336d97da0ff9a3203efc2",
+    "sha256": "cf6ad4fe5f8db29f7e02f471829c500bbba587c320352f5462c96c8744dcf768"
   },
   "poster": {
     "file": "video-poster.png",
-    "width": 1280,
-    "height": 720,
+    "width": 2560,
+    "height": 1440,
     "source": "First decoded video frame.",
-    "sha256": "4f440e2d5f25c71a15e341de0e6703019a99822f06bddd75b0b3f897b158a5e3"
+    "sha256": "dd5609b8b207d68febb51c37df0b02585aaa61eb5e642ca57f22dfbd0f27a692"
+  },
+  "wallpaperPreview": {
+    "file": "docs/images/shanghai-wallpaper.jpg",
+    "width": 1920,
+    "height": 1080,
+    "source": "Downscaled preview of the 4K Shanghai wallpaper.",
+    "sha256": "b6e42b7c62913b201a30da72b4c7c9539c56bd4e8e193b2c9a462a836a1a7a81"
   },
   "readmePreview": {
-    "source": "Actual Sapporo application video with the shared logo, title and fixed gradient overlay. Six-second excerpt; repeats with a cut.",
-    "sourceSha256": "408b467b6041ef0db427e9ff8fab6b30ca06bb0eafdb951ad7d0f1c9202e1431",
+    "source": "Actual Shanghai application video with the shared logo, title and fixed gradient overlay. Six-second excerpt; repeats with a cut. Credits accompany the README image.",
+    "camera": {
+      "center": [
+        121.491646,
+        31.242127
+      ],
+      "zoom": 15.139,
+      "pitch": 55,
+      "bearing": 0
+    },
+    "sourceSha256": "9302970d504dcf4029695839bb8ac2e9432c9c40ee6bc9312b58682c6ce230fb",
     "frames": 60,
     "seconds": 6,
-    "width": 960,
-    "height": 480,
-    "sha256": "60bc24d205124af7411fce57fbe55978f190c603fabedee01456dddd1a68acda",
+    "width": 1280,
+    "height": 640,
+    "sha256": "077c6f5dab47a96d19ea09667fb9674dd40001fbe1b6a7847ee2c1c54961108a",
     "file": "docs/images/social-cover.gif"
   },
   "socialPreview": {
     "file": "docs/images/social-left.jpg",
-    "source": "First frame of the same social cover, before GIF downscaling.",
+    "source": "First frame of the Shanghai social cover.",
     "width": 1280,
     "height": 640,
-    "sha256": "d4b60b0e34a91b9d60bb034bdcc92a6c40c701a72db16148a73371a6b167b0a3"
+    "sha256": "d0a3ed2194b3d050ef906dac8ea997bc2d394f0f8d60d8cffe454a4f137d81ec"
   },
   "websitePreview": {
     "file": "public/social-preview.jpg",
     "source": "Copy of the repository social preview.",
     "width": 1280,
     "height": 640,
-    "sha256": "d4b60b0e34a91b9d60bb034bdcc92a6c40c701a72db16148a73371a6b167b0a3"
+    "sha256": "d0a3ed2194b3d050ef906dac8ea997bc2d394f0f8d60d8cffe454a4f137d81ec"
   }
 }

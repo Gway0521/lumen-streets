@@ -6,9 +6,9 @@ Lumen Streets 將 OpenStreetMap 的街道與建築轉為可以平移、旋轉與
 
 [**公開展示**](https://lumenstreets.feifeihome.com/) · [English](README.md) · [架構](docs/ARCHITECTURE.zh-TW.md) · [地標貢獻](docs/3D-LANDMARKS.zh-TW.md)
 
-![Lumen Streets 中的札幌夜景](docs/images/social-cover.gif)
+![Lumen Streets 中的上海黃浦江夜景](docs/images/social-cover.gif)
 
-*由 Lumen Streets 渲染。地圖資料 © OpenStreetMap contributors、Overture Maps；高度來源見[來源與授權](ATTRIBUTION.md)。*
+*由 Lumen Streets 渲染。地圖資料 © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright)、[Overture Maps](https://docs.overturemaps.org/attribution/)；高度來源見[來源與授權](ATTRIBUTION.md)。*
 
 閱讀 [v0.3.0 更新說明](docs/releases/v0.3.0.md)。
 
@@ -29,11 +29,15 @@ npm ci
 npm run dev
 ```
 
-開啟 **http://127.0.0.1:5180/**，使用探索、設定、匯出面板。拖曳平移、右鍵拖曳旋轉與傾斜、滾輪縮放；介面支援英文與繁體中文。
+開啟 **http://127.0.0.1:5180/** ，使用探索、設定、匯出面板。拖曳平移、右鍵拖曳旋轉與傾斜、滾輪縮放；介面支援英文與繁體中文。
 
 首次啟動會在獨立 Python 環境安裝建築資料處理套件。3D 繪圖需要 WebGL2 與線上向量圖磚，預設地點也需要連網。搜尋使用隨附的 Node 服務。詳見[相容性](docs/COMPATIBILITY.md)與[地圖服務](docs/PROVIDERS.md)。
 
 ## 桌布與分享
+
+[![上海黃浦江桌布：左側壓暗供桌面圖示使用，右下角加上地名](docs/images/shanghai-wallpaper.jpg)](public/gallery/shanghai-wallpaper.png)
+
+*上海・黃浦江，4K 匯出。左側保留較暗的空間放桌面圖示，右下角加上地名。點圖可查看原尺寸；[Gallery](https://lumenstreets.feifeihome.com/gallery.html#zh) 提供更多夜景與 1440p 影片。*
 
 PNG 為靜態桌布。影片優先採 MP4/AVC，不支援時嘗試 WebM/VP9；可選 30 秒至五分鐘。GIF 為六秒預覽，影片結尾以切換方式重播，並非無縫循環。詳見[匯出](docs/EXPORTS.md)及[場景與分享](docs/SCENES.md)。
 

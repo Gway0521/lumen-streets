@@ -17,6 +17,7 @@ async function fixture(t, options = {}) {
   await writeFile(join(dist, 'index.html'), '<h1>Night</h1>');
   await writeFile(join(dist, 'assets/app-hash.js'), 'const night = true;');
   await writeFile(join(dist, 'clip.mp4'), '0123456789');
+  await writeFile(join(dist, 'night.webp'), 'webp-fixture');
   await writeFile(join(root, 'secret.txt'), 'private');
   const service = options.service || { search: async () => ({ results: [] }), map: async () => ({ raw: {} }) };
   const server = await createSiteServer({ dist, service, origin, ...options });
@@ -46,6 +47,10 @@ test('standalone website serves only build files, with conditional and range res
   assert.equal((await send('/%XX')).status, 400);
   assert.equal((await send('/', { method: 'POST' })).status, 405);
   assert.equal((await send('/', { method: 'HEAD' })).body, '');
+  res = await send('/night.webp', { method: 'HEAD' });
+  assert.equal(res.status, 200);
+  assert.equal(res.headers['content-type'], 'image/webp');
+  assert.equal(res.headers['content-disposition'], undefined);
   res = await send('/clip.mp4', { headers: { Range: 'bytes=2-5' } }); assert.equal(res.status, 206); assert.equal(res.body, '2345');
   assert.equal(res.headers['content-range'], 'bytes 2-5/10');
   assert.equal((await send('/clip.mp4', { headers: { Range: 'bytes=-3' } })).body, '789');

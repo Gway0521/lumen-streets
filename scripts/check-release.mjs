@@ -30,8 +30,8 @@ const provenance = JSON.parse(await readFile('public/gallery/credits.json', 'utf
 if (!pkg.version.includes('-')) assert.equal(provenance.applicationVersion, pkg.version, 'Refresh release artwork before packaging');
 assert.equal(createHash('sha256').update(preview).digest('hex'), provenance.websitePreview.sha256, 'Social preview differs from its provenance');
 // Check every public illustration, including files used only by the README.
-for (const entry of [...provenance.images, provenance.recording, provenance.poster,
-  provenance.readmePreview, provenance.socialPreview, provenance.websitePreview]) {
+for (const entry of [...provenance.images, ...provenance.images.map(i => i.preview).filter(Boolean), provenance.recording, provenance.poster,
+  provenance.readmePreview, provenance.socialPreview, provenance.websitePreview, ...[provenance.wallpaper, provenance.wallpaperPreview].filter(Boolean)]) {
   const name = entry.file.includes('/') ? entry.file : `public/gallery/${entry.file}`;
   const bytes = await readFile(name);
   assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256, `Artwork differs from provenance: ${name}`);

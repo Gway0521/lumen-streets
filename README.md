@@ -6,7 +6,7 @@ Lumen Streets turns OpenStreetMap streets and buildings into a navigable 3D nigh
 
 [**Public demo**](https://lumenstreets.feifeihome.com/) · [繁體中文](README.zh-TW.md) · [Wallpapers](docs/EXPORTS.md) · [Contributing](CONTRIBUTING.md)
 
-![Sapporo in Lumen Streets](docs/images/social-cover.gif)
+![Shanghai and the Huangpu River in Lumen Streets](docs/images/social-cover.gif)
 
 *Rendered in Lumen Streets. Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) and [Overture Maps](https://docs.overturemaps.org/attribution/); height-source credits are listed in [Attribution](ATTRIBUTION.md).*
 
@@ -34,6 +34,10 @@ Open **http://127.0.0.1:5180/**. Use **Explore**, **Settings** and **Capture**. 
 The first start installs the building-data worker's dependencies into a local Python environment. Visitors only need a browser with WebGL2 and online map access. See [browser compatibility](docs/COMPATIBILITY.md) and [map services](docs/PROVIDERS.md).
 
 ## Wallpapers and sharing
+
+[![Shanghai wallpaper with a shaded left edge for desktop icons and a place title at bottom right](docs/images/shanghai-wallpaper.jpg)](public/gallery/shanghai-wallpaper.png)
+
+*Shanghai · Huangpu River, exported at 4K with space for desktop icons and a place title. Open the image for full resolution, or browse the [Gallery](https://lumenstreets.feifeihome.com/gallery.html) for more nightscapes and a 1440p video.*
 
 PNG creates a still wallpaper. Video selects MP4/AVC when supported and WebM/VP9 otherwise; choose 30 seconds to five minutes. GIF creates a six-second preview. Videos repeat with a cut. See [exports](docs/EXPORTS.md) and [scene files and embeds](docs/SCENES.md).
 
