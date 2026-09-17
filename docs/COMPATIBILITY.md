@@ -2,9 +2,9 @@
 
 The main editor requires WebGL2 and online vector tiles. Use a current desktop browser with WebCodecs for video export; encoding support is checked for the requested dimensions. PNG and GIF do not require a video encoder.
 
-The automated 3D browser suites target installed Microsoft Edge and include desktop and touch/mobile viewport checks, real exports, scene restoration and import rejection. Mobile emulation uses the host GPU and does not establish physical-phone performance.
+CI runs the core browser suite with Chromium. Local runs can use Chromium or installed Microsoft Edge; the live-provider 3D scripts use Edge. Checks include desktop and mobile viewports, real exports and scene restoration; the live suites also exercise model imports. Commands are in [Testing](TESTING.md).
 
-Physical Android, iPhone/Safari and sustained long-video coverage remain open. Viewport emulation uses the host GPU.
+Mobile emulation uses the host GPU and does not establish physical-phone performance. Physical Android, iPhone/Safari and sustained long-video coverage remain open.
 
 ## Known limits
 

@@ -292,11 +292,11 @@
     "sha256": "dd5609b8b207d68febb51c37df0b02585aaa61eb5e642ca57f22dfbd0f27a692"
   },
   "wallpaperPreview": {
-    "file": "docs/images/shanghai-wallpaper.jpg",
-    "width": 1920,
-    "height": 1080,
-    "source": "Downscaled preview of the 4K Shanghai wallpaper.",
-    "sha256": "b6e42b7c62913b201a30da72b4c7c9539c56bd4e8e193b2c9a462a836a1a7a81"
+    "file": "docs/images/shanghai-desktop.png",
+    "width": 2559,
+    "height": 1599,
+    "source": "Desktop screenshot supplied by the project maintainer, showing a Shanghai wallpaper exported from Lumen Streets. Source credits accompany the README images.",
+    "sha256": "1ceaebfdef87d9e270e76c4d298d46ed868d24b34bd9412e28761ef251adbe7d"
   },
   "readmePreview": {
     "source": "Actual Shanghai application video with the shared logo, title and fixed gradient overlay. Six-second excerpt; repeats with a cut. Credits accompany the README image.",

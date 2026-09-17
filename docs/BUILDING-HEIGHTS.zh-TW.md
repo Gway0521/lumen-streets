@@ -29,4 +29,18 @@ GHS 與國家資料各有一條背景佇列，每條同時一個工作、最多�
 
 ## 離線分析
 
-scripts/buildings/build.py 可輸出指定範圍的圖磚、來源收據、稽核檔及第 1 版資料清單，供重現分析或製作自訂資料集。這與網站第 2 版全球服務合約分開。離線工具另支援附有 CRS、來源、授權及高度定義的本機 3DBAG／通用向量與 GeoTIFF。指令與限制見[英文文件](BUILDING-HEIGHTS.md)。
+`scripts/buildings/build.py` 可輸出指定範圍的圖磚、來源收據、稽核檔及第 1 版資料清單，供重現分析或製作自訂資料集。在專案根目錄先執行 `npm run setup:buildings`，再使用該環境的 Python。
+
+Linux／macOS：
+
+```sh
+./.cache/building-venv/bin/python scripts/buildings/build.py --bounds 139.735 35.655 139.74 35.66 --output .cache/building-tiles/sample
+```
+
+Windows PowerShell：
+
+```powershell
+.\.cache\building-venv\Scripts\python.exe scripts/buildings/build.py --bounds 139.735 35.655 139.74 35.66 --output .cache/building-tiles/sample
+```
+
+範圍順序為 WGS84 的西、南、東、北，輸出目錄須為新目錄或空目錄。離線資料清單用於分析；網站使用第 2 版全球服務合約。離線工具也支援附有 CRS、來源、授權及高度定義的本機 3DBAG／通用向量與 GeoTIFF，其他選項見 `--help` 及[英文文件](BUILDING-HEIGHTS.md)。

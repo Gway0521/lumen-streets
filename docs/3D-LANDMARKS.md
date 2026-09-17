@@ -4,7 +4,7 @@
 
 Bring a building from your city to Lumen Streets. Place a local GLB, check its silhouette, then download a contribution ZIP for GitHub review.
 
-The built-in showcase has 51 original parametric assemblies. See the [inventory, source boundaries and capacity measurements](SHOWCASE.md). Imported GLBs have separate limits below.
+The built-in showcase has 51 original parametric assemblies. Explore the [featured cities and their landmarks](SHOWCASE.md). Imported GLBs have separate limits below.
 
 ## Prepare the model
 
@@ -37,3 +37,24 @@ The package contains `model.glb`, `landmark.json`, `preview.png` and `README.txt
 Describe the building and link references for its height and silhouette. State the source and license of any third-party geometry. Identify existing map buildings that should be replaced, and separate annexes that should remain. Review covers geometry, placement, visual quality, attribution and the replacement rule before publication.
 
 Local placement leaves the underlying map geometry in place for inspection. Shared view links and scene files do not contain GLB bytes. Exported images and videos include the placed model; retain the creator and license credit when sharing them.
+
+## Built-in models: accuracy and complexity
+
+The 51 built-in assemblies cover major structures in the featured views and roughly 2–3 km around them. They use original low-polygon silhouettes designed for aerial views. The [catalog](../src/three/showcase-landmarks.json) records bilingual names, OSM identities, anchors, source and display heights, and replacement footprints. Data attribution: © [OpenStreetMap contributors · ODbL](https://www.openstreetmap.org/copyright).
+
+Heights combine reviewed references, OSM tags and documented display estimates. Whole-building heights can differ from the tags on individual footprint parts. Rooflines, facades, curved surfaces, bridge structures and lighting are artistic approximations.
+
+| Structure | Examples | Modeling work |
+| --- | --- | --- |
+| Stepped towers | Nan Shan Plaza, Four World Trade Center | Proportions, setbacks and placement |
+| Historic roofs | Clock Tower, Peace Hotel | Recognisable eaves and roof silhouettes |
+| Curved forms | Opera House, MoPOP, cruise terminal | Preserve the shape within a small geometry budget |
+| Open structures | Canton Tower, wheels and bridges | Lattices, spokes and cables need the most geometry |
+
+## Measured capacity
+
+Run `node scripts/measure-showcase.mjs [report.json]` to reproduce geometry counts and source/gzip sizes. The current 51 assemblies total **50,355 triangles and 9.221 MiB of vertex attributes** if all were generated together. They are geographically culled. The largest city group is Guangzhou at 15,408 triangles / 2.821 MiB.
+
+The catalog, generators and selection/replacement module total about **179 KiB source / 24 KiB gzip**, excluding existing legacy definitions. These are source measurements, not the site's transfer size. There are no per-building GLB or texture downloads. Each view reserves up to **90,000 landmark vertices**, within the existing total facade budget. Complete assemblies are admitted atomically; an omitted model leaves its ordinary map building intact. Models share the existing facade mesh and draw call.
+
+The current average suggests about 30 simultaneous assemblies, or 2–5 intricate lattice structures, within the geometry allocation. Larger catalogs need regional downloads and a spatial index before device testing. Only these 51 assemblies have been validated. Vertex figures exclude map resources, ordinary buildings, temporary CPU allocations and capture targets.

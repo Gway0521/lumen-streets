@@ -12,24 +12,48 @@ npm run build
 npm run check:release
 ```
 
-Run Python tests with the prepared environment's interpreter (.cache/building-venv/bin/python on Unix, .cache/building-venv/Scripts/python.exe on Windows):
+Run Python tests from the repository root with the environment prepared above.
+
+Linux / macOS:
 
 ```sh
-python -m unittest discover -s scripts/buildings -p test_buildings.py
+./.cache/building-venv/bin/python -m unittest discover -s scripts/buildings -p test_buildings.py
+```
+
+Windows PowerShell:
+
+```powershell
+.\.cache\building-venv\Scripts\python.exe -m unittest discover -s scripts/buildings -p test_buildings.py
 ```
 
 Node tests cover geometry, simulation, scene validation, capture restoration, imports, height provenance, bounded caches/queues and server request isolation. Python tests cover normalization, footprint matching and raster context. Release checks validate documentation links, artwork hashes, versions, fonts, notices and private-file exclusions.
 
 ## Browser checks
 
-Every PR runs the core suite with Chromium, in desktop English and a narrow Traditional Chinese viewport:
+CI runs the core suite with Chromium, in desktop English and a narrow Traditional Chinese viewport. To use the same browser locally:
 
 ```sh
 npx playwright install chromium
 npm run test:browser
 ```
 
-The suite starts an isolated server on port 5183. Synthetic building tiles and bundled road snapshots keep it independent of upstream services; unexpected external requests fail the test. Rendering, workers, PNG encoding and scene restoration run normally. It also checks export cancellation, transient building failures and the visible Retry control after automatic retries stop. Failed runs retain screenshots and traces in artifacts/browser-results/. BROWSER_CHANNEL=msedge selects an installed Edge for local runs. Browser installation needs network access; the tests do not.
+The suite starts an isolated server on port 5183. Synthetic building tiles and bundled road snapshots keep it independent of upstream services; unexpected external requests fail the test. Rendering, workers, PNG encoding and scene restoration run normally. It also checks export cancellation, transient building failures and the visible Retry control after automatic retries stop. Failed runs retain screenshots and traces in artifacts/browser-results/. Browser installation needs network access; the tests do not.
+
+To use an already installed Microsoft Edge instead of downloading Chromium:
+
+```sh
+BROWSER_CHANNEL=msedge npm run test:browser
+```
+
+Windows PowerShell:
+
+```powershell
+$env:BROWSER_CHANNEL = 'msedge'
+npm run test:browser
+Remove-Item Env:BROWSER_CHANNEL
+```
+
+Unset BROWSER_CHANNEL to return to Chromium.
 
 For live provider checks, start npm run dev on port 5180. The scripts below use installed Microsoft Edge. QA_URL selects another development server. Run GPU suites one at a time.
 
@@ -80,4 +104,4 @@ node scripts/create-social-preview.mjs
 
 BROWSER_CHANNEL=msedge selects Edge. QA_URL and QA_OUTPUT select the server and output directory (default artifacts/showcase-hq). The showcase script selects high quality, waits for geometry and queued height enrichment, and exports eight 3840×2160 PNG masters. Lossless WebP files retain their pixels; 1280×720 previews serve the gallery grid, with the full images available on click. It also exports a Shanghai wallpaper and two 30-second, 2560×1440 videos. The Sapporo gallery clip keeps the first 12 seconds without re-encoding. Review any partial height-source status in manifest.json before publishing. SHOWCASE_ONLY accepts comma-separated city IDs, wallpaper, sapporo-video or shanghai-video for individual captures.
 
-The social script uses artifacts/showcase-hq/shanghai-source.mp4 (override with SOCIAL_VIDEO) for a six-second, 1280×640 README GIF and still. The camera is fixed at 121.491646, 31.242127, zoom 15.139, pitch 55°, bearing 0°. Copy the still to docs/images/social-left.jpg and public/social-preview.jpg, and the GIF to docs/images/social-cover.gif. Keep the map and height-source attribution next to the README cover. Copy the gallery WebP files, wallpaper PNG, video and poster to public/gallery/, and the wallpaper JPEG to docs/images/. Update public/gallery/credits.json with provenance and hashes, rebuild, and run npm run check:release. PNG masters, source videos and temporary frames stay in ignored artifacts/.
+The social script uses artifacts/showcase-hq/shanghai-source.mp4 (override with SOCIAL_VIDEO) for a six-second, 1280×640 README GIF and still. The camera is fixed at 121.491646, 31.242127, zoom 15.139, pitch 55°, bearing 0°. Copy the still to docs/images/social-left.jpg and public/social-preview.jpg, and the GIF to docs/images/social-cover.gif. Keep the map and height-source attribution next to the README cover. Copy the gallery WebP files, wallpaper PNG, video and poster to public/gallery/. The README desktop example is a separate screenshot supplied by the maintainer; it is not generated by these scripts. Update public/gallery/credits.json with provenance and hashes, rebuild, and run npm run check:release. PNG masters, source videos and temporary frames stay in ignored artifacts/.

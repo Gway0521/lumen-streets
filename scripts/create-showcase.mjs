@@ -77,7 +77,6 @@ try {
     await page.fill('#place-text', '上海・黃浦江');
     await page.selectOption('#title-corner', 'bottom-right');
     await capture('png', `${output}/shanghai-wallpaper.png`);
-    convert(['-i', `${output}/shanghai-wallpaper.png`, '-vf', 'scale=1920:1080:flags=lanczos', '-q:v', '2', '-frames:v', '1', `${output}/shanghai-wallpaper.jpg`]);
     manifest.wallpaper = { file: 'shanghai-wallpaper.png', width: 3840, height: 2160, quality: 'high', cameraQuery: shanghai, sha256: await hash(`${output}/shanghai-wallpaper.png`) };
   }
   for (const id of ['sapporo', 'shanghai']) {

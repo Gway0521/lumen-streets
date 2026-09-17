@@ -1,76 +1,73 @@
-# 展示區與地標模型評估
+# 精選城市
 
-[English](SHOWCASE.md) · [架構](ARCHITECTURE.zh-TW.md) · [模型投稿](3D-LANDMARKS.zh-TW.md)
+[English](SHOWCASE.md) · [Gallery](https://lumenstreets.feifeihome.com/gallery.html#zh) · [文件](README.zh-TW.md)
 
-預設視角及周邊約 2–3 公里包含 51 組主要地標，涵蓋高樓、文化建築、橋梁與摩天輪。連棟建築群視為一組，公園及一般街屋由地圖資料呈現。
+八個起點，從棋盤街廓到水岸天際線。點圖片查看 4K 原圖，或開啟城市自行探索。「設定 → 地標名稱」可顯示附近建築名稱。
 
-## 展示區選擇
+## 札幌・大通
 
-| 地區 | 展示區 | 選擇理由 |
-| --- | --- | --- |
-| 中國 | 上海黃浦江、廣州珠江新城 | 廣州塔與高樓群隔江相望的構圖。 |
-| 台灣地區 | 台北信義、高雄愛河灣 | 港灣、音樂中心、85 大樓與旅運中心形成不同尺度的輪廓。 |
-| 日本 | 札幌大通、橫濱港未來 | 札幌的棋盤街廓；橫濱以港灣、摩天輪與帆船形飯店補足水岸景觀。 |
-| 美國 | 西雅圖艾略特灣、紐約下曼哈頓 | 西雅圖市中心水岸；下曼哈頓以兩側河面、密集天際線及布魯克林大橋展示。 |
+[![札幌・大通](../public/gallery/sapporo-preview.webp)](../public/gallery/sapporo.webp)
 
-四組各兩處，每組至少一處有明顯城市與水面的對比。也比較了芝加哥河口；其格網和水岸很適合，但這輪選擇下曼哈頓，是為了呈現更緊密且輪廓差異更大的天際線。北京、華盛頓和公館仍能透過搜尋、移動地圖或舊連結到達。
+大通公園周圍，明亮街道展開成棋盤格。 [探索這個城市](https://lumenstreets.feifeihome.com/?city=sapporo&lang=zh-TW)
 
-選擇同時參考實際夜景渲染與官方景觀介紹：[廣州珠江](https://www.gz.gov.cn/guangzhouinternational/home/citynews/content/post_8558363.html)、[高雄流行音樂中心](https://www.moc.gov.tw/en/News_Content2.aspx?n=467&s=16114)、[橫濱天際線](https://www.yokohamajapan.com/article/yokohama-skyline/)、[西雅圖水岸](https://visitseattle.org/neighborhoods/waterfront/)、[紐約觀光介紹](https://www.business.nyctourism.com/press-media/press-releases/nyc-company-invites-visitors-to-see-manhattan-like-a-new-yorker)。取景判斷屬於展示設計，並非景點排名。
+**周邊地標：** 札幌電視塔、JR Tower、札幌時計台、北海道廳舊本廳舍。
 
-高雄的普通建築資料較疏，港灣留白也較多；模型補上主要輪廓，但不會憑空填滿缺少資料的街區。新展示區使用線上向量圖磚；既有四處仍會在原快照涵蓋範圍內使用較詳細資料。全球車流拓撲與高度資料的限制仍適用，新地區沒有額外的鐵道快照。
+## 上海・黃浦江
 
-## 地標清單
+[![上海・黃浦江](../public/gallery/shanghai-preview.webp)](../public/gallery/shanghai.webp)
 
-- **台北信義（5）**：台北 101、南山廣場、臺北大巨蛋、國父紀念館、臺北市政府。
-- **札幌（4）**：札幌電視塔、JR Tower、札幌時計台、北海道廳舊本廳舍。
-- **上海（7）**：上海中心大廈、上海環球金融中心、金茂大廈、東方明珠、上海國際會議中心、外灘海關大樓、和平飯店。
-- **廣州（6）**：廣州塔、廣州國際金融中心、廣州周大福金融中心、廣州歌劇院、廣東省博物館、海心橋。
-- **高雄（6）**：85 大樓、高雄流行音樂中心高低塔、高雄港旅運中心、高雄展覽館、高雄市立圖書館總館、大港橋。
-- **橫濱（6）**：橫濱地標塔、皇后廣場三棟塔樓、帆船飯店、Cosmo Clock 21、橫濱海洋塔、紅磚倉庫兩館。
-- **西雅圖（7）**：太空針塔、Columbia Center、Smith Tower、Rainier Tower、中央圖書館、Seattle Great Wheel、MoPOP。
-- **紐約（10）**：世貿一號、三號、四號、30 Park Place、Woolworth、70 Pine、40 Wall Street、8 Spruce、Oculus、布魯克林大橋。
+浦東高樓隔著深色江面，與外灘相望。 [探索這個城市](https://lumenstreets.feifeihome.com/?city=shanghai&lang=zh-TW)
 
-自由女神像等超出目前約 3 公里範圍的地標未納入。每組的 OSM 身分、定位、來源高度、展示高度、取得時間及替換輪廓保存在 [showcase-landmarks.json](../src/three/showcase-landmarks.json)。原始圖資為 © OpenStreetMap contributors，適用 [ODbL](https://www.openstreetmap.org/copyright)。沒有匯入觀光照片或第三方模型素材。
+**周邊地標：** 上海中心大廈、上海環球金融中心、金茂大廈、東方明珠、上海國際會議中心、外灘海關大樓、和平飯店。
 
-## 精度與建模難度
+## 台北・信義
 
-模型是原創低面數的鳥瞰輪廓，著重退縮、屋頂、球體、開口及支架。高度來源分成原有已核對來源、OSM 高度標籤與明列的展示近似值；**沒有把一般地圖高度一律視為建築總高**。例如 85 大樓的外框標籤為 50 公尺，而模型採含塔尖的約 378 公尺；紐約部分外框只表示較低主體。完整結構、細部尺寸、曲面、立面和照明均非測繪重建。
+[![台北・信義](../public/gallery/xinyi-preview.webp)](../public/gallery/xinyi.webp)
 
-| 類型 | 目前例子 | 主要難點 | 後續精修成本 |
-| --- | --- | --- | --- |
-| 方形塔樓、逐層退縮 | 世貿四號、30 Park Place、南山廣場 | 基座與高樓部分的比例、朝向、原地圖重疊 | 低至中 |
-| 特殊屋頂、歷史建築 | 國父紀念館、時計台、和平飯店 | 屋簷、鐘塔、屋頂和塔身辨識度 | 中 |
-| 自由曲面、扭曲立面 | 歌劇院、MoPOP、港旅運中心、8 Spruce | 低面數下保留曲面輪廓；細節簡化最多 | 高 |
-| 鏤空結構與大跨距 | 廣州塔、摩天輪、三座橋 | 支架、纜索、開口、橋面位置及幾何用量 | 高 |
+台北 101 俯瞰信義區的大道與廣場。 [探索這個城市](https://lumenstreets.feifeihome.com/?city=xinyi&lang=zh-TW)
 
-廣州塔的開放網格、摩天輪輻條與橋纜是真正幾何；橋面依來源輪廓三角化。橋塔與纜索仍是示意比例。皇后廣場及紅磚倉庫保留各棟來源位置。主要參考包括 [廣州歌劇院建築資料](https://www.zaha-hadid.com/wp-content/uploads/2019/12/guangzhouoperahouse.pdf)、[Oculus 建築設計](https://prod.calatrava.com/projects/world-trade-center-transportation-hub-new-york.html)、[札幌時計台](https://sapporoshi-tokeidai.jp/english/)、[橫濱地標塔](https://yokohama-landmark.jp/about/)、[85 大樓高度資料](https://www.skyscrapercenter.com/building/t-c-tower/338)。
+**周邊地標：** 台北 101、南山廣場、臺北大巨蛋、國父紀念館、臺北市政府。
 
-## 容量與擴充估計
+## 高雄・愛河灣
 
-執行 `node scripts/measure-showcase.mjs` 可重新計算實際幾何及來源檔大小。下面是目前模型的 CPU／GPU 共用頂點屬性大小，**不包括地圖、普通建築、紋理、瀏覽器、匯出或 CPU 暫存開銷**。
+[![高雄・愛河灣](../public/gallery/kaohsiung-preview.webp)](../public/gallery/kaohsiung.webp)
 
-| 區域 | 模型組數 | 三角形 | 頂點屬性 MiB |
-| --- | ---: | ---: | ---: |
-| 信義 | 5 | 877 | 0.161 |
-| 札幌 | 4 | 2,914 | 0.534 |
-| 上海 | 7 | 4,544 | 0.832 |
-| 廣州 | 6 | 15,408 | 2.821 |
-| 高雄 | 6 | 1,444 | 0.264 |
-| 橫濱 | 6 | 7,008 | 1.283 |
-| 西雅圖 | 7 | 6,992 | 1.280 |
-| 紐約 | 10 | 11,168 | 2.045 |
-| **合計** | **51** | **50,355** | **9.221** |
+港灣燈光沿水面延伸，85 大樓立於岸邊。 [探索這個城市](https://lumenstreets.feifeihome.com/?city=kaohsiung&lang=zh-TW)
 
-地標資料、模型生成程式與載入規則合計約 **179 KiB 原始文字、24 KiB gzip**；這是這三份來源的壓縮測量，不是整站大小或部署時保證的下載量。既有六座模型的原始定義已在舊模型庫中，未重複計入這三份新增檔案。模型不需要各自下載 GLB 或貼圖。
+**周邊地標：** 85 大樓、高雄流行音樂中心高低塔、高雄港旅運中心、高雄展覽館、高雄市立圖書館總館、大港橋。
 
-每個視野最多保留 **90,000 個地標頂點，約 30,000 個三角形／5.5 MiB 頂點屬性**，並計入原本桌面 700,000／手機 280,000 的總立面頂點預算；超額模型整組略過，保留普通地圖建築，不畫半座模型。附近地標先保留幾何，再把餘額交給普通建築。模型合併進共用立面網格，不為每座新增一次繪製呼叫。
+## 廣州・珠江新城
 
-依目前平均複雜度，同一視野約可容納 **30 組**；如果都是廣州塔等鏤空複雜結構，約 **2–5 組**就可能接近預算。這是幾何預算估計，不是手機幀率保證。地標名稱會避讓重疊，橫向最多 9 個、狹長直向最多 5 個，優先標示較高的特殊地標。
+[![廣州・珠江新城](../public/gallery/guangzhou-preview.webp)](../public/gallery/guangzhou.webp)
 
-模型只在附近生成。擴大目錄前應加入地區拆包與空間索引，並測量下載、解碼、切換和實機記憶體。目前驗證範圍為這 51 組。
+廣州塔與珠江新城分立兩岸，江面保留開闊的暗部。 [探索這個城市](https://lumenstreets.feifeihome.com/?city=guangzhou&lang=zh-TW)
 
-## 名稱與保存
+**周邊地標：** 廣州塔、廣州國際金融中心、廣州周大福金融中心、廣州歌劇院、廣東省博物館、海心橋。
 
-「設定 → 地標名稱」控制一般探索畫面與隱藏控制後的名稱。一般分享連結使用 `viewLabels`，場景檔保留同名布林值；舊場景沒有此欄位時預設關閉。「匯出 → 桌布選項 → 地標名稱」獨立控制輸出與嵌入構圖。文字使用既有字體、語言與重疊避讓規則。
+## 橫濱・港未來
 
-模型依地理視野選取，從搜尋或其他城市平移過來也能看到。
+[![橫濱・港未來](../public/gallery/yokohama-preview.webp)](../public/gallery/yokohama.webp)
+
+高樓、帆船形飯店與摩天輪勾勒港灣輪廓。 [探索這個城市](https://lumenstreets.feifeihome.com/?city=yokohama&lang=zh-TW)
+
+**周邊地標：** 橫濱地標塔、皇后廣場三棟塔樓、帆船飯店、Cosmo Clock 21、橫濱海洋塔、紅磚倉庫兩館。
+
+## 西雅圖・艾略特灣
+
+[![西雅圖・艾略特灣](../public/gallery/seattle-preview.webp)](../public/gallery/seattle.webp)
+
+市中心街道朝碼頭與艾略特灣的開闊水面延伸。 [探索這個城市](https://lumenstreets.feifeihome.com/?city=seattle&lang=zh-TW)
+
+**周邊地標：** 太空針塔、Columbia Center、Smith Tower、Rainier Tower、中央圖書館、Seattle Great Wheel、MoPOP。
+
+## 紐約・下曼哈頓
+
+[![紐約・下曼哈頓](../public/gallery/newyork-preview.webp)](../public/gallery/newyork.webp)
+
+密集天際線被兩側河面環繞，布魯克林大橋橫跨東側。 [探索這個城市](https://lumenstreets.feifeihome.com/?city=newyork&lang=zh-TW)
+
+**周邊地標：** 世貿一號、三號、四號、30 Park Place、Woolworth、70 Pine、40 Wall Street、8 Spruce、Oculus、布魯克林大橋。
+
+地標會依瀏覽範圍出現。完整定位與來源見[模型目錄](../src/three/showcase-landmarks.json)，模型精度、容量與投稿方式見[地標模型](3D-LANDMARKS.zh-TW.md)。
+
+圖片由 Lumen Streets 匯出。地圖資料 © [OpenStreetMap contributors · ODbL](https://www.openstreetmap.org/copyright)、[Overture Maps](https://docs.overturemaps.org/attribution/)；高度來源見[來源與授權](../ATTRIBUTION.md)。

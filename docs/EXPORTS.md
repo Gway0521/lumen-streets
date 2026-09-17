@@ -22,4 +22,4 @@ Exports include the building-data attribution used by the current scene. Keep th
 
 Try PNG or a smaller size if video encoding is unavailable. Longer or larger videos require browser temporary-file storage. Encoded output is capped at 1.5 GB, with a 250 MB in-memory fallback. Keep the page open during capture; Cancel restores the view. Temporary downloads are released after a short delay or when the page closes.
 
-See [wallpaper setup](../public/wallpapers.html) and [compatibility](COMPATIBILITY.md).
+See [wallpaper setup](https://lumenstreets.feifeihome.com/wallpapers.html) ([繁體中文](https://lumenstreets.feifeihome.com/wallpapers.html#zh)) and [compatibility](COMPATIBILITY.md).

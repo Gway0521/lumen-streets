@@ -4,7 +4,7 @@ Bug fixes, translations and maps that expose rendering problems are welcome. For
 
 ## Run and check
 
-Use Node.js 24 and Python 3.12 with pip and venv. Run `npm ci` and `npm run dev`, then open http://127.0.0.1:5180/.
+Follow [Run locally](README.md#run-locally) to clone the project and install Node.js 24 and Python 3.12 dependencies. Run checks from the repository root.
 
 Before submitting a change:
 
@@ -18,7 +18,7 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-For visual changes, compare actual exports in both languages on desktop and a narrow viewport. Check that the editor keeps its view and playback state while exporting. CI runs the core browser suite; additional live-provider checks and performance measurements are described in [Testing](docs/TESTING.md).
+For visual changes, compare actual exports in both languages on desktop and a narrow viewport. Check that the editor keeps its view and playback state while exporting. CI uses Chromium for the core browser suite. [Testing](docs/TESTING.md) also covers installed Edge, Python tests, live-provider checks and performance measurements. Browse the [documentation index](docs/README.md) for other development guides.
 
 ## Keep changes focused
 

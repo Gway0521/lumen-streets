@@ -33,10 +33,18 @@ GHS and national sources have separate bounded queues, each with one worker and 
 
 ## Offline analysis
 
-The optional Python tool produces reproducible geographic extracts and audit files. Use the prepared Python environment from npm run setup:buildings:
+The optional Python tool produces reproducible geographic extracts and audit files. From the repository root, prepare the environment once with `npm run setup:buildings`.
+
+Linux / macOS:
 
 ```sh
-python scripts/buildings/build.py --bounds 139.735 35.655 139.74 35.66 --output .cache/building-tiles/sample
+./.cache/building-venv/bin/python scripts/buildings/build.py --bounds 139.735 35.655 139.74 35.66 --output .cache/building-tiles/sample
+```
+
+Windows PowerShell:
+
+```powershell
+.\.cache\building-venv\Scripts\python.exe scripts/buildings/build.py --bounds 139.735 35.655 139.74 35.66 --output .cache/building-tiles/sample
 ```
 
 Bounds are west, south, east, north in WGS84; the output directory must be new or empty. Outputs include tile GeoJSON, a version 1 inventory manifest, an audit archive and a report with source receipts. This inventory format is for offline analysis; the website uses the global service contract above.

@@ -1,28 +1,73 @@
-# Showcase locations and landmarks
+# Featured cities
 
-[繁體中文：完整清單與容量評估](SHOWCASE.zh-TW.md) · [Architecture](ARCHITECTURE.md)
+[繁體中文](SHOWCASE.zh-TW.md) · [Gallery](https://lumenstreets.feifeihome.com/gallery.html) · [Documentation](README.md)
 
-The showcase contains Shanghai and Guangzhou; Taipei Xinyi and Kaohsiung; Sapporo and Yokohama; Seattle and Lower Manhattan. Each pair includes an urban waterfront.
+Eight starting views, from street grids to waterfront skylines. Open an image at 4K or explore the city yourself. Turn on **Settings → Landmark names** to identify nearby buildings.
 
+## Sapporo · Odori
 
-## Scope and accuracy
+[![Sapporo · Odori](../public/gallery/sapporo-preview.webp)](../public/gallery/sapporo.webp)
 
-There are **51 landmark assemblies**. The reviewed inventory covers major structures in the initial views and roughly 2–3 km around them, not every named attraction or historic building. Towers, cultural buildings, wheels and bridges receive original low-polygon silhouettes. Parks and ordinary streets remain map geometry. The Statue of Liberty lies beyond this inventory's radius.
+A bright street grid around Odori Park. [Explore this city](https://lumenstreets.feifeihome.com/?city=sapporo)
 
-[The catalog](../src/three/showcase-landmarks.json) records bilingual names, OSM identities, anchors, source heights, display heights, retrieval dates and replacement footprints. Attribution is © OpenStreetMap contributors, [ODbL](https://www.openstreetmap.org/copyright). No reference photos or third-party meshes are bundled. Height bases distinguish existing reviewed references, OSM tags and approximate display values. Shapes, facade details, freeform surfaces, bridge structures and lighting remain artistic approximations rather than survey models.
+**Nearby landmarks:** Sapporo TV Tower, JR Tower, Clock Tower, Former Hokkaido Government Office.
 
-Stepped towers are the easiest to extend. Historic roofs require more silhouette review. Freeform buildings such as MoPOP, Guangzhou Opera House and the cruise terminal need the most refinement for close views. Open lattices, wheel spokes and suspension cables consume the most geometry. See the [full inventory and evaluation](SHOWCASE.zh-TW.md).
+## Shanghai · Huangpu River
 
-## Measured capacity
+[![Shanghai · Huangpu River](../public/gallery/shanghai-preview.webp)](../public/gallery/shanghai.webp)
 
-Run `node scripts/measure-showcase.mjs [report.json]` to reproduce geometry counts and source/gzip sizes. The current 51 assemblies total **50,355 triangles and 9.221 MiB of vertex attributes** if all were generated together. They are geographically culled. The largest city group is Guangzhou at 15,408 triangles / 2.821 MiB.
+Pudong towers face the Bund across dark water. [Explore this city](https://lumenstreets.feifeihome.com/?city=shanghai)
 
-The catalog, generators and selection/replacement module total about **179 KiB source / 24 KiB gzip**, excluding existing legacy definitions. These are source measurements, not the site's transfer size. There are no per-building GLB or texture downloads. Each view reserves up to **90,000 landmark vertices**, within the existing total facade budget. Complete assemblies are admitted atomically; an omitted model leaves its ordinary map building intact. Models share the existing facade mesh and draw call.
+**Nearby landmarks:** Shanghai Tower, Shanghai World Financial Center, Jin Mao Tower, Oriental Pearl Tower, Shanghai International Convention Center, Customs House, Peace Hotel.
 
-The current average suggests about 30 simultaneous assemblies, or 2–5 intricate lattice structures, within the geometry allocation. Larger catalogs need regional downloads and a spatial index before device testing. Only these 51 assemblies have been validated. Vertex figures exclude map resources, ordinary buildings, temporary CPU allocations and capture targets.
+## Taipei · Xinyi
 
-## Viewer and compatibility
+[![Taipei · Xinyi](../public/gallery/xinyi-preview.webp)](../public/gallery/xinyi.webp)
 
-**Settings → Landmark names** controls labels during exploration, including when controls are hidden. View links and scene files preserve this separately as `viewLabels`. Older scene files default to off. Capture's landmark-label option remains independent and controls exports and embed composition. Collision avoidance limits visible labels to nine in landscape and five in narrow portrait, prioritising tall special landmarks.
+Taipei 101 rises above the avenues and public spaces of Xinyi. [Explore this city](https://lumenstreets.feifeihome.com/?city=xinyi)
 
-Showcase cameras are separate from the eight legacy snapshots. Retired city links and historical scene data remain readable. Ordinary buildings use the global service in every location; snapshots retain roads, railways and place labels. New regions have no bundled rail routes. Built-in landmark selection follows geography, so models also appear when navigating from search or another preset.
+**Nearby landmarks:** Taipei 101, Nan Shan Plaza, Taipei Dome, Sun Yat-sen Memorial Hall, Taipei City Hall.
+
+## Kaohsiung · Love River Bay
+
+[![Kaohsiung · Love River Bay](../public/gallery/kaohsiung-preview.webp)](../public/gallery/kaohsiung.webp)
+
+Harbour lights trace the water beneath the 85 Sky Tower. [Explore this city](https://lumenstreets.feifeihome.com/?city=kaohsiung)
+
+**Nearby landmarks:** 85 Sky Tower, Kaohsiung Music Center, Kaohsiung Port Cruise Terminal, Kaohsiung Exhibition Center, Main Public Library, Great Harbor Bridge.
+
+## Guangzhou · Pearl River
+
+[![Guangzhou · Pearl River](../public/gallery/guangzhou-preview.webp)](../public/gallery/guangzhou.webp)
+
+Canton Tower and Zhujiang New Town frame opposite banks. [Explore this city](https://lumenstreets.feifeihome.com/?city=guangzhou)
+
+**Nearby landmarks:** Canton Tower, Guangzhou International Finance Center, Guangzhou CTF Finance Centre, Guangzhou Opera House, Guangdong Museum, Haixin Bridge.
+
+## Yokohama · Minato Mirai
+
+[![Yokohama · Minato Mirai](../public/gallery/yokohama-preview.webp)](../public/gallery/yokohama.webp)
+
+A waterfront skyline of towers, a sail-shaped hotel and a Ferris wheel. [Explore this city](https://lumenstreets.feifeihome.com/?city=yokohama)
+
+**Nearby landmarks:** Yokohama Landmark Tower, Queen’s Square, InterContinental Yokohama Grand, Cosmo Clock 21, Yokohama Marine Tower, Red Brick Warehouse.
+
+## Seattle · Elliott Bay
+
+[![Seattle · Elliott Bay](../public/gallery/seattle-preview.webp)](../public/gallery/seattle.webp)
+
+Downtown slopes towards the piers and open water of Elliott Bay. [Explore this city](https://lumenstreets.feifeihome.com/?city=seattle)
+
+**Nearby landmarks:** Space Needle, Columbia Center, Smith Tower, Rainier Tower, Seattle Central Library, Seattle Great Wheel, MoPOP.
+
+## New York · Lower Manhattan
+
+[![New York · Lower Manhattan](../public/gallery/newyork-preview.webp)](../public/gallery/newyork.webp)
+
+A dense skyline between two rivers, with Brooklyn Bridge to the east. [Explore this city](https://lumenstreets.feifeihome.com/?city=newyork)
+
+**Nearby landmarks:** One, Three and Four World Trade Center, 30 Park Place, Woolworth Building, 70 Pine Street, 40 Wall Street, 8 Spruce Street, Oculus, Brooklyn Bridge.
+
+Landmarks appear when their locations are in view. See the [catalog](../src/three/showcase-landmarks.json) for placement and sources, or [landmark models](3D-LANDMARKS.md) for accuracy, capacity and contributions.
+
+Images exported from Lumen Streets. Map data © [OpenStreetMap contributors · ODbL](https://www.openstreetmap.org/copyright) and [Overture Maps](https://docs.overturemaps.org/attribution/); height-source credits are in [Attribution](../ATTRIBUTION.md).
