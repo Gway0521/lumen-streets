@@ -17,6 +17,14 @@
 - **桌布構圖:** 選擇螢幕比例、加上地名，並壓暗一側為桌面圖示留白；可匯出靜態圖片或動畫。
 - **保存分享:** 用場景檔保存視角與車流，分享視角連結，或將夜景嵌入網站。
 
+## 40 秒，從城市到桌布
+
+[![觀看紐約桌布操作示範](public/gallery/newyork-walkthrough.jpg)](https://lumenstreets.feifeihome.com/gallery.html#walkthrough-zh)
+
+[**▶ 觀看操作示範**](https://lumenstreets.feifeihome.com/gallery.html#walkthrough-zh) · [下載 MP4](public/gallery/newyork-walkthrough.mp4)
+
+探索下曼哈頓、顯示地標名稱、調整桌布構圖，再匯出 PNG。採高畫質設定，以 1080p 錄製，附中英操作提示，無音訊。
+
 ## 放到你的桌面
 
 [![上海夜景作為 Windows 桌布，App 圖示排列在左側壓暗區域](docs/images/shanghai-desktop.png)](docs/images/shanghai-desktop.png)

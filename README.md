@@ -17,6 +17,14 @@ Explore in 3D, follow the moving lights and frame a view for your screen.
 - **Frame your wallpaper.** Choose a screen ratio, add a place title and shade an edge to make room for desktop icons. Export a still image or animation.
 - **Save and share.** Keep your view and traffic in a scene file, send a view link, or embed a nightscape on a website.
 
+## From city to wallpaper in 40 seconds
+
+[![Watch the New York wallpaper walkthrough](public/gallery/newyork-walkthrough.jpg)](https://lumenstreets.feifeihome.com/gallery.html#walkthrough)
+
+[**▶ Watch the walkthrough**](https://lumenstreets.feifeihome.com/gallery.html#walkthrough) · [Download MP4](public/gallery/newyork-walkthrough.mp4)
+
+Explore Lower Manhattan, show landmark names, frame a wallpaper and export a PNG. Recorded at high quality in 1080p, with English and Traditional Chinese captions; no audio.
+
 ## On your desktop
 
 [![Shanghai nightscape used as a Windows desktop wallpaper, with app icons on the shaded left edge](docs/images/shanghai-desktop.png)](docs/images/shanghai-desktop.png)
