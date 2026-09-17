@@ -19,9 +19,9 @@
 
 ## 40 秒，從城市到桌布
 
-[![觀看紐約桌布操作示範](public/gallery/newyork-walkthrough.jpg)](https://lumenstreets.feifeihome.com/gallery.html#walkthrough-zh)
+[![觀看紐約桌布操作示範](public/gallery/newyork-walkthrough-zh-TW.jpg)](https://lumenstreets.feifeihome.com/gallery.html#walkthrough-zh)
 
-[**▶ 觀看操作示範**](https://lumenstreets.feifeihome.com/gallery.html#walkthrough-zh) · [下載 MP4](public/gallery/newyork-walkthrough.mp4)
+[**▶ 觀看操作示範**](https://lumenstreets.feifeihome.com/gallery.html#walkthrough-zh) · [下載 MP4](public/gallery/newyork-walkthrough-zh-TW.mp4)
 
 探索下曼哈頓、顯示地標名稱、調整桌布構圖，再匯出 PNG。採高畫質設定，以 1080p 錄製，附中英操作提示，無音訊。
 

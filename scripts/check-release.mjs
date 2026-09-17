@@ -32,7 +32,7 @@ assert.equal(createHash('sha256').update(preview).digest('hex'), provenance.webs
 // Check every public illustration, including files used only by the README.
 for (const entry of [...provenance.images, ...provenance.images.map(i => i.preview).filter(Boolean), provenance.recording, provenance.poster,
   provenance.readmePreview, provenance.socialPreview, provenance.websitePreview,
-  ...[provenance.wallpaper, provenance.wallpaperPreview, provenance.walkthrough, provenance.walkthroughPoster].filter(Boolean)]) {
+  ...[provenance.wallpaper, provenance.wallpaperPreview, provenance.walkthrough, provenance.walkthroughPoster, provenance.walkthroughZh, provenance.walkthroughPosterZh].filter(Boolean)]) {
   const name = entry.file.includes('/') ? entry.file : `public/gallery/${entry.file}`;
   const bytes = await readFile(name);
   assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256, `Artwork differs from provenance: ${name}`);

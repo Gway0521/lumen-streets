@@ -23,7 +23,7 @@ Explore in 3D, follow the moving lights and frame a view for your screen.
 
 [**▶ Watch the walkthrough**](https://lumenstreets.feifeihome.com/gallery.html#walkthrough) · [Download MP4](public/gallery/newyork-walkthrough.mp4)
 
-Explore Lower Manhattan, show landmark names, frame a wallpaper and export a PNG. Recorded at high quality in 1080p, with English and Traditional Chinese captions; no audio.
+Explore Lower Manhattan, show landmark names, frame a wallpaper and export a PNG. Recorded at high quality in 1080p, with an English interface and captions; no audio.
 
 ## On your desktop
 

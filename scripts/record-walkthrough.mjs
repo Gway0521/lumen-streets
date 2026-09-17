@@ -6,7 +6,9 @@ import { resolve } from 'node:path';
 
 const out = resolve(process.env.QA_OUTPUT || 'artifacts/newyork-walkthrough');
 const base = process.env.QA_URL || 'http://127.0.0.1:5180/';
-const query = 'city=newyork&lng=-74.012440&lat=40.707505&zoom=15.239&pitch=44.50&bearing=0.00&glow=1&density=700&lang=zh-TW&viewLabels=1&playing=1';
+const language = process.env.WALKTHROUGH_LANG || 'en';
+if (!['en', 'zh-TW'].includes(language)) throw Error('WALKTHROUGH_LANG must be en or zh-TW');
+const query = `city=newyork&lng=-74.012440&lat=40.707505&zoom=15.239&pitch=44.50&bearing=0.00&glow=1&density=700&lang=${language}&viewLabels=1&playing=1`;
 await mkdir(`${out}/frames`, { recursive: true });
 const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true });
 const frames = [], pending = [], errors = [], chapters = [];
@@ -25,6 +27,7 @@ try {
     return a?.stream?.ready && !a.stream.busy && a.map.areTilesLoaded() && !a.layer.stats.heightStatus.some(s => ['queued','running','pending'].includes(s));
   }, null, { timeout: 300000 });
   await ready();
+  if (await page.locator('html').getAttribute('lang') !== language) throw Error('Recording interface language does not match WALKTHROUGH_LANG');
   await page.waitForTimeout(2000);
   await page.evaluate(() => {
     const style = document.createElement('style');
@@ -37,7 +40,7 @@ try {
   });
   const caption = async (zh,en) => {
     chapters.push({ seconds: start ? (Date.now()-start)/1000 : 0, zh, en });
-    await page.locator('#demo-caption').evaluate((el,[a,b])=>{el.replaceChildren(document.createTextNode(a));const s=document.createElement('small');s.textContent=b;el.append(s)},[zh,en]);
+    await page.locator('#demo-caption').evaluate((el,text)=>{el.textContent=text},language === 'en' ? en : zh);
   };
   const pause = ms => page.waitForTimeout(ms);
   async function move(x,y,ms=550){const steps=Math.ceil(ms/25);const p=await page.locator('#demo-pointer').evaluate(e=>{const b=e.getBoundingClientRect();return[b.x+b.width/2,b.y+b.height/2]});for(let i=1;i<=steps;i++){const t=i/steps;await page.mouse.move(p[0]+(x-p[0])*t,p[1]+(y-p[1])*t);await pause(25)}}
@@ -64,7 +67,7 @@ try {
   await caption('壓暗一側，為桌面圖示留白', 'Shade an edge to make room for icons');
   await click('details:has(#dim-side) > summary');await select('#dim-side','left');await pause(1300);
   await caption('加上城市名稱', 'Add a place title');
-  await click('#place-label');await click('#place-text');await page.locator('#place-text').fill('');await page.locator('#place-text').pressSequentially('紐約・下曼哈頓',{delay:120});await select('#title-corner','bottom-right');await pause(1000);
+  await click('#place-label');await click('#place-text');await page.locator('#place-text').fill('');await page.locator('#place-text').pressSequentially(language === 'en' ? 'New York · Lower Manhattan' : '紐約・下曼哈頓',{delay:language === 'en' ? 40 : 120});await select('#title-corner','bottom-right');await pause(1000);
   await caption('確認構圖', 'Preview the wallpaper');
   await click('#compose-full');await pause(2600);await click('#finish-frame');
   await caption('匯出 PNG', 'Export the wallpaper');
@@ -87,7 +90,7 @@ try {
   const probe=spawnSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',`${out}/newyork-walkthrough.mp4`],{encoding:'utf8'});
   if(probe.error || probe.status)throw probe.error || Error(probe.stderr);
   const seconds=Number(JSON.parse(probe.stdout).format.duration);
-  await writeFile(`${out}/manifest.json`,JSON.stringify({source:'Actual browser interaction recording. Bilingual chapter captions and a pointer highlight added for the demonstration; the final image is the PNG downloaded during the recording.',cameraQuery:query,width:1920,height:1080,fps:30,quality:'high',capturedFrames:frames.length,seconds,chapters:chapters.map(c=>({...c,seconds:Math.max(0,c.seconds-0.5)})),errors,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')},null,2)+'\n');
+  await writeFile(`${out}/manifest.json`,JSON.stringify({source:'Actual browser interaction recording. Chapter captions and a pointer highlight added for the demonstration; the final image is the PNG downloaded during the recording.',language,cameraQuery:query,width:1920,height:1080,fps:30,quality:'high',capturedFrames:frames.length,seconds,chapters:chapters.map(c=>({...c,seconds:Math.max(0,c.seconds-0.5)})),errors,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')},null,2)+'\n');
   console.log(`Recorded ${frames.length} frames; ${(bytes.length/1048576).toFixed(1)} MiB. Output: ${out}`);
 } finally {
   await cdp?.send('Page.stopScreencast').catch(()=>{});

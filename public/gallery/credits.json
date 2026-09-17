@@ -340,15 +340,39 @@
     "height": 1080,
     "quality": "high",
     "codec": "H.264",
-    "cameraQuery": "city=newyork&lng=-74.012440&lat=40.707505&zoom=15.239&pitch=44.50&bearing=0.00&glow=1&density=700&lang=zh-TW&viewLabels=1&playing=1",
-    "source": "Actual browser interaction recording in New York. Bilingual chapter captions and a pointer highlight added for the demonstration; the final image is the 4K PNG downloaded during the recording. Trimmed by 0.5 seconds at the start and to 40 seconds total.",
-    "sha256": "ff92d8a9089853b2492e5f1c80dc5a215838a79d9a234e009521ae4b5bdf61a0"
+    "cameraQuery": "city=newyork&lng=-74.012440&lat=40.707505&zoom=15.239&pitch=44.50&bearing=0.00&glow=1&density=700&lang=en&viewLabels=1&playing=1",
+    "source": "Actual browser interaction recording with an English interface, English chapter captions and a pointer highlight. The final image is the 4K PNG downloaded during the recording. Trimmed by 0.5 seconds at the start and to 40 seconds total.",
+    "sha256": "08eac94a1a63cc86ce0caa1adce5eeecc1c0344d0eb85836a4bd11cc12f4a09d",
+    "language": "en"
   },
   "walkthroughPoster": {
     "file": "newyork-walkthrough.jpg",
     "width": 1920,
     "height": 1080,
     "source": "Video frame at one second.",
-    "sha256": "3ad479dda23969facb27e0549bc818b8bf6e66d20cf2bfec6fe538480c6b86d1"
+    "sha256": "56fefcec09d3ba551da7fe47c37c07e633b8292b54018db9bd1d56115443edf8",
+    "language": "en"
+  },
+  "walkthroughZh": {
+    "file": "newyork-walkthrough-zh-TW.mp4",
+    "seconds": 40,
+    "frames": 1200,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "quality": "high",
+    "codec": "H.264",
+    "cameraQuery": "city=newyork&lng=-74.012440&lat=40.707505&zoom=15.239&pitch=44.50&bearing=0.00&glow=1&density=700&lang=zh-TW&viewLabels=1&playing=1",
+    "source": "Actual browser interaction recording in New York. Bilingual chapter captions and a pointer highlight added for the demonstration; the final image is the 4K PNG downloaded during the recording. Trimmed by 0.5 seconds at the start and to 40 seconds total.",
+    "sha256": "ff92d8a9089853b2492e5f1c80dc5a215838a79d9a234e009521ae4b5bdf61a0",
+    "language": "zh-TW"
+  },
+  "walkthroughPosterZh": {
+    "file": "newyork-walkthrough-zh-TW.jpg",
+    "width": 1920,
+    "height": 1080,
+    "source": "Video frame at one second.",
+    "sha256": "3ad479dda23969facb27e0549bc818b8bf6e66d20cf2bfec6fe538480c6b86d1",
+    "language": "zh-TW"
   }
 }

@@ -26,6 +26,8 @@ Preserve the [art direction](docs/ART_DIRECTION.md) and keep the 3D editor, embe
 
 The 3D interface messages live in `src/three/locales.js`; legacy player messages live in `src/locales/`; update English and Traditional Chinese together, including error and accessibility text. Map names may fall back to their source language.
 
+Public demos and walkthroughs use English interfaces, captions and example titles by default. Keep localized media in the corresponding language edition.
+
 Add tests for behaviour and regressions. Explain the need, license and bundle cost of a new dependency. Keep build output, personal paths, credentials and machine settings out of commits.
 
 ## Reporting a problem

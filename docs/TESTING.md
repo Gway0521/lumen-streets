@@ -95,7 +95,7 @@ Physical Android and iPhone runs should record loading, panning, rotation, PNG/c
 
 ## Public artwork
 
-To record the New York wallpaper walkthrough, start the development server and run `node scripts/record-walkthrough.mjs` with FFmpeg and Microsoft Edge installed. Set `BROWSER_CHANNEL=chromium` to use Playwright's installed Chromium instead, and `QA_URL` if the server uses another address. The script uses the high quality setting, records real controls with bilingual chapter captions, and exports a 4K PNG during the demonstration. Its 1080p H.264 recording and source frames go to `artifacts/newyork-walkthrough/` (override with `QA_OUTPUT`). Review the complete sequence before replacing the public MP4 and poster, then update their hashes in `public/gallery/credits.json`.
+To record the New York wallpaper walkthrough, start the development server and run `node scripts/record-walkthrough.mjs` with FFmpeg and Microsoft Edge installed. Set `BROWSER_CHANNEL=chromium` to use Playwright's installed Chromium instead, and `QA_URL` if the server uses another address. The script uses the high quality setting, records an English interface and English chapter captions by default (`WALKTHROUGH_LANG=zh-TW` selects Traditional Chinese), and exports a 4K PNG during the demonstration. Its 1080p H.264 recording and source frames go to `artifacts/newyork-walkthrough/` (override with `QA_OUTPUT`). Review the complete sequence before replacing the public MP4 and poster, then update their hashes in `public/gallery/credits.json`.
 
 With the development server running and Chromium or Edge and FFmpeg installed:
 
