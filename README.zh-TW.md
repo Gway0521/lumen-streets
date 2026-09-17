@@ -21,15 +21,11 @@
 
 [![觀看紐約桌布操作示範](public/gallery/newyork-walkthrough-zh-TW.jpg)](https://lumenstreets.feifeihome.com/gallery.html#walkthrough-zh)
 
-[**▶ 觀看操作示範**](https://lumenstreets.feifeihome.com/gallery.html#walkthrough-zh) · [下載 MP4](public/gallery/newyork-walkthrough-zh-TW.mp4)
-
-探索下曼哈頓、顯示地標名稱、調整桌布構圖，再匯出 PNG。採高畫質設定，以 1080p 錄製，附中英操作提示，無音訊。
-
 ## 放到你的桌面
 
-[![上海夜景作為 Windows 桌布，App 圖示排列在左側壓暗區域](docs/images/shanghai-desktop.png)](docs/images/shanghai-desktop.png)
+[![上海夜景作為 Windows 桌布](docs/images/shanghai-desktop.png)](docs/images/shanghai-desktop.png)
 
-*上海・黃浦江的 Windows 桌面使用實例。左側壓暗讓圖示保持清楚。[下載 4K 桌布](public/gallery/shanghai-wallpaper.png)，或[探索精選城市](docs/SHOWCASE.zh-TW.md)。*
+*上海・黃浦江的 Windows 桌面使用實例。[下載 4K 桌布](public/gallery/shanghai-wallpaper.png)，或[探索精選城市](docs/SHOWCASE.zh-TW.md)。*
 
 套用方式見[桌布指南](https://lumenstreets.feifeihome.com/wallpapers.html#zh)，格式與尺寸見[匯出選項](docs/EXPORTS.md)。
 

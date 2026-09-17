@@ -21,15 +21,11 @@ Explore in 3D, follow the moving lights and frame a view for your screen.
 
 [![Watch the New York wallpaper walkthrough](public/gallery/newyork-walkthrough.jpg)](https://lumenstreets.feifeihome.com/gallery.html#walkthrough)
 
-[**▶ Watch the walkthrough**](https://lumenstreets.feifeihome.com/gallery.html#walkthrough) · [Download MP4](public/gallery/newyork-walkthrough.mp4)
-
-Explore Lower Manhattan, show landmark names, frame a wallpaper and export a PNG. Recorded at high quality in 1080p, with an English interface and captions; no audio.
-
 ## On your desktop
 
 [![Shanghai nightscape used as a Windows desktop wallpaper, with app icons on the shaded left edge](docs/images/shanghai-desktop.png)](docs/images/shanghai-desktop.png)
 
-*Shanghai · Huangpu River on a Windows desktop. The shaded edge keeps icons readable. [Download a 4K wallpaper](public/gallery/shanghai-wallpaper.png) or [explore the featured cities](docs/SHOWCASE.md).*
+*Shanghai · Huangpu River on a Windows desktop. [Download a 4K wallpaper](public/gallery/shanghai-wallpaper.png) or [explore the featured cities](docs/SHOWCASE.md).*
 
 See the [wallpaper guide](https://lumenstreets.feifeihome.com/wallpapers.html) for setup and [export options](docs/EXPORTS.md) for formats and sizes.
 
